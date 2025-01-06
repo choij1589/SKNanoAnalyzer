@@ -7,9 +7,9 @@
     "sumsign": 19902000.0,
     "sumW": 19902000.0,
     "path": [
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8/241104_070929/0000/tree_1.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8/241104_070929/0000/tree_2.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8/241104_070929/0000/tree_3.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8/241104_070929/0000/tree_4.root"
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8/241104_070929/0000/tree_1.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8/241104_070929/0000/tree_2.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8/241104_070929/0000/tree_3.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8/241104_070929/0000/tree_4.root"
     ]
 }

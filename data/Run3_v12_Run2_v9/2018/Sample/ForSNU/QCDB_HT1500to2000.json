@@ -7,14 +7,14 @@
     "sumsign": 19902000.0,
     "sumW": 19902000.0,
     "path": [
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_1.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_2.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_3.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_4.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_5.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_6.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_7.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_8.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_9.root"
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_1.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_2.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_3.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_4.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_5.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_6.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_7.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_8.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8/241104_064256/0000/tree_9.root"
     ]
 }

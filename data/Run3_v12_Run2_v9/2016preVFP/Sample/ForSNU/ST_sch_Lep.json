@@ -7,17 +7,17 @@
     "sumsign": 3592772.0,
     "sumW": 19665602.0,
     "path": [
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_1.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_2.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_3.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_4.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_5.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_6.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_7.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_8.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_9.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_10.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_11.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_12.root"
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_1.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_2.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_3.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_4.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_5.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_6.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_7.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_8.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_9.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_10.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_11.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/240915_130501/0000/tree_12.root"
     ]
 }

@@ -7,8 +7,8 @@
     "sumsign": 530327.0,
     "sumW": 657418.8125,
     "path": [
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/240915_131343/0000/tree_1.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/240915_131343/0000/tree_2.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2018/MC/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/240915_131343/0000/tree_3.root"
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/240915_131343/0000/tree_1.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/240915_131343/0000/tree_2.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2018/MC/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/240915_131343/0000/tree_3.root"
     ]
 }

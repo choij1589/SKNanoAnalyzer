@@ -120,6 +120,52 @@ conda env create -n nano python=3.11 root=6.30.04 -c conda-forge
 conda activate nano
 pip install correctionlib
 ```
+## How to Submit the job
+
+Jobs can be submitted to htcondor using SKFlat.py
+```bash
+SKFlat.py -a AnalyzerName -i SamplePD -n number of jobs -e era
+```
+
+Basic usage is as aboves. There are some additional options for the submission:
+- -i: You can pass the sample PD using this option. This option supports the basic regex, thus,
+  ```bash
+  SKFlat.py -a Vcb_FH -i 'ST*' -n 100 -e 2022EE
+    ```
+    will submit the jobs for all the samples starting with 'ST' in the sample list. Thus, please be careful when you adding the new samples to the sample list.
+- -n: Number of jobs to submit. If you want to submit 100 jobs, you can use -n 100.
+  You can also choose to set the ***number of files for each job***. To do this, pass this argument as negative value. For example, -n -10 will submit 10 files per job. For example, if *TTLJ_powheg* sample has 1700 files, 
+  ```bash
+    SKFlat.py -a Vcb_FH -i TTLJ_powheg -n -10 -e 2022EE
+    ```
+    will submit 170 jobs with 10 files each to cluster.
+- -e: Era of the sample. You can also pass the multiple eras using comma. For example, -e 2022EE,2023 will submit the jobs for the samples in 2022EE and 2023 era.
+- -r: This argument set the run. choose Run2 or Run3. This option overrids the -e option.
+- --reduction: perform reduction by factor of input number. 
+- --memory: set the memory for the job. Default is 2GB.
+- --ncpu: set the number of cpus for the job. Default is 1.
+- --userflags: set the user flags for the job. Default is empty. to set multiple flags, use comma. e.g. --userflags flag1,flag2
+- --batchname: set the batch name for the job. Default is the analyzer name_userflags.
+- --skimming_mode: by passing this flag, SKFlat.py will submit the jobs for the skimming mode. Detailed information as follows.
+
+### Skimming mode
+By passing --skimming_mode, SKFlat.py will submit the jobs for the skimming mode. In this mode, the jobs will create the output in `$SKNANO_RUN[2,3]_NANOAODPATH/Era/[Data,MC]/Skim/$USERNAME` directory, Instead of submit hadd layer in DAG, *PostProc* layer will add in the DAG. 
+If your analyzer has name that starts with "Skim_", you will be asked to be enable the skimming mode. If you choose to enable the skimming mode, then skimming mode will be activated. Of course you can manually activate the skimming mode by passing --skimming_mode flag.
+PostProc layer will create the Skimmed sample folder and will creat the skimTreeInfo.json file and dedicated json that saves the information of the skimmed samples under $SKNANO_DATA/era/Sample/Skim directory.
+Each postproc job modify the skimTreeInfo.json sequentially, so ***DO NOT SUBMIT THE DAG CLUSTER THAT DO SKIMMING.*** After all the postproc jobs are done, you can submit the new jobs that using skimmed sample. A prefix of Skim_AnalyzerName will be added to the output file name.
+```bash
+SKFlat.py -a AnalyzerName -i DYJets -n -1 -e era --skimming_mode
+```
+or 
+```bash
+SKFlat.py -a Skim_AnalyzerName -i DYJets -n -1 -e era
+```
+Will create the Skim_AnalyzerName_DYJets (if you choose to answer "y" in latter one).
+Then you can submit the jobs by
+```bash
+SKFlat.py -a AnalyzerName -i Skim_AnalyzerName_DYJets -n -1 -e era
+```
+
 
 ## To do
 - Make ExampleRun runable -> done
@@ -178,39 +224,7 @@ SKFlat(base) -> std::vector<Muon>
 Correctionlib -> only python binding -> Youngwan will follow
     
 - history fill -> hash map in C++?
-
-## Update Notes
     
-- Modify Muon WPID because only tightest wp was saved, i. e.) isMediumPfISo() return false for TightPfIso
-- I update the commonsampleinfo.json(not txt). cross section can be stored as formula under xsec_formula. if one runs python sampleManger --updateXsec, it will evaluate xsec expression.
-- bug check 쓸일있는사람이 체크
-- But due to the ambiguos description on SM xsec @ 13.6 TeV twiki pages, some of them need updates.
-- I update the GetEffLumi.cc, python sampleManager --updateMCinfo reads the root files from $SKNANO_OUTPUT directory and automatically updates the sumW, sumsign, etc.
-- python sampleManager --fillSamplePath reads the sample path and updates the json file under forSNU
-- L1 Prefire will be added @ NanoAOD v14
-- Met Filters will be added @ NanoAOD v13 (but it seems it already stored as flag)
-- GetPUWeights() added. NOTE!: there are several vertex-related branch is stored in NanoAOD. PV_ means reconstructed vertices. nPileUp means the generator level vertices. thus this branch is not available in data. there is another branch, nTrueInt, which Out-of-time pu is not considered. PU Correction should be done by this value. useful link: https://opendata.cern.ch/docs/cms-guide-pileup-simulation
-- I modify the SKNanoLoader.cc to it respects the MC-only branches. 
-- for now, I made the json file of HLT branch and set there branch address using loop(famous nlohman-json included to our repo). my suggestion is keep this track and also managing trigger luminosity with same file. other ideas or suggestions will be appreciated.
-- and Correction updates.
--JetVetoMaps and GetCutValues are in Correction class despite they are also needed in data. It is because if there are scattered parts of code that use jsonpog-integrated path, code maintanence will make headache. how about change Correction to just 'correction'?
-- B-tagging SF method are updated. c-tagging sf's not yet available.
-- add MeasureJetTaggingEff.cc, and automated json generating code
-- add MET Filters: But have to follow this issue: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#ECal_BadCalibration_Filter_Flag(AnalyzerCore:;PassMetFilter())
-- modify kMax** -> https://github.com/cms-sw/cmssw/blob/CMSSW_13_0_X/PhysicsTools/NanoAOD/python/nanoDQM_cfi.py ?
-- add Gen, LHE
-- add puppimet
-- Compression? for  TTLJ LZMA:9-579G/Uncompressed-3.2T/ZLIB:4-1.2T
-LZMA time:  58.3945574760437
-ZLIB time:  47.72870230674744
-Uncomp time:  46.95170283317566 (my dy sample analyzer, total 70000 Event)
-- add sorting code
-- tree filling: NewTree, SetBranch, FillTrees. check implementation is correct.
-- Add JER. 
-- GenJet-Jet Matching
-- Skimming mode (both input and output.)
-- hashmap comparison: https://martin.ankerl.com/2022/08/27/hashmap-bench-01/#absl__flat_hash_map
-absl(from google), folly(from facebook) shows 3~5 times higher performance, it is worth to implement these if the writing hists is true bottleneck.
 
 ## Useful links
 - [MiniAOD](https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD)

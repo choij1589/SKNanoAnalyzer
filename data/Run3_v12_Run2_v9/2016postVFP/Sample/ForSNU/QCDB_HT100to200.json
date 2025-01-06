@@ -7,11 +7,11 @@
     "sumsign": 19637726.0,
     "sumW": 19637726.0,
     "path": [
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_1.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_2.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_3.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_4.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_5.root",
-        "/gv0/Users/yeonjoon/DATA/SKFlat/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_6.root"
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_1.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_2.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_3.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_4.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_5.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/MC/QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8/241104_062858/0000/tree_6.root"
     ]
 }
