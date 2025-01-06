@@ -40,6 +40,7 @@ TOKEN = os.environ['TOKEN_TELEGRAMBOT']
 chat_id = os.environ['USER_CHATID']
 url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}"
 SKIMMING_MODE = False
+
 ##############################
 #Load commonSampleInfo.json at start
 sampleInfoJsons = {}
