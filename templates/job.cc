@@ -1,4 +1,5 @@
 #include <algorithm>
+// Note that this is a template for MC, for data, it will automatically change uncessary lines in SKNano.py
 
 void [jobname]() {
     [analyzer] module;

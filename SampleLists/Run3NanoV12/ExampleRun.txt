@@ -1,5 +1,4 @@
 # Data
-#SingleMuon
 Muon
 # QCD
 WJets_MG

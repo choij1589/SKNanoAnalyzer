@@ -359,7 +359,7 @@ Event AnalyzerCore::GetEvent()
 
 RVec<Muon> AnalyzerCore::GetAllMuons() {
     RVec<Muon> muons;
-    for (int i = 0; i < *(nMuon); i++) {
+    for (int i = 0; i < nMuon; i++) {
         Muon muon;
         muon.SetPtEtaPhiM(Muon_pt[i], Muon_eta[i], Muon_phi[i], Muon_mass[i]);
         muon.SetCharge(Muon_charge[i]);
@@ -464,7 +464,7 @@ RVec<Muon> AnalyzerCore::SelectMuons(const RVec<Muon> &muons, const Muon::MuonID
 
 RVec<Electron> AnalyzerCore::GetAllElectrons(){
     RVec<Electron> electrons;
-    for (int i = 0; i < *(nElectron); i++){
+    for (int i = 0; i < nElectron; i++){
         Electron electron;
         electron.SetPtEtaPhiM(Electron_pt[i], Electron_eta[i], Electron_phi[i], Electron_mass[i]);
         electron.SetCharge(Electron_charge[i]);
@@ -548,35 +548,32 @@ RVec<Electron> AnalyzerCore::SelectElectrons(const RVec<Electron> &electrons, co
 }
 
 RVec<Gen> AnalyzerCore::GetAllGens(){
-
     RVec<Gen> Gens;
     if(IsDATA) return Gens;
 
-    for (int i = 0; i < *(nGenPart); i++){
-
+    for (int i = 0; i < nGenPart; i++){
         Gen gen;
-
         gen.SetIsEmpty(false);
         gen.SetPtEtaPhiM(GenPart_pt[i], GenPart_eta[i], GenPart_phi[i], GenPart_mass[i]);
         gen.SetIndexPIDStatus(i, GenPart_pdgId[i], GenPart_status[i]);
-        if(Run == 3){
-            gen.SetMother(GenPart_genPartIdxMother[i]);
-            gen.SetGenStatusFlags(GenPart_statusFlags[i]);
-        }
-        else if(Run == 2){
-            gen.SetMother(static_cast<short>(GenPart_genPartIdxMother_RunII[i]));
-            gen.SetGenStatusFlags(static_cast<unsigned short>(GenPart_statusFlags_RunII[i])); 
-        }
-
+        //if(Run == 3){
+        gen.SetMother(GenPart_genPartIdxMother[i]);
+        gen.SetGenStatusFlags(GenPart_statusFlags[i]);
+        //}
+        //else if(Run == 2){
+        //    gen.SetMother(static_cast<short>(GenPart_genPartIdxMother_RunII[i]));
+        //    gen.SetGenStatusFlags(static_cast<unsigned short>(GenPart_statusFlags_RunII[i])); 
+        //}
         Gens.push_back(gen);
     }
-
     return Gens;
 }
 
 RVec<LHE> AnalyzerCore::GetAllLHEs() {
     RVec<LHE> lhes;
-    for (int i = 0; i < *(nLHEPart); i++) {
+    if(IsDATA) return lhes;
+
+    for (int i = 0; i < nLHEPart; i++) {
         LHE lhe;
         lhe.SetPtEtaPhiM(LHEPart_pt[i], LHEPart_eta[i], LHEPart_phi[i], LHEPart_mass[i]);
         lhe.SetStatus(LHEPart_status[i]);
@@ -589,11 +586,8 @@ RVec<LHE> AnalyzerCore::GetAllLHEs() {
 }
 
 RVec<Tau> AnalyzerCore::GetAllTaus(){
-
     RVec<Tau> taus;
-    
-    for (int i = 0; i < *(nTau); i++) {
-
+    for (int i = 0; i < nTau; i++) {
         Tau tau;
         tau.SetPtEtaPhiM(Tau_pt[i], Tau_eta[i], Tau_phi[i], Tau_mass[i]);
         tau.SetdXY(Tau_dxy[i]);
@@ -617,11 +611,8 @@ RVec<Tau> AnalyzerCore::GetAllTaus(){
         }
         tau.SetIdDecayModeNewDMs(Tau_idDecayModeNewDMs[i]);
         taus.push_back(tau);
-
     }
-
     return taus;
-
 }
 
 RVec<Tau> AnalyzerCore::SelectTaus(const RVec<Tau> &taus, const TString ID, const float ptmin, const float absetamax) const{
@@ -634,16 +625,13 @@ RVec<Tau> AnalyzerCore::SelectTaus(const RVec<Tau> &taus, const TString ID, cons
         if (! (fabs(tau.Eta()) < absetamax)) continue;
         if (! tau.PassID(ID)) continue;
         selected_taus.push_back(tau);
-
     }
-
     return selected_taus;
-
 }
 
 RVec<Jet> AnalyzerCore::GetAllJets() {
     RVec<Jet> Jets;
-    for (int i = 0; i < *(nJet); i++)
+    for (int i = 0; i < nJet; i++)
     {
         Jet jet;
         jet.SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i], Jet_mass[i]);
@@ -709,7 +697,7 @@ RVec<Jet> AnalyzerCore::GetAllJets() {
 
 RVec<Photon> AnalyzerCore::GetAllPhotons() {
     RVec<Photon> Photons;
-    for (int i = 0; i< *(nPhoton); i++) {
+    for (int i = 0; i< nPhoton; i++) {
         Photon photon;
         photon.SetPtEtaPhiE(Photon_pt[i], Photon_eta[i], Photon_phi[i], 1.0);
         float photon_theta = photon.Theta();
@@ -841,7 +829,7 @@ RVec<FatJet> AnalyzerCore::GetAllFatJets() {
     
     RVec<FatJet> FatJets;
 
-    for (int i = 0; i < *(nFatJet); i++) {
+    for (int i = 0; i < nFatJet; i++) {
 
         FatJet fatjet;
 
@@ -898,15 +886,15 @@ RVec<GenJet> AnalyzerCore::GetAllGenJets() {
     RVec<GenJet> GenJets;
     if(IsDATA) return GenJets;
 
-    for (int i = 0; i < *(nGenJet); i++) {
+    for (int i = 0; i < nGenJet; i++) {
 
         GenJet genjet;
 
         genjet.SetPtEtaPhiM(GenJet_pt[i], GenJet_eta[i], GenJet_phi[i], GenJet_mass[i]);
-        if(Run == 3)
+        //if(Run == 3)
         genjet.SetGenFlavours(GenJet_partonFlavour[i], GenJet_hadronFlavour[i]);
-        else if(Run == 2)
-        genjet.SetGenFlavours(static_cast<short>(GenJet_partonFlavour_RunII[i]), GenJet_hadronFlavour[i]); 
+        //else if(Run == 2)
+        //genjet.SetGenFlavours(static_cast<short>(GenJet_partonFlavour_RunII[i]), GenJet_hadronFlavour[i]); 
         GenJets.push_back(genjet);
     }
 

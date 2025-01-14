@@ -16,6 +16,9 @@ public :
     inline int Status() const { return j_status; }
     inline void SetPdgId (int pdgId) { j_pdgId = pdgId; }
     inline int PdgId() const { return j_pdgId; }
+
+    virtual void Print() const;
+
 private :
     float j_incomingPz;
     int j_spin;

@@ -360,10 +360,7 @@ def pythonJobProducer(era, sample, argparse, masterJobDirectory, userflags, isam
         job_content = job_content.replace("[SAMPLEPATHS]", samplepaths_str)
 
         # Handle reduction/max events
-        if reduction > 1:
-            maxevent_str = f'\tmodule.MaxEvent = std::max(1, static_cast<int>(module.fChain->GetEntries()/{int(reduction)}));'
-        else:
-            maxevent_str = ""
+        maxevent_str = f'\tmodule.MaxEvent = std::max(1, static_cast<int>(module.fChain->GetEntries()/{int(reduction)}));'
         job_content = job_content.replace("[MAXEVENT]", maxevent_str)
 
         # Set output path
