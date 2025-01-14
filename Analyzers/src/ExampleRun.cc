@@ -23,11 +23,11 @@ void ExampleRun::initializeAnalyzer() {
     // "TString IsoMuTriggerName;" and "float TriggerSafePtCut;" are defined in Analyzers/include/ExampleRun.h
     // IsoMuTriggerName is an era-dependent variable, which is used throhughout the events(let's make it global variable)
     if (DataEra == "2022") {
-        IsoMuTriggerName = "";
+        IsoMuTriggerName = "HLT_IsoMu24";
         TriggerSafePtCut = 26.;
     }
     else if (DataEra == "2022EE") {
-        IsoMuTriggerName = "";
+        IsoMuTriggerName = "HLT_IsoMu24";
         TriggerSafePtCut = 26.;
     }
     else if (DataEra == "2023") {
@@ -162,7 +162,8 @@ void ExampleRun::executeEventFromParameter(ExampleParameter param) {
     // No MET filter for NanoAODv12? 
     Event ev = GetEvent();
     //Particle METv = ev.GetMETVector()
-    //if (! (ev.PassTrigger(IsoMuTriggerName))) return;
+    //cout << "[ExampleRun::executeEventFromParameter] PassTrigger = " << ev.PassTrigger(IsoMuTriggerName) << endl;
+    if (! (ev.PassTrigger(IsoMuTriggerName))) return;
     
 
     // Copy All objects
@@ -222,5 +223,5 @@ void ExampleRun::executeEventFromParameter(ExampleParameter param) {
     }
 
     // fill histograms
-    FillHist(param.Name+"/ZCand_Mass_"+param.Name, ZCand.M(), weight, 40, 70., 100.);
+    FillHist(param.Name+"/ZCand_Mass_"+param.Name, ZCand.M(), weight, 50, 70., 110.);
 }

@@ -31,8 +31,16 @@ echo "@@@@ Package: $PACKAGE"
 # no cvmfs related configuration for conda
 if [ $PACKAGE = "conda" ]; then
     echo "@@@@ Primary environment using conda"
-    source /data9/Users/choij/miniconda3/bin/activate
-    conda activate nano
+    # Check if running in a Singularity container
+    IS_SINGULARITY=$(env | grep -i singularity)
+    if [ -n "$IS_SINGULARITY" ]; then
+        echo "@@@@ Detected Singularity environment"
+        source /opt/conda/bin/activate
+        conda activate torch
+    else
+        source /data9/Users/choij/miniconda3/bin/activate
+        conda activate nano
+    fi
 elif [ $PACKAGE = "mamba" ]; then
     # set up mamba environment
     micromamba activate Nano
