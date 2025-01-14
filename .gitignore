@@ -4,6 +4,7 @@ test/*
 test.root
 CMakeFiles/*
 external/lhapdf/*
+external/libtorch/*
 config/config.*
 **/Skim*.json
 external/** 

@@ -3,14 +3,12 @@
 ClassImp(Gen)
 
 Gen::Gen() : Particle() {
-
     j_IsEmpty = true;
     j_index = -1;
     j_PID = 0;
     j_status = 0;
     j_mother_index = -1;
-    j_status_flags = -1;
-    
+    j_status_flags = -1;   
 }
 
 Gen::~Gen() {}

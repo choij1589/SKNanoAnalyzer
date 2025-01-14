@@ -5,10 +5,11 @@ echo -e "\033[31m######################################################\033[0m"
 echo ""
 
 # Set up environment
-echo "@@@@ Working Directory: `pwd`"
-export SKNANO_HOME=`pwd`
-export SKNANO_RUNLOG="$GV0/SKNanoRunlog"
-export SKNANO_OUTPUT="$GV0/SKNanoOutput"
+#export SKNANO_HOME=`pwd`
+export SKNANO_HOME="/data9/Users/choij/SKNanoAnalyzer"
+export SKNANO_RUNLOG="/gv0/Users/choij/SKNanoRunlog"
+export SKNANO_OUTPUT="/gv0/Users/choij/SKNanoOutput"
+echo "@@@@ Working Directory: $SKNANO_HOME"
 
 # check configuration
 CONFIG_FILE=$SKNANO_HOME/config/config.$USER
@@ -30,9 +31,16 @@ echo "@@@@ Package: $PACKAGE"
 # no cvmfs related configuration for conda
 if [ $PACKAGE = "conda" ]; then
     echo "@@@@ Primary environment using conda"
-    source ~/.conda-activate
-    conda activate nano
-    #micromamba activate Nano
+    # Check if running in a Singularity container
+    IS_SINGULARITY=$(env | grep -i singularity)
+    if [ -n "$IS_SINGULARITY" ]; then
+        echo "@@@@ Detected Singularity environment"
+        source /opt/conda/bin/activate
+        conda activate torch
+    else
+        source /data9/Users/choij/miniconda3/bin/activate
+        conda activate nano
+    fi
 elif [ $PACKAGE = "mamba" ]; then
     # set up mamba environment
     micromamba activate Nano

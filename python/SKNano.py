@@ -1,32 +1,27 @@
 #!/usr/bin/env python3
-###########################################################
-###########This is Developement version####################
-###########################################################
-
 #This it the preliminary version of SKFlat.py
 #Using htcondor python binding and DAGMAN workflow manager
-import os
+import os, shutil
+import warnings
 import argparse
 import htcondor
-from htcondor import dags
-dag = dags.DAG()
 import datetime
-from itertools import product
 import json
-from time import sleep
-from multiprocessing import Pool
-import requests
 import re
+
+from htcondor import dags
 from tqdm.rich import tqdm
-import warnings
 from tqdm import TqdmExperimentalWarning
+
+from templates.job_dict import main_job, hadd_job, final_job
+
+dag = dags.DAG()
 warnings.simplefilter("ignore", TqdmExperimentalWarning)
-
-
 
 ##############################
 #Global Variables
 ##############################
+SKNANO_HOME = os.environ['SKNANO_HOME']
 SKNANO_RUNLOG = os.environ['SKNANO_RUNLOG']
 SKNANO_OUTPUT = os.environ['SKNANO_OUTPUT']
 SKNANO_DATA = os.environ['SKNANO_DATA']
@@ -174,11 +169,12 @@ def setParser():
     parser.add_argument('--nmax', dest='NMax', default=300, type=int, help="maximum running jobs")
     parser.add_argument('--reduction', dest='Reduction', default=1, type=float)
     parser.add_argument('--memory', dest='Memory', default=2048, type=float)
-    parser.add_argument('--ncpu',dest='ncpu',default=1,type=int) 
-    parser.add_argument('--batchname',dest='BatchName', default="")
-    parser.add_argument('--skimming_mode',action='store_true',default=False,help="Enable this option when anlyzer is skimmer.")
+    parser.add_argument('--ncpu', dest='ncpu', default=1, type=int) 
+    parser.add_argument('--batchname', dest='BatchName', default="")
+    parser.add_argument('--skimming_mode', action='store_true', default=False, help="Enable this option when anlyzer is skimmer.")
+    parser.add_argument('--no_exec', action='store_true', default=False, help="only produce working area, not submitting to the condor pool")
     
-    #Note: this option will change the behavior of the script. output directory will be changed to Your GV0, hadd will be disabled, and will creat the info json of skimmed tree   
+    #Note: this option will change the behavior of the script. output directory will be changed to Your GV0, hadd will be disabled, and will create the info json of skimmed tree   
     return parser
 
 def getMasterDirectoryName(timeStamp, Analyzer, Userflags):
@@ -186,12 +182,13 @@ def getMasterDirectoryName(timeStamp, Analyzer, Userflags):
     if len(Userflags) > 0:
         for flag in Userflags:
             MasterDirectoryName += f"_{flag}"
-    print(f"Creating Master Working Directory: {MasterDirectoryName}")
     abs_MasterDirectoryName = os.path.join(SKNANO_RUNLOG,MasterDirectoryName)
-    print(f"Copy library files to {MasterDirectoryName.split('/')}")
-    os.makedirs(abs_MasterDirectoryName)
-    os.system(f"cp -r {SKNANO_INSTALLDIR} {abs_MasterDirectoryName}")
-    print("...Done")
+    print(f"Creating Master Working Directory: {abs_MasterDirectoryName}")
+    #print(f"Copy library files to {MasterDirectoryName.split('/')}")
+    #os.makedirs(abs_MasterDirectoryName)
+    shutil.copytree(SKNANO_INSTALLDIR, abs_MasterDirectoryName) 
+    #os.system(f"cp -r {SKNANO_INSTALLDIR} {abs_MasterDirectoryName}")
+    #print("...Done")
     return MasterDirectoryName, abs_MasterDirectoryName
 
 def getInputSampleList(inputArguments, eras):
@@ -314,7 +311,6 @@ def pythonJobProducer(era, sample, argparse, masterJobDirectory, userflags, isam
         sampleInfo = sampleInfoJsons[era][SkimInfo['PD']]
         samplePaths = json.load(open(os.path.join(SKNANO_DATA,era,'Sample','Skim',sample+'.json')))['path']
         sample = SkimInfo['PD']
-        
     else:
         sampleInfo = sampleInfoJsons[era][sample if isMC else re.sub(f"_{period}$", "", sample)]
         samplePaths = json.load(open(os.path.join(SKNANO_DATA,era,'Sample','ForSNU',sample+'.json')))['path']
@@ -326,63 +322,52 @@ def pythonJobProducer(era, sample, argparse, masterJobDirectory, userflags, isam
 
     for i in tqdm(range(totalNumberOfJobs), position=1, leave=False, desc=f"Creating Jobs for {sample}, ({isample}/{totsamples})", smoothing=1.):
         output = out_base.replace('.root',f'_{i+1}.root')
-        cpp_lines = [
-            "#include <algorithm>",
-            f"void job{i+1}() {{",
-            f"    {argparse.Analyzer} module;",
-            '    module.SetTreeName("Events");',
-            '    module.LogEvery = 1000;',
-        ]
 
-        if isMC:
-            cpp_lines += [
-                '    module.IsDATA = false;',
-                f'    module.MCSample = "{sample}";',
-                f'    module.xsec = {sampleInfo["xsec"]};',
-                f'    module.sumW = {sampleInfo["sumW"]};',
-                f'    module.sumSign = {sampleInfo["sumsign"]};',
-            ]
-        else:
-            cpp_lines += [
-                '    module.IsDATA = true;',
-                f'    module.DataStream = "{sample.split("_")[0]}";',
-            ]
-
-        cpp_lines += [
-            f'    module.SetEra("{era}");',
-        ]
-
-        if userflags:
-            cpp_lines.append("    module.Userflags = {")
-            cpp_lines += [f'        "{flag}",' for flag in userflags]
-            cpp_lines.append("    };")
-
-        for path in samplePaths[i]:
-            cpp_lines.append(f'    module.AddFile("{path}");')
-
-        cpp_lines += [
-            f'    module.SetOutfilePath("{output}");',
-        ]
-
-        if reduction > 1:
-            cpp_lines.append(
-                f'    module.MaxEvent = std::max(1, static_cast<int>(module.fChain->GetEntries()/{int(reduction)}));'
-            )
-
-        cpp_lines += [
-            "    module.Init();",
-            "    module.initializeAnalyzer();",
-            "    module.Loop();",
-            "    module.WriteHist();",
-            "}",
-        ]
-
-        cpp_content = "\n".join(cpp_lines)
-        job_filename = os.path.join(working_dir, f"job{i+1}.cpp")
-        with open(job_filename, 'w') as f:
-            f.write(cpp_content)
-
+        # Read the template file
+        template_path = os.path.join(SKNANO_HOME, "templates", "job.cc")
+        with open(template_path, 'r') as f:
+            job_content = f.read()
+            
+        # Replace template variables
+        job_content = job_content.replace("[jobname]", f"job_{i+1}")
+        job_content = job_content.replace("[analyzer]", argparse.Analyzer)
+        job_content = job_content.replace("[sample]", sample)
+        job_content = job_content.replace("[era]", era)
         
+        if isMC:
+            job_content = job_content.replace("[xsec]", str(sampleInfo["xsec"]))
+            job_content = job_content.replace("[sumW]", str(sampleInfo["sumW"]))
+            job_content = job_content.replace("[sumSign]", str(sampleInfo["sumsign"]))
+        else:
+            # For data, remove MC-specific lines
+            job_content = job_content.replace("module.IsDATA = false;", "module.IsDATA = true;")
+            job_content = job_content.replace('module.MCSample = "[sample]";', f'module.DataStream = "{sample.split("_")[0]}";')
+            job_content = job_content.replace("module.xsec = [xsec];", "")
+            job_content = job_content.replace("module.sumW = [sumW];", "") 
+            job_content = job_content.replace("module.sumSign = [sumSign];", "")
+
+        # Handle userflags
+        if userflags:
+            userflags_str = "module.Userflags = {\n"
+            userflags_str += "".join([f'\t"{flag}",\n' for flag in userflags])
+            userflags_str += "    };"
+        else:
+            userflags_str = ""
+        job_content = job_content.replace("[USERFLAGS]", userflags_str)
+
+        # Handle sample paths
+        samplepaths_str = "\n".join([f'\tmodule.AddFile("{path}");' for path in samplePaths[i]])
+        job_content = job_content.replace("[SAMPLEPATHS]", samplepaths_str)
+
+        # Handle reduction/max events
+        maxevent_str = f'\tmodule.MaxEvent = std::max(1, static_cast<int>(module.fChain->GetEntries()/{int(reduction)}));'
+        job_content = job_content.replace("[MAXEVENT]", maxevent_str)
+
+        # Set output path
+        job_content = job_content.replace("[output]", output)
+        job_filename = os.path.join(working_dir, f"job_{i+1}.cc")
+        with open(job_filename, 'w') as f:
+            f.write(job_content)
             
     return working_dir, totalNumberOfJobs
             
@@ -400,7 +385,7 @@ def makeMainAnalyzerJobs(working_dir,abs_MasterDirectoryName,totalNumberOfJobs, 
     libpath = os.environ['LD_LIBRARY_PATH']
     libpath = libpath.split(":")
     libpath = [x for x in libpath if x != SKNANO_LIB]
-    libpath = [os.path.join(abs_MasterDirectoryName,'install/lib')]+libpath
+    libpath = [os.path.join(abs_MasterDirectoryName,'lib')]+libpath
     libpath = ":".join(libpath)
     if 'ROOT_INCLUDE_PATH' not in os.environ:
         inclpath = ""
@@ -408,39 +393,30 @@ def makeMainAnalyzerJobs(working_dir,abs_MasterDirectoryName,totalNumberOfJobs, 
         inclpath = os.environ['ROOT_INCLUDE_PATH']
     inclpath = inclpath.split(":")
     inclpath = [x for x in inclpath if SKNANO_INSTALLDIR.split("/")[-1] not in x]
-    inclpath = inclpath + [os.path.join(abs_MasterDirectoryName,'install/include')]
-    inclpath = ":".join(inclpath)
+    inclpath = inclpath + [os.path.join(abs_MasterDirectoryName,'include')]
+    inclpath = inclpath[-1] if len(inclpath) == 2 else ":".join(inclpath)
     
-    
+    template_path = os.path.join(SKNANO_HOME, "templates", "run.sh")
+    with open(template_path, 'r') as f:
+        run_content = f.read()
+    run_content = run_content.replace("[SKNANO_HOME]", SKNANO_HOME)
+    run_content = run_content.replace("[SKNANO_DATA]", SKNANO_DATA)
+    run_content = run_content.replace("[WORKDIR]", working_dir)
+    run_content = run_content.replace("[SKNANO_RUNLOG_LIB]", os.path.join(abs_MasterDirectoryName, 'lib'))
+    #run_content = run_content.replace("[LD_LIBRARY_PATH]", libpath)
+    run_content = run_content.replace("[ROOT_INCLUDE_PATH]", inclpath)
     with open(os.path.join(working_dir,"run.sh"),'w') as f:
-        f.writelines("#!/bin/sh\n")
-        f.writelines(f"cd {working_dir}\n") 
-        f.writelines(f"export SKNANO_LIB=""\n")
-        f.writelines(f"export ROOT_HIST=0\n") 
-        f.writelines(f"export LD_LIBRARY_PATH=""\n")
-        f.writelines(f"export LD_LIBRARY_PATH={libpath}\n")
-        f.writelines(f"export ROOT_INCLUDE_PATH=\n")
-        f.writelines(f"export ROOT_INCLUDE_PATH={inclpath}\n")
-        #f.writelines(f"python3 job$1.py\n")
-        f.writelines(f"root -l -b -q job$1.cpp\n")
-        f.writelines(f"exit $?\n")
+        f.write(run_content)
 
     #submit condor jobs
-    job_dict = {}
-    job_dict['executable'] = os.path.join(working_dir,"run.sh")
+    job_dict = main_job.copy()
     job_dict['JobBatchName'] = f"{batchname}_{working_dir.split('/')[-1]}_{working_dir.split('/')[-2]}"
-    job_dict['universe'] = "vanilla"
-    job_dict['getenv'] = "True"
+    job_dict['executable'] = os.path.join(working_dir,"run.sh")
     job_dict['RequestMemory'] = f'ifthenelse(isUndefined(MemoryUsage),{memory},(MemoryUsage * 2))' # 2 times of memory usage
     job_dict['RequestCpus'] = ncpu
-    job_dict['arguments'] = "$(Process)"
-    job_dict['output'] = os.path.join(working_dir,"job$(Process).out")
-    job_dict['error'] = os.path.join(working_dir,"job$(Process).err")
-    job_dict['should_transfer_files'] = "YES"
-    job_dict['when_to_transfer_output'] = "ON_EXIT"
+    job_dict['output'] = os.path.join(working_dir,"job_$(Process).out")
+    job_dict['error'] = os.path.join(working_dir,"job_$(Process).err")
     job_dict['concurrency_limits'] = f"n{nmax}.{username}"
-    job_dict['periodic_release'] = '(NumJobStarts < 5) && (HoldReasonCode == 34 || HoldReasonCode == 21) && (JobStatus == 5)' # periodic release for 3 times // Held reason is lack of memeory // JobStatus is Hold // https://research.cs.wisc.edu/htcondor/manual/v8.5/12_Appendix_A.html
-
     
     return job_dict
 
@@ -453,24 +429,20 @@ def makeHaddJobs(working_dir,argparser,sample):
     hadd_target = os.path.join(SKNANO_OUTPUT,AnalyzerName,era,sample+'.root')
     if not os.path.exists(os.path.dirname(hadd_target)):
         os.makedirs(os.path.dirname(hadd_target))
-    
+
+    template_path = os.path.join(SKNANO_HOME, "templates", "hadd.sh")
+    with open(template_path, 'r') as f:
+        hadd_content = f.read()
+    hadd_content = hadd_content.replace("[WORKDIR]", working_dir)
+    hadd_content = hadd_content.replace("[TARGET]", hadd_target)
     with open(os.path.join(working_dir,"hadd.sh"),'w') as f:
-        f.writelines("#!/bin/bash\n")
-        f.writelines(f"cd {working_dir}\n")
-        f.writelines(f"hadd -f -j 8 {hadd_target} output/hists_*.root\n")
+        f.write(hadd_content)
         
-    job_dict = {}
+    job_dict = hadd_job.copy()
     job_dict['executable'] = os.path.join(working_dir,"hadd.sh")
     job_dict['JobBatchName'] = f"Hadd_{working_dir.split('/')[-1]}_{working_dir.split('/')[-2]}"
-    job_dict['universe'] = "vanilla"
-    job_dict['getenv'] = "True"
-    job_dict['RequestCpus'] = 8
-    job_dict['RequestMemory'] = 8192
     job_dict['output'] = os.path.join(working_dir,"hadd.out")
     job_dict['error'] = os.path.join(working_dir,"hadd.err")
-    job_dict['should_transfer_files'] = "YES"
-    job_dict['when_to_transfer_output'] = "ON_EXIT"
-    job_dict['periodic_release'] = '(NumJobStarts < 3) && (HoldReasonCode == 34 || HoldReasonCode == 21) && (JobStatus == 5)' # periodic release for 3 times // Held reason is lack of memeory // JobStatus is Hold // https://research.cs.wisc.edu/htcondor/manual/v8.5/12_Appendix_A.html
 
     return job_dict
 
@@ -514,13 +486,9 @@ def makeSkimPostProcsJobs(working_dir,sample, argparser,era):
 
 
 def getEachAnalyzerToPostDag(kwarg):
-    era = kwarg['era']
-    sample = kwarg['sample']
     analyzer_sub_dict = kwarg['analyzer_sub_dict']
     hadd_sub_dict = kwarg['hadd_sub_dict']
     totalNumberOfJobs = kwarg['totalNumberofJobs']
-
-    working_dir = kwarg['working_dir']
     batchname = kwarg['batchname']
     
     if totalNumberOfJobs == 0:
@@ -544,28 +512,26 @@ def getFinalDag(hadd_layer_dicts,skim_postproc_layers,master_dir,argparser):
     userflags = getUserFlagsList(args.Userflags)
     if batchname == "":
         batchname = argparser.Analyzer
-        if len(userflags) > 0:
-            for flag in userflags:
-                batchname += f"_{flag}"
+        batchname += "_".join(userflags) if userflags else ""
                 
     dag_dir = os.path.join(master_dir,"dags")
     os.makedirs(dag_dir)
 
-    job_dict = {}
+    job_dict = final_job.copy()
     job_dict['executable'] = os.path.join(dag_dir,"final.sh")
-    job_dict['JobBatchName'] = f"Summarize"
-    job_dict['universe'] = "vanilla"
-    job_dict['getenv'] = "True"
-    job_dict['RequestMemory'] = 1024
     job_dict['output'] = os.path.join(dag_dir,"final.out")
     job_dict['error'] = os.path.join(dag_dir,"final.err")
-    job_dict['should_transfer_files'] = "YES"
-    job_dict['when_to_transfer_output'] = "ON_EXIT"
-    
+
+    final_content = os.path.join(SKNANO_HOME, "templates", "final.sh")  
+    with open(final_content, 'r') as f:
+        final_content = f.read()
+    final_content = final_content.replace("[DAGDIR]", dag_dir)
+    final_content = final_content.replace("[SKNANO_PYTHON]", os.environ['SKNANO_PYTHON'])
+    final_content = final_content.replace("[TOKEN]", TOKEN)
+    final_content = final_content.replace("[CHATID]", chat_id)
+    final_content = final_content.replace("[MASTERDIR]", master_dir)
     with open(os.path.join(dag_dir,"final.sh"),'w') as f:
-        f.writelines("#!/bin/bash\n")
-        f.writelines(f"cd {dag_dir}\n")
-        f.writelines(f"python3 {os.environ['SKNANO_PYTHON']}/JobReporter.py --TOKEN {TOKEN} --chatID {chat_id} --master_dir {master_dir}\n")
+        f.write(final_content)
     
     dag = dags.DAG()
     finaldag = dags.DAG()
@@ -623,21 +589,16 @@ def getFinalDag(hadd_layer_dicts,skim_postproc_layers,master_dir,argparser):
             f.writelines(f"{key} = {value}\n")
         f.writelines(f"queue\n")
 
-    
-
     print(dag.describe())
     print(finaldag.describe())
-        
-    
     finalDag_file = dags.write_dag(finaldag,dag_dir,'finaldag.dag')
-    
-    os.chdir(dag_dir)
-    finalDag_submit = htcondor.Submit.from_dag(str(finalDag_file),{"force":1,"include_env":','.join(list(os.environ.keys())),"batch-name":batchname}) 
-    cluster_id = htcondor.Schedd().submit(finalDag_submit).cluster()
-    print(f"DAGMan job cluster is {cluster_id}")
 
-    
-    
+    if not args.no_exec:
+        os.chdir(dag_dir)
+        finalDag_submit = htcondor.Submit.from_dag(str(finalDag_file),{"force":1,"include_env":','.join(list(os.environ.keys())),"batch-name":batchname}) 
+        cluster_id = htcondor.Schedd().submit(finalDag_submit).cluster()
+        print(f"DAGMan job cluster is {cluster_id}")
+
     
 if __name__ == '__main__':
     parser = setParser()

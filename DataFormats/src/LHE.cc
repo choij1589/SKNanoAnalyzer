@@ -9,4 +9,8 @@ LHE::LHE() : Particle()
     j_status = -999;
 }
 
+void LHE::Print() const {
+    cout << "LHE: " << Pt() << ", " << Eta() << ", " << Phi() << ", " << M() << endl;
+}
+
 LHE::~LHE() {}
