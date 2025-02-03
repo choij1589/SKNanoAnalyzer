@@ -9,13 +9,22 @@ echo ""
 export SKNANO_HOME=`pwd`
 export SKNANO_RUNLOG="/gv0/Users/$USER/SKNanoRunlog"
 export SKNANO_OUTPUT="/gv0/Users/$USER/SKNanoOutput"
-echo "@@@@ Working Directory: $SKNANO_HOME"
+echo -e "\033[33m@@@@ Working Directory: $SKNANO_HOME\033[0m"
+
+# check os
+if [[ "$(uname)" == "Darwin" ]]; then
+    export SYSTEM="osx"
+elif [[ -f "/etc/redhat-release" ]]; then
+    export SYSTEM="redhat"
+else
+    echo "Unsupported OS"
+    return 1
+fi
 
 # check configuration
 CONFIG_FILE=$SKNANO_HOME/config/config.$USER
 if [ -f "${CONFIG_FILE}" ]; then
     echo "@@@@ Reading configuration from $CONFIG_FILE"
-    SYSTEM=$(grep '\[SYSTEM\]' "${CONFIG_FILE}" | cut -d' ' -f2)
     PACKAGE=$(grep '\[PACKAGE\]' "${CONFIG_FILE}" | cut -d' ' -f2)
     export TOKEN_TELEGRAMBOT=$(grep '\[TOKEN_TELEGRAMBOT\]' "${CONFIG_FILE}" | cut -d' ' -f2)
     export USER_CHATID=$(grep '\[USER_CHATID\]' "${CONFIG_FILE}" | cut -d' ' -f2)
@@ -24,11 +33,11 @@ else
     echo "@@@@ Configuration file $CONFIG_FILE not found"
     echo "@@@@ Please create a configuration file in config/ with your username"
 fi
-echo "@@@@ System:  $SYSTEM"
-echo "@@@@ Package: $PACKAGE"
-echo "@@@@ Telegram Bot Token: $TOKEN_TELEGRAMBOT"
-echo "@@@@ Telegram Chat ID: $USER_CHATID"
-echo "@@@@ Using singularity image: $SINGULARITY_IMAGE"
+echo -e "\033[33m@@@@ System:  $SYSTEM\033[0m"
+echo -e "\033[33m@@@@ Package: $PACKAGE\033[0m"
+echo -e "\033[33m@@@@ Telegram Bot Token: $TOKEN_TELEGRAMBOT\033[0m"
+echo -e "\033[33m@@@@ Telegram Chat ID: $USER_CHATID\033[0m"
+echo -e "\033[33m@@@@ Using singularity image: $SINGULARITY_IMAGE\033[0m"
 
 # ROOT Package Settings
 if [ $PACKAGE = "conda" ]; then
@@ -56,7 +65,7 @@ else
     echo "@@@@ Package not recognized"
     echo "@@@@ Please check configuration file in config/config.$USER"
 fi
-echo "@@@@ ROOT path: $ROOTSYS"
+echo -e "\033[33m@@@@ ROOT path: $ROOTSYS\033[0m"
 
 
 export SKNANO_VERSION="Run3_v12_Run2_v9"
@@ -65,8 +74,8 @@ mkdir -p $SKNANO_DATA
 
 export SKNANO_BIN=$SKNANO_HOME/bin
 export SKNANO_PYTHON=$SKNANO_HOME/python
-export SKNANO_BUILDDIR=$SKNANO_HOME/build
-export SKNANO_INSTALLDIR=$SKNANO_HOME/install
+export SKNANO_BUILDDIR=$SKNANO_HOME/build/$SYSTEM
+export SKNANO_INSTALLDIR=$SKNANO_HOME/install/$SYSTEM
 export PATH=$SKNANO_PYTHON:$PATH
 export PYTHONPATH=$PYTHONPATH:$SKNANO_PYTHON
 export SKNANO_LIB=$SKNANO_INSTALLDIR/lib
@@ -78,7 +87,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SKNANO_LIB
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$SKNANO_LIB
 
 # setting LHAPDFs
-if [[ ! -d "external/lhapdf" ]]; then
+if [[ ! -d "external/lhapdf/$SYSTEM" ]]; then
     echo "@@@@ Installing LHAPDF for conda environment"
     ./scripts/install_lhapdf.sh
     if [ $? -ne 0 ]; then
@@ -86,20 +95,19 @@ if [[ ! -d "external/lhapdf" ]]; then
         return 1
     fi
 fi
-export PATH=$PATH:$SKNANO_HOME/external/lhapdf/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SKNANO_HOME/external/lhapdf/lib
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$SKNANO_HOME/external/lhapdf/lib
+export PATH=$PATH:$SKNANO_HOME/external/lhapdf/$SYSTEM/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SKNANO_HOME/external/lhapdf/$SYSTEM/lib
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$SKNANO_HOME/external/lhapdf/$SYSTEM/lib
 export LHAPDF_DATA_PATH=$SKNANO_HOME/external/lhapdf/data
 export LHAPDF_INCLUDE_DIR=`lhapdf-config --incdir`
 export LHAPDF_LIB_DIR=`lhapdf-config --libdir`
 
-echo "@@@@ LHAPDF include: $LHAPDF_INCLUDE_DIR"
-echo "@@@@ LHAPDF lib: $LHAPDF_LIB_DIR"
-echo "@@@@ reading data from $LHAPDF_DATA_PATH"
+echo -e "\033[33m@@@@ LHAPDF include: $LHAPDF_INCLUDE_DIR\033[0m"
+echo -e "\033[33m@@@@ LHAPDF lib: $LHAPDF_LIB_DIR\033[0m"
+echo -e "\033[33m@@@@ reading data from $LHAPDF_DATA_PATH\033[0m"
 
 # setting up libtorch
 if [[ ! -d "external/libtorch" ]]; then
-    echo "@@@@ Installing LibTorch"
     ./scripts/install_libtorch.sh
     if [ $? -ne 0 ]; then
         echo -e "\033[31m@@@@ LibTorch installation failed\033[0m"
@@ -120,13 +128,14 @@ fi
 
 export CORRECTION_INCLUDE_DIR=`correction config --incdir`
 export CORRECTION_LIB_DIR=`correction config --libdir`
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CORRECTION_LIB_DIR
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$CORRECTION_LIB_DIR
-echo "@@@@ Correction include: $CORRECTION_INCLUDE_DIR"
-echo "@@@@ Correction lib: $CORRECTION_LIB_DIR"
+echo -e "\033[33m@@@@ Correction include: $CORRECTION_INCLUDE_DIR"
+echo -e "\033[33m@@@@ Correction lib: $CORRECTION_LIB_DIR"
 
 # JSONPOG integration auto-update
 export JSONPOG_INTEGRATION_PATH=$SKNANO_HOME/external/jsonpog-integration
-echo "@@@@ Checking for updates in jsonpog-integration repository..."
+echo -e "\033[33m@@@@ Checking for updates in jsonpog-integration repository...\033[0m"
 cd "$JSONPOG_INTEGRATION_PATH"
 git fetch origin 
 LOCAL_HASH=$(git rev-parse HEAD) # local hash of latest
@@ -140,10 +149,10 @@ REMOTE_MESSAGE=$(git log -1 --format=%s origin/master)
 echo "@@@@ Remote latest update: $REMOTE_DATE - $REMOTE_MESSAGE"
 cd -    
 if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
-    echo "@@@@ Updating jsonpog-integration repository..."
+    echo -e "\033[33m@@@@ Updating jsonpog-integration repository...\033[0m"
     git submodule update --remote external/jsonpog-integration
 else
-    echo "@@@@ jsonpog-integration repository is already up-to-date."
+    echo -e "\033[33m@@@@ jsonpog-integration repository is already up-to-date.\033[0m"
 fi
 
 # env for onnxruntime
@@ -155,5 +164,5 @@ if [ -z "$ONNXRUNTIME" ]; then
 fi
 export ONNXRUNTIME_INCLUDE_DIR=${CONDA_PREFIX}/include/onnxruntime/core/session
 export ONNXRUNTIME_LIB_DIR=${CONDA_PREFIX}/lib
-echo "@@@@ onnxruntime include: $ONNXRUNTIME_INCLUDE_DIR"
-echo "@@@@ onnxruntime lib: $ONNXRUNTIME_LIB_DIR"
+echo -e "\033[33m@@@@ onnxruntime include: $ONNXRUNTIME_INCLUDE_DIR\033[0m"
+echo -e "\033[33m@@@@ onnxruntime lib: $ONNXRUNTIME_LIB_DIR\033[0m"

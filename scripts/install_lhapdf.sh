@@ -1,23 +1,24 @@
 #!/bin/bash
-# clear the lhapdf directory
-rm -rf $SKNANO_HOME/external/lhapdf
+echo -e "\033[33mInstalling LHAPDF for $SYSTEM\033[0m"
+
+LHAPDF_INSTALL_DIR=$SKNANO_HOME/external/lhapdf/$SYSTEM
+LHAPDF_VERSION="6.5.5"
+rm -rf $LHAPDF_INSTALL_DIR
+mkdir -p $LHAPDF_INSTALL_DIR
 
 # download and install lhapdf
-cd $SKNANO_HOME/external
-wget --no-verbose https://lhapdf.hepforge.org/downloads/\?f\=LHAPDF-6.5.5.tar.gz -O LHAPDF-6.5.5.tar.gz
-tar xf LHAPDF-6.5.5.tar.gz
-cd LHAPDF-6.5.5/config
-wget --no-verbose https://git.savannah.gnu.org/gitweb/\?p\=config.git\;a\=blob_plain\;f\=config.sub\;hb\=HEAD -O config.sub
-wget --no-verbose https://git.savannah.gnu.org/gitweb/\?p\=config.git\;a\=blob_plain\;f\=config.guess\;hb\=HEAD -O config.guess
-cd ..
-ARCH=`arch`
-if [ $ARCH == "arm64" ]; then
-    ./configure --prefix=$SKNANO_HOME/external/lhapdf CXX=clang++
+cd $LHAPDF_INSTALL_DIR
+wget --no-verbose https://lhapdf.hepforge.org/downloads/\?f\=LHAPDF-$LHAPDF_VERSION.tar.gz -O LHAPDF-$LHAPDF_VERSION.tar.gz
+tar xf LHAPDF-$LHAPDF_VERSION.tar.gz
+cd LHAPDF-$LHAPDF_VERSION
+
+if [ $SKNANO_SYSTEM == "osx" ]; then
+    ./configure --prefix=$LHAPDF_INSTALL_DIR CXX=clang++
 else
-    ./configure --prefix=$SKNANO_HOME/external/lhapdf
+    ./configure --prefix=$LHAPDF_INSTALL_DIR
 fi
-make -j4 && make install
-cd $SKNANO_HOME/external
+make -j8 && make install
+cd $LHAPDF_INSTALL_DIR
 rm -rf LHAPDF*
 
 # download CMS central PDF sets
