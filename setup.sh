@@ -6,7 +6,8 @@ echo ""
 
 
 # Set up environment
-export SKNANO_HOME=`pwd`
+#export SKNANO_HOME=`pwd`
+export SKNANO_HOME="/data9/Users/choij/Sync/workspace/SKNanoAnalyzer"
 export SKNANO_RUNLOG="/gv0/Users/$USER/SKNanoRunlog"
 export SKNANO_OUTPUT="/gv0/Users/$USER/SKNanoOutput"
 echo -e "\033[33m@@@@ Working Directory: $SKNANO_HOME\033[0m"
@@ -53,11 +54,23 @@ if [ $PACKAGE = "conda" ]; then
         conda activate nano
     fi
 elif [ $PACKAGE = "mamba" ]; then
-    # set up mamba environment
-    mamba activate Nano
+    echo "@@@@ Primary environment using mamba"
+    #IS_SINGULARITY=$(env | grep -i "SINGULARITY_ENVIRONMENT")
+    if [[ -n "$APPTAINER_NAME" || -n "$APPTAINER_NAME" ||  -n "$GITHUB_ACTION" ]]; then
+        # Building within Singularity image, will be used for batch jobs
+        echo "@@@@ Detected Singularity environment"
+        export PATH="/opt/conda/bin:${PATH}"
+        export MAMBA_ROOT_PREFIX="/opt/conda"
+        eval "$(micromamba shell hook -s zsh)"
+    else
+        export PATH="$HOME/micromamba/bin:${PATH}"
+        export MAMBA_ROOT_PREFIX="$HOME/micromamba"
+        eval "$(micromamba shell hook -s zsh)"
+    fi
+    micromamba activate Nano
     # from this point on, we can follow conda version of setup
     PACKAGE="conda"
-    alias conda="mamba"
+    alias conda="micromamba"
 elif [ $PACKAGE = "cvmfs" ]; then
     echo -e "\033[31m@@@@ cvmfs is not supported anymore\033[0m"
     return 1
@@ -99,8 +112,10 @@ export PATH=$PATH:$SKNANO_HOME/external/lhapdf/$SYSTEM/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SKNANO_HOME/external/lhapdf/$SYSTEM/lib
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$SKNANO_HOME/external/lhapdf/$SYSTEM/lib
 export LHAPDF_DATA_PATH=$SKNANO_HOME/external/lhapdf/data
-export LHAPDF_INCLUDE_DIR=`lhapdf-config --incdir`
-export LHAPDF_LIB_DIR=`lhapdf-config --libdir`
+export LHAPDF_INCLUDE_DIR=$SKNANO_HOME/external/lhapdf/$SYSTEM/include
+export LHAPDF_LIB_DIR=$SKNANO_HOME/external/lhapdf/$SYSTEM/lib
+#export LHAPDF_INCLUDE_DIR=`lhapdf-config --incdir`
+#export LHAPDF_LIB_DIR=`lhapdf-config --libdir`
 
 echo -e "\033[33m@@@@ LHAPDF include: $LHAPDF_INCLUDE_DIR\033[0m"
 echo -e "\033[33m@@@@ LHAPDF lib: $LHAPDF_LIB_DIR\033[0m"

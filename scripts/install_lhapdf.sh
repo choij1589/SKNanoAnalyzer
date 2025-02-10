@@ -15,7 +15,7 @@ cd LHAPDF-$LHAPDF_VERSION
 if [ $SKNANO_SYSTEM == "osx" ]; then
     ./configure --prefix=$LHAPDF_INSTALL_DIR CXX=clang++
 else
-    ./configure --prefix=$LHAPDF_INSTALL_DIR
+    ./configure --prefix=$LHAPDF_INSTALL_DIR CXX=g++
 fi
 make -j8 && make install
 cd $LHAPDF_INSTALL_DIR

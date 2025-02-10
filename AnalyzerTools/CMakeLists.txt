@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 # Find packages
 find_package(ROOT REQUIRED)
 # Find libraries with more robust method
-find_library(LHAPDF_LIBRARY NAMES LHAPDF PATHS $ENV{LHAPDF_LIB_DIR})
+find_library(LHAPDF_LIBRARY NAMES LHAPDF PATHS $ENV{LHAPDF_LIB_DIR}) 
 find_library(CORRECTION_LIBRARY NAMES correctionlib PATHS $ENV{CORRECTION_LIB_DIR})
 find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime PATHS $ENV{ONNXRUNTIME_LIB_DIR})
 
@@ -81,6 +81,7 @@ target_link_libraries(AnalyzerTools PUBLIC
     MLHelper
 )
 
+include_directories($ENV{LHAPDF_INCLUDE_DIR})
 # Generate ROOT dictionary
 ROOT_GENERATE_DICTIONARY(G__AnalyzerTools
     ${DICTIONARY_HEADERS}
@@ -88,13 +89,9 @@ ROOT_GENERATE_DICTIONARY(G__AnalyzerTools
     LINKDEF include/AnalyzerToolsLinkDef.hpp
 )
 
-
-
 # Installation
 install(TARGETS AnalyzerTools DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
-
-
 
 # Install ROOT dictionary files if they exist
 set(ROOTMAP "libAnalyzerTools.rootmap")
