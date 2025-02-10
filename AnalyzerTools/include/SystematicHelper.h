@@ -41,6 +41,7 @@ public:
     {
         std::string iter_name;
         std::string syst_name;
+        std::string syst_source;
         MyCorrection::variation variation;
     };
 
@@ -49,11 +50,13 @@ public:
     {
         std::string iter_name;
         std::string syst_name;
+        std::string syst_source;
         MyCorrection::variation variation;
         void clone(Iter_obj &obj)
         {
             iter_name = obj.iter_name;
             syst_name = obj.syst_name;
+            syst_source = obj.syst_source;
             variation = obj.variation;
         }
     };
@@ -111,7 +114,8 @@ public:
     }
 
     inline std::string getCurrentSysName() const { return current_Iter_obj.iter_name; }
-    inline std::string getCurrentIterSysSource() const { return current_Iter_obj.syst_name; }
+    inline std::string getCurrentIterSysTarget() const { return current_Iter_obj.syst_name; }
+    inline std::string getCurrentIterSysSource() const { return current_Iter_obj.syst_source; }
     inline MyCorrection::variation getCurrentIterVariation() const { return current_Iter_obj.variation; }
 
     std::vector<std::string> get_targets_from_name(const std::string &syst_name);

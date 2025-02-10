@@ -157,6 +157,7 @@ void SystematicHelper::make_Iter_obj_EvtLoopAgain()
     SystematicHelper::Iter_obj obj_central;
     obj_central.iter_name = central_name;
     obj_central.syst_name = central_name;
+    obj_central.syst_source = "total";
     obj_central.variation = MyCorrection::variation::nom;
     systematics_evtLoopAgain.push_back(obj_central);
 
@@ -173,8 +174,10 @@ void SystematicHelper::make_Iter_obj_EvtLoopAgain()
             obj_up.iter_name = syst.syst + variation_prefix[MyCorrection::variation::up];
             obj_down.iter_name = syst.syst + variation_prefix[MyCorrection::variation::down];
             obj_up.syst_name = syst.syst;
+            obj_up.syst_source = syst.source;
             obj_up.variation = MyCorrection::variation::up;
             obj_down.syst_name = syst.syst;
+            obj_down.syst_source = syst.source;
             obj_down.variation = MyCorrection::variation::down;
 
             systematics_evtLoopAgain.push_back(obj_up);

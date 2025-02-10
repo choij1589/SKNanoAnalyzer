@@ -67,6 +67,17 @@ public:
             }
         }
     }
+
+    inline bool isInputInCorrection(const std::string &key, const correction::Correction::Ref &cset) const
+    {
+        std::vector<std::string> inputs;
+        for (const auto &input : cset->inputs())
+        {
+            inputs.push_back(input.name());
+        }
+        return std::find(inputs.begin(), inputs.end(), key) != inputs.end();
+    }
+
     MyCorrection();
     MyCorrection(const TString &era, const TString &sample, const bool IsData, const string &btagging_eff_file = "btaggingEff.json", const string &ctagging_eff_file = "ctaggingEff.json", const string &btagging_R_file = "btaggingR.json", const string &ctagging_R_file = "ctaggingR.json");
     ~MyCorrection();
@@ -135,19 +146,19 @@ public:
     float GetCTaggingR(const float npvs, const float HT, const JetTagging::JetFlavTagger tagger, const TString &processName = "", const TString &ttBarCategory = "total", const TString &syst_str = "") const;
     inline float GetCTaggingSF(const RVec<Jet> &jets, const JetTagging::JetTaggingSFMethod &method = JetTagging::JetTaggingSFMethod::mujets, const variation syst = variation::nom, const TString &source = "total") { return GetCTaggingSF(jets, global_tagger, global_wp, method, syst, source); }
     // electron
-    float GetElectronRECOSF(const float abseta, const float pt, const variation syst = variation::nom, const TString &source = "total") const;
-    float GetElectronIDSF(const TString &Electron_ID_SF_Key, const float abseta, const float pt, const variation syst = variation::nom, const TString &source = "total") const;
-    float GetElectronTriggerEff(const TString &Electron_ID_SF_Key, const float eta, const float pt, bool ofDATA, const variation syst = variation::nom, const TString &source = "total") const;
-    inline float GetElectronTriggerDataEff(const TString &Electron_ID_SF_Key, const float eta, const float pt, const variation syst = variation::nom, const TString &source = "total")
+    float GetElectronRECOSF(const float abseta, const float pt, const float phi, const variation syst = variation::nom, const TString &source = "total") const;
+    float GetElectronIDSF(const TString &Electron_ID_SF_Key, const float abseta, const float pt, const float phi, const variation syst = variation::nom, const TString &source = "total") const;
+    float GetElectronTriggerEff(const TString &Electron_ID_SF_Key, const float eta, const float pt, const float phi, bool ofDATA, const variation syst = variation::nom, const TString &source = "total") const;
+    inline float GetElectronTriggerDataEff(const TString &Electron_ID_SF_Key, const float eta, const float pt, const float phi, const variation syst = variation::nom, const TString &source = "total")
     {
-        return GetElectronTriggerEff(Electron_ID_SF_Key, eta, pt, true, syst, source);
+        return GetElectronTriggerEff(Electron_ID_SF_Key, eta, pt, phi, true, syst, source);
     };
-    inline float GetElectronTriggerMCEff(const TString &Electron_ID_SF_Key, const float eta, const float pt, const variation syst = variation::nom, const TString &source = "total")
+    inline float GetElectronTriggerMCEff(const TString &Electron_ID_SF_Key, const float eta, const float pt, const float phi, const variation syst = variation::nom, const TString &source = "total")
     {
-        return GetElectronTriggerEff(Electron_ID_SF_Key, eta, pt, false, syst, source);
+        return GetElectronTriggerEff(Electron_ID_SF_Key, eta, pt, phi, false, syst, source);
     };
 
-    float GetElectronTriggerSF(const TString &Electron_Trigger_SF_Key, const float eta, const float pt, const variation syst = variation::nom, const TString &source = "total") const;
+    float GetElectronTriggerSF(const TString &Electron_Trigger_SF_Key, const float eta, const float pt, const float phi, const variation syst = variation::nom, const TString &source = "total") const;
     float GetElectronIDSF(const TString &Electron_ID_SF_Key, const RVec<Electron> &electrons, const variation syst = variation::nom, const TString &source = "total") const;
     float GetElectronRECOSF(const RVec<Electron> &electrons, const variation syst = variation::nom, const TString &source = "total") const;
     // photon
