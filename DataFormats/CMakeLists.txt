@@ -18,15 +18,11 @@ target_include_directories(DataFormats PRIVATE
 
 # Generate the ROOT dictionary before defining the library
 file(GLOB HEADERS include/*.h)
-#install(FILES ${HEADERS} DESTINATION include/DataFormats)
-
-file(GLOB HEADERS include/*.h)
 foreach(HEADER ${HEADERS})
     file(RELATIVE_PATH REL_HEADER ${CMAKE_CURRENT_SOURCE_DIR} ${HEADER})
     list(APPEND REL_HEADERS ${REL_HEADER})
 endforeach()
 set(DICTIONARY_HEADERS ${REL_HEADERS})
-
 
 ROOT_GENERATE_DICTIONARY(G__DataFormats
     ${DICTIONARY_HEADERS}

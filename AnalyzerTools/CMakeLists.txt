@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 # Find packages
 find_package(ROOT REQUIRED)
 # Find libraries with more robust method

@@ -918,6 +918,20 @@ RVec<GenJet> AnalyzerCore::GetAllGenJets() {
     return GenJets;
 }
 
+RVec<GenDressedLepton> AnalyzerCore::GetAllGenDressedLeptons() {
+    RVec<GenDressedLepton> GenDressedLeptons;
+    if(IsDATA) return GenDressedLeptons;
+
+    for(int i = 0; i < nGenDressedLepton; i++) {
+        GenDressedLepton lep;
+        lep.SetPtEtaPhiM(GenDressedLepton_pt[i], GenDressedLepton_eta[i], GenDressedLepton_phi[i], GenDressedLepton_mass[i]);
+        lep.SetPdgId(GenDressedLepton_pdgId[i]);
+        lep.SetHasTauAnc(GenDressedLepton_hasTauAnc[i]);
+        GenDressedLeptons.push_back(lep);
+    }
+    return GenDressedLeptons;
+}
+
 bool AnalyzerCore::IsHEMElectron(const Electron& electron) const {
     if (DataYear != 2018) return false;
 

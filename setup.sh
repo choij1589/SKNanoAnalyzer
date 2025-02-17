@@ -3,15 +3,7 @@ echo -e "\033[31m##################### WARNING ########################\033[0m"
 echo -e "\033[31m####         THIS IS DEVELOPMENT VERSION          ####\033[0m"
 echo -e "\033[31m######################################################\033[0m"
 echo ""
-
-
-# Set up environment
-#export SKNANO_HOME=`pwd`
-export SKNANO_HOME="/data9/Users/choij/Sync/workspace/SKNanoAnalyzer"
-export SKNANO_RUNLOG="/gv0/Users/$USER/SKNanoRunlog"
-export SKNANO_OUTPUT="/gv0/Users/$USER/SKNanoOutput"
-echo -e "\033[33m@@@@ Working Directory: $SKNANO_HOME\033[0m"
-
+HOSTNAME=`hostname`
 # check os
 if [[ "$(uname)" == "Darwin" ]]; then
     export SYSTEM="osx"
@@ -21,6 +13,18 @@ else
     echo "Unsupported OS"
     return 1
 fi
+
+# Set up environment
+if [[ $HOSTNAME == *"tamsa"* ]]; then
+    export SKNANO_HOME="/data9/Users/choij/Sync/workspace/SKNanoAnalyzer"
+    export SKNANO_RUNLOG="/gv0/Users/$USER/SKNanoRunlog"
+    export SKNANO_OUTPUT="/gv0/Users/$USER/SKNanoOutput"
+else
+    export SKNANO_HOME=`pwd`
+    export SKNANO_RUNLOG="/mnt/DUMP/$USER/SKNanoRunlog"
+    export SKNANO_OUTPUT="/mnt/DUMP/$USER/SKNanoOutput"
+fi
+echo -e "\033[33m@@@@ Working Directory: $SKNANO_HOME\033[0m"
 
 # check configuration
 CONFIG_FILE=$SKNANO_HOME/config/config.$USER

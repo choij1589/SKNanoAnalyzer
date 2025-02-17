@@ -24,11 +24,13 @@
 #include "Muon.h"
 #include "Electron.h"
 #include "Jet.h"
-#include "GenJet.h"
-#include "Tau.h"
 #include "FatJet.h"
+#include "Tau.h"
 #include "Photon.h"
 #include "Gen.h"
+#include "Jet.h"
+#include "GenJet.h"
+#include "GenDressedLepton.h"
 
 #include "LHAPDFHandler.h"
 #include "PDFReweight.h"
@@ -79,6 +81,7 @@ public:
     RVec<Tau> GetAllTaus();
     RVec<FatJet> GetAllFatJets();
     RVec<GenJet> GetAllGenJets();
+    RVec<GenDressedLepton> GetAllGenDressedLeptons();
     RVec<Photon> GetAllPhotons();
     RVec<Photon> GetPhotons(TString id, double ptmin, double fetamax);
 

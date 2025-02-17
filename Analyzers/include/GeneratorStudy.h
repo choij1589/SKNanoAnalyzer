@@ -10,6 +10,7 @@ public:
 
     RVec<LHE> LHEs;
     RVec<GenJet> GenJets;
+    RVec<GenDressedLepton> GenDressedLeptons;
 
     GeneratorStudy();
     ~GeneratorStudy();
