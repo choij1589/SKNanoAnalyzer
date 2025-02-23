@@ -99,6 +99,18 @@ public:
     void SetCBIDBit(CutBasedID id, unsigned int value);
     inline WORKINGPOINT CutBased() const {return (WORKINGPOINT)j_cutBased; }
 
+    // Private IDs
+    // bool Pass_TopHNID(const TString &era, const TString &wp) const;
+    // bool Pass_TopHNBaseline() const;
+    // bool Pass_TopHNTight_16a() const;
+    // bool Pass_TopHNTight_16b() const;
+    // bool Pass_TopHNTight_17() const;
+    // bool Pass_TopHNTight_18() const;
+    // bool Pass_TopHNLoose_16a() const;
+    // bool Pass_TopHNLoose_16b() const;
+    // bool Pass_TopHNLoose_17() const;
+    // bool Pass_TopHNLoose_18() const;
+
     // MVA scores
     enum class MVATYPE {NONE, MVAISO, MVANOISO, MVATTH};
     void SetMVA(MVATYPE type, float score);

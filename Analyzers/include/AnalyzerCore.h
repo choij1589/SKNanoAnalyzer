@@ -31,6 +31,8 @@
 #include "Jet.h"
 #include "GenJet.h"
 #include "GenDressedLepton.h"
+#include "GenIsolatedPhoton.h"
+#include "GenVisTau.h"
 
 #include "LHAPDFHandler.h"
 #include "PDFReweight.h"
@@ -82,6 +84,8 @@ public:
     RVec<FatJet> GetAllFatJets();
     RVec<GenJet> GetAllGenJets();
     RVec<GenDressedLepton> GetAllGenDressedLeptons();
+    RVec<GenIsolatedPhoton> GetAllGenIsolatedPhotons();
+    RVec<GenVisTau> GetAllGenVisTaus();
     RVec<Photon> GetAllPhotons();
     RVec<Photon> GetPhotons(TString id, double ptmin, double fetamax);
 
@@ -116,7 +120,7 @@ public:
     int GetLeptonType(const Gen& gen, const RVec<Gen>& gens);
     int GetLeptonType_Public(const int& genIdx, const RVec<Gen>& gens);
     int GetGenPhotonType(const Gen& genph, const RVec<Gen>& gens);
-    int  GetPrElType_InSameSCRange_Public(int genIdx, const RVec<Gen>& gens);
+    int GetPrElType_InSameSCRange_Public(int genIdx, const RVec<Gen>& gens);
 
     // Scale and smear
     void METType1Propagation(Particle &MET, RVec<Particle> &original_objects, RVec<Particle> &corrected_objects);

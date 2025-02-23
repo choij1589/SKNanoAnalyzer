@@ -1,16 +1,17 @@
-#include "GeneratorStudy.h"
+#include "GeneratorBase.h"
 
-GeneratorStudy::GeneratorStudy() {}
-GeneratorStudy::~GeneratorStudy() {}
+GeneratorBase::GeneratorBase() {}
+GeneratorBase::~GeneratorBase() {}
 
-void GeneratorStudy::initializeAnalyzer() {
-}
-void GeneratorStudy::executeEvent() {
-    LHEs = GetAllLHEs();
-    GenJets = GetAllGenJets();
-    GenDressedLeptons = GetAllGenDressedLeptons();
+void GeneratorBase::initializeAnalyzer() {}
+
+void GeneratorBase::executeEvent() {
+    LHEObjects = GetAllLHEs();
+    GenJetObjects = GetAllGenJets();
+    GenDressedLeptonObjects = GetAllGenDressedLeptons();
 
     // Split channels based on the number of outgoing jets in the LHE file
+    /*
     RVec<LHE> lhe_leptons, lhe_muons, lhe_electrons, lhe_taus;
     RVec<LHE> lhe_outgoing_jets;
     for (const auto &lhe: LHEs) {
@@ -189,4 +190,5 @@ void GeneratorStudy::executeEvent() {
     FillHist(channel+"/gen/muons/2/eta", dressed_muons[1].Eta(), weight, 100, -5., 5.);
     FillHist(channel+"/gen/muons/2/phi", dressed_muons[1].Phi(), weight, 64, -3.2, 3.2);
     FillHist(channel+"/gen/muons/2/mass", dressed_muons[1].M(), weight, 100, 40., 140.);
+    */
 }

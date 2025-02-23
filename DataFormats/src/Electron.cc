@@ -80,6 +80,14 @@ bool Electron::PassID(const TString ID) const {
     if (ID == "POGMVAIsoWP90")    return isMVAIsoWP90();
     if (ID == "POGMVANoIsoWP80")  return isMVANoIsoWP80();
     if (ID == "POGMVANoIsoWP90")  return isMVANoIsoWP90();
+    // if (ID == "TopHNTight_16a")   return Pass_TopHNTight_16a();
+    // if (ID == "TopHNTight_16b")   return Pass_TopHNTight_16b();
+    // if (ID == "TopHNTight_17")    return Pass_TopHNTight_17();
+    // if (ID == "TopHNTight_18")    return Pass_TopHNTight_18();
+    // if (ID == "TopHNLoose_16a")   return Pass_TopHNLoose_16a();
+    // if (ID == "TopHNLoose_16b")   return Pass_TopHNLoose_16b();
+    // if (ID == "TopHNLoose_17")    return Pass_TopHNLoose_17();
+    //if (ID == "TopHNLoose_18")    return Pass_TopHNLoose_18();
 
     cerr << "[Electron::PassID] " << ID << " is not implemented" << endl;
     exit(ENODATA);
@@ -100,16 +108,5 @@ bool Electron::PassID(ElectronID ID) const {
         case ElectronID::POG_MVANOISO_WP90:    return PassID("POGMVANoIsoWP90");
         default: break;
     }
-return false;
+    return false;
 }
-
-
-
-
-
-
-
-
-
-
-

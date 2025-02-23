@@ -16,5 +16,7 @@
 #pragma link C++ class Photon+;
 #pragma link C++ class GenJet+;
 #pragma link C++ class GenDressedLepton+;
+#pragma link C++ class GenIsolatedPhoton+;
+#pragma link C++ class GenVisTau+;
 #pragma link C++ class FatJet+;
 #pragma link C++ class JetTaggingParameter+;

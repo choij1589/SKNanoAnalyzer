@@ -932,6 +932,33 @@ RVec<GenDressedLepton> AnalyzerCore::GetAllGenDressedLeptons() {
     return GenDressedLeptons;
 }
 
+RVec<GenIsolatedPhoton> AnalyzerCore::GetAllGenIsolatedPhotons() {
+    RVec<GenIsolatedPhoton> GenIsolatedPhotons;
+    if(IsDATA) return GenIsolatedPhotons;
+
+    for(int i = 0; i < nGenIsolatedPhoton; i++) {
+        GenIsolatedPhoton photon;
+        photon.SetPtEtaPhiM(GenIsolatedPhoton_pt[i], GenIsolatedPhoton_eta[i], GenIsolatedPhoton_phi[i], GenIsolatedPhoton_mass[i]);
+        GenIsolatedPhotons.push_back(photon);
+    }
+    return GenIsolatedPhotons;
+}
+
+RVec<GenVisTau> AnalyzerCore::GetAllGenVisTaus() {
+    RVec<GenVisTau> GenVisTaus;
+    if(IsDATA) return GenVisTaus;
+
+    for(int i = 0; i < nGenVisTau; i++) {
+        GenVisTau tau;
+        tau.SetPtEtaPhiM(GenVisTau_pt[i], GenVisTau_eta[i], GenVisTau_phi[i], GenVisTau_mass[i]);
+        tau.SetCharge(GenVisTau_charge[i]);
+        tau.SetGenPartIdxMother(GenVisTau_genPartIdxMother[i]);
+        tau.SetStatus(GenVisTau_status[i]);
+        GenVisTaus.push_back(tau);
+    }
+    return GenVisTaus;
+}
+
 bool AnalyzerCore::IsHEMElectron(const Electron& electron) const {
     if (DataYear != 2018) return false;
 
