@@ -153,25 +153,62 @@ echo -e "\033[33m@@@@ Correction include: $CORRECTION_INCLUDE_DIR"
 echo -e "\033[33m@@@@ Correction lib: $CORRECTION_LIB_DIR"
 
 # JSONPOG integration auto-update
-export JSONPOG_INTEGRATION_PATH=$SKNANO_HOME/external/jsonpog-integration
-echo -e "\033[33m@@@@ Checking for updates in jsonpog-integration repository...\033[0m"
-cd "$JSONPOG_INTEGRATION_PATH"
-git fetch origin 
-LOCAL_HASH=$(git rev-parse HEAD) # local hash of latest
-REMOTE_HASH=$(git rev-parse origin/master) # remote hash of latest
-echo "@@@@ Local latest commit: $LOCAL_HASH"
-echo "@@@@ Remote latest commit: $REMOTE_HASH"
+JSONPOG_REPO_PATH="$SKNANO_HOME/external/jsonpog-integration"
 
-# latest commit date and message of the remote branch
-REMOTE_DATE=$(git log -1 --format=%ci origin/master) 
-REMOTE_MESSAGE=$(git log -1 --format=%s origin/master) 
-echo "@@@@ Remote latest update: $REMOTE_DATE - $REMOTE_MESSAGE"
-cd -    
-if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
-    echo -e "\033[33m@@@@ Updating jsonpog-integration repository...\033[0m"
-    git submodule update --remote external/jsonpog-integration
+if [ ! -d "$JSONPOG_REPO_PATH" ]; then
+    echo "@@@@ JSONPOG Repository not found"
 else
-    echo -e "\033[33m@@@@ jsonpog-integration repository is already up-to-date.\033[0m"
+    echo "@@@@ Checking for updates in jsonpog-integration repository..."
+    cd "$JSONPOG_REPO_PATH"
+    git fetch origin
+
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+    if [ -z "$(git symbolic-ref -q HEAD)" ]; then
+        echo "@@@@ HEAD is detached. Switching back to the previous branch: $CURRENT_BRANCH"
+        git checkout "$CURRENT_BRANCH"
+    fi
+
+    #Check the current version of local and jsonpog version
+    LOCAL_COMMIT_HASH=$(git rev-parse HEAD)
+    LOCAL_COMMIT_DATE=$(git log -1 --format=%ci)
+    echo "@@@@ Current Local commit: $LOCAL_COMMIT_HASH"
+    echo "@@@@ Current Local commit date: $LOCAL_COMMIT_DATE"
+    UPSTREAM_COMMIT_HASH=$(git ls-remote origin -h refs/heads/master | awk '{print $1}')
+    UPSTREAM_COMMIT_DATE=$(git log -1 --format=%ci origin/master)
+    echo "@@@@ Latest JSONPOG (origin/master) commit: $UPSTREAM_COMMIT_HASH"
+    echo "@@@@ Latest JSONPOG commit date: $UPSTREAM_COMMIT_DATE"
+    
+    # Check if the local repository is behind the remote repository
+    BEHIND=$(git rev-list --count origin/master..HEAD)
+
+    if [ "$BEHIND" -gt 0 ]; then
+        echo "@@@@ Repository is $BEHIND commits behind origin/master."
+
+        # Check if the user wants to update
+        while true; do
+            read -p "Do you want to update jsonpog correction? (Y/N): " USER_INPUT
+            case "$USER_INPUT" in
+                [Yy]* ) 
+                    echo "@@@@ Updating jsonpog-integration repository..."
+                    git merge origin/master
+                    echo "@@@@ Update completed!"
+                    break  
+                    ;;
+                [Nn]* ) 
+                    echo "@@@@ Update skipped."
+                    break  
+                    ;;
+                * ) 
+                    echo "@@@@ Invalid input. Please enter Y or N."
+                    ;;
+            esac
+        done
+    else
+        echo "@@@@ jsonpog-integration repository is already up-to-date."
+    fi
+
+    cd "$SKNANO_HOME"
 fi
 
 # env for onnxruntime

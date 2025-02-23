@@ -54,3 +54,5 @@ For DY, check the before/after of correction
 - [LHC ttbar NNLO+NNLL cross sections](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO)
 - [LHC Single Top NNLO+NNLL cross sections](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec)
 - [LHC Higgs Cross Section](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/HiggsXSBR)
+- [Rules for Run3 2024 dataset names](https://cms-pdmv.gitbook.io/project/mccontact/rules-for-run3-2024-dataset-names)
+- [Rules for Run3 dataset names](https://cms-pdmv.gitbook.io/project/mccontact/rules-for-run3-dataset-names)
