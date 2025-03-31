@@ -1,0 +1,15 @@
+{
+    "name": "ST_tW_top_NoFullyHad",
+    "isMC": 1,
+    "PD": "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "xsec": 19.56,
+    "nmc": 3294673.0,
+    "sumsign": 3294485.0,
+    "sumW": 105932192.0,
+    "path": [
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/240915_130837/0000/tree_1.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/240915_130837/0000/tree_2.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/240915_130837/0000/tree_3.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016preVFP/MC/ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/240915_130837/0000/tree_4.root"
+    ]
+}

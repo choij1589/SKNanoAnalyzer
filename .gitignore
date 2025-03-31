@@ -12,6 +12,7 @@ external/**
 *.onnx
 !external/KinematicFitter
 templates/__pycache__/*
+.DS_Store/*
 
 #Temporary Added to my personal temp files
 DataCOPY/** 

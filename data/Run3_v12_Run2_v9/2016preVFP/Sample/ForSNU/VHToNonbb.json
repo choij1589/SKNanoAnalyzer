@@ -1,0 +1,32 @@
+{
+    "name": "VHToNonbb",
+    "isMC": 1,
+    "PD": "VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8",
+    "xsec": 0.000124,
+    "sumsign": 216788.0,
+    "sumW": 2560961.75,
+    "path": [
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_1.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_2.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_3.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_4.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_5.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_6.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_7.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_8.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_9.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_10.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_11.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_12.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_13.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_14.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_15.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_16.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_17.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_18.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_19.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_20.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_21.root",
+        "/gv0/Users/choij/SKNano/VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/crab_MC_2016preVFP_VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8/250310_070634/0000/NANOAOD_22.root"
+    ]
+}

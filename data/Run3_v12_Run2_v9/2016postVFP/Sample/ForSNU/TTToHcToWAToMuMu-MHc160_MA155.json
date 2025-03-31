@@ -1,0 +1,23 @@
+{
+    "name": "TTToHcToWAToMuMu-MHc160_MA155",
+    "isMC": 1,
+    "PD": "TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8",
+    "xsec": 0.015,
+    "sumsign": 272586.0,
+    "sumW": 0.011570729315280914,
+    "path": [
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_1.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_2.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_3.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_4.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_5.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_6.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_7.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_8.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_9.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_10.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_11.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_12.root",
+        "/gv0/Users/choij/SKNano/TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/crab_MC_2016postVFP_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250310_071835/0000/NANOAOD_13.root"
+    ]
+}

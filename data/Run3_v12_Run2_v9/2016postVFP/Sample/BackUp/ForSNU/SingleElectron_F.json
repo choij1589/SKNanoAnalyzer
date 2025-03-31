@@ -1,0 +1,16 @@
+{
+    "name": "SingleElectron",
+    "isMC": 0,
+    "NEvents": [
+        8835883.0,
+        152098592.0,
+        127093816.0
+    ],
+    "path": [
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleElectron/PeriodF/240919_082203/0000/tree_1.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleElectron/PeriodF/240919_082203/0000/tree_2.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleElectron/PeriodF/240919_082203/0000/tree_3.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleElectron/PeriodF/240919_082203/0000/tree_4.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleElectron/PeriodF/240919_082203/0000/tree_5.root"
+    ]
+}

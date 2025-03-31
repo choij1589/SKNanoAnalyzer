@@ -64,7 +64,7 @@ public:
     SystematicHelper(std::string yaml_path, TString sample);
     ~SystematicHelper();
     SYST* findSystematic(std::string syst_name);
-    void assignWeightFunctionMap(const unordered_map < std::string, std::variant<std::function<float(MyCorrection::variation, TString)>, std::function<float()>>> &weight_functions);
+    void assignWeightFunctionMap(const unordered_map <std::string, std::variant<std::function<float(MyCorrection::variation, TString)>, std::function<float()>>> &weight_functions);
     class EventLoopIterator
     {
     public:

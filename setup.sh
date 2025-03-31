@@ -10,7 +10,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
 elif [[ -f "/etc/redhat-release" ]]; then
     export SYSTEM="redhat"
 else
-    echo "Unsupported OS"
+    echo -e "\033[31mUnsupported OS\33[0m"
     return 1
 fi
 
@@ -18,39 +18,39 @@ fi
 if [[ $HOSTNAME == *"tamsa"* ]]; then
     export SKNANO_HOME="/data9/Users/choij/Sync/workspace/SKNanoAnalyzer"
     export SKNANO_RUNLOG="/gv0/Users/$USER/SKNanoRunlog"
-    export SKNANO_OUTPUT="/gv0/Users/$USER/SKNanoOutput"
+    export SKNANO_OUTPUT="/data9/Users/choij/Sync/SKNanoOutput"
 else
     export SKNANO_HOME=`pwd`
     export SKNANO_RUNLOG="/mnt/DUMP/$USER/SKNanoRunlog"
     export SKNANO_OUTPUT="/mnt/DUMP/$USER/SKNanoOutput"
 fi
-echo -e "\033[33m@@@@ Working Directory: $SKNANO_HOME\033[0m"
+echo "@@@@ Working Directory: $SKNANO_HOME"
 
 # check configuration
 CONFIG_FILE=$SKNANO_HOME/config/config.$USER
 if [ -f "${CONFIG_FILE}" ]; then
-    echo "@@@@ Reading configuration from $CONFIG_FILE"
+    echo -e "\033[33m@@@@ Reading configuration from $CONFIG_FILE\033[0m"
     PACKAGE=$(grep '\[PACKAGE\]' "${CONFIG_FILE}" | cut -d' ' -f2)
     export TOKEN_TELEGRAMBOT=$(grep '\[TOKEN_TELEGRAMBOT\]' "${CONFIG_FILE}" | cut -d' ' -f2)
     export USER_CHATID=$(grep '\[USER_CHATID\]' "${CONFIG_FILE}" | cut -d' ' -f2)
     export SINGULARITY_IMAGE=$(grep '\[SINGULARITY_IMAGE\]' "${CONFIG_FILE}" | cut -d' ' -f2)
 else
-    echo "@@@@ Configuration file $CONFIG_FILE not found"
-    echo "@@@@ Please create a configuration file in config/ with your username"
+    echo -e "\033[31m@@@@ Configuration file $CONFIG_FILE not found\033[0m"
+    echo -e "\033[3m@@@@ Please create a configuration file in config/ with your username\033[0m"
 fi
-echo -e "\033[33m@@@@ System:  $SYSTEM\033[0m"
-echo -e "\033[33m@@@@ Package: $PACKAGE\033[0m"
-echo -e "\033[33m@@@@ Telegram Bot Token: $TOKEN_TELEGRAMBOT\033[0m"
-echo -e "\033[33m@@@@ Telegram Chat ID: $USER_CHATID\033[0m"
-echo -e "\033[33m@@@@ Using singularity image: $SINGULARITY_IMAGE\033[0m"
+echo "@@@@ System:  $SYSTEM"
+echo "@@@@ Package: $PACKAGE"
+echo "@@@@ Telegram Bot Token: $TOKEN_TELEGRAMBOT"
+echo "@@@@ Telegram Chat ID:   $USER_CHATID"
+echo "@@@@ Using singularity image: $SINGULARITY_IMAGE"
 
 # ROOT Package Settings
 if [ $PACKAGE = "conda" ]; then
-    echo "@@@@ Primary environment using conda"
+    echo -e "\033[33m@@@@ Primary environment using conda\033[0m"
     IS_SINGULARITY=$(env | grep -i "SINGULARITY_ENVIRONMENT")
     if [[ -n "$IS_SINGULARITY" || -n "$GITHUB_ACTION" ]]; then
         # Building within Singularity image, will be used for batch jobs
-        echo "@@@@ Detected Singularity environment"
+        echo -e "\033[33m@@@@ Detected Singularity environment\033[0m"
         source /opt/conda/bin/activate
         conda activate torch
     else
@@ -58,13 +58,11 @@ if [ $PACKAGE = "conda" ]; then
         conda activate nano
     fi
 elif [ $PACKAGE = "mamba" ]; then
-    echo "@@@@ Primary environment using mamba"
-    #IS_SINGULARITY=$(env | grep -i "SINGULARITY_ENVIRONMENT")
-    if [[ -n "$APPTAINER_NAME" || -n "$APPTAINER_NAME" ||  -n "$GITHUB_ACTION" ]]; then
+    echo -e "\033[33m@@@@ Primary environment using mamba\033[0m"
+    IS_SINGULARITY=$(env | grep -i "SINGULARITY_ENVIRONMENT")
+    if [[ -n "$IS_SINGULARITY" ||  -n "$GITHUB_ACTION" ]]; then
         # Building within Singularity image, will be used for batch jobs
-        echo "@@@@ Detected Singularity environment"
-        export PATH="/opt/conda/bin:${PATH}"
-        export MAMBA_ROOT_PREFIX="/opt/conda"
+        echo -e "\033[33m@@@@ Detected Singularity environment\033[0m"
         eval "$(micromamba shell hook -s zsh)"
     else
         export PATH="$HOME/micromamba/bin:${PATH}"
@@ -82,7 +80,7 @@ else
     echo "@@@@ Package not recognized"
     echo "@@@@ Please check configuration file in config/config.$USER"
 fi
-echo -e "\033[33m@@@@ ROOT path: $ROOTSYS\033[0m"
+echo "@@@@ ROOT path: $ROOTSYS"
 
 
 export SKNANO_VERSION="Run3_v12_Run2_v9"
@@ -96,16 +94,18 @@ export SKNANO_INSTALLDIR=$SKNANO_HOME/install/$SYSTEM
 export PATH=$SKNANO_PYTHON:$PATH
 export PYTHONPATH=$PYTHONPATH:$SKNANO_PYTHON
 export SKNANO_LIB=$SKNANO_INSTALLDIR/lib
-export SKNANO_RUN3_NANOAODPATH="/gv0/DATA/SKNano/Run3NanoAODv12/"
-export SKNANO_RUN2_NANOAODPATH="/gv0/DATA/SKNano/Run2NanoAODv9/"
-export ROOT_INCLUDE_DIRS=$ROOT_INCLUDE_DIRS:$SKNANO_INSTALLDIR/include
+export SKNANO_RUN3_NANOAODPATH="/gv0/Users/choij/SKNano"
+export SKNANO_RUN2_NANOAODPATH="/gv0/Users/choij/SKNano"
+#export SKNANO_RUN3_NANOAODPATH="/gv0/DATA/SKNano/Run3NanoAODv12/"
+#export SKNANO_RUN2_NANOAODPATH="/gv0/DATA/SKNano/Run2NanoAODv9/"
+#export ROOT_INCLUDE_DIRS=$ROOT_INCLUDE_DIRS:$SKNANO_INSTALLDIR/include
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SKNANO_LIB
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$SKNANO_LIB
 
 # setting LHAPDFs
 if [[ ! -d "external/lhapdf/$SYSTEM" ]]; then
-    echo "@@@@ Installing LHAPDF for conda environment"
+    echo -e "\033[33m@@@@ Installing LHAPDF for conda environment\033[0m"
     ./scripts/install_lhapdf.sh
     if [ $? -ne 0 ]; then
         echo -e "\033[31m@@@@ LHAPDF installation failed\033[0m"
@@ -121,9 +121,9 @@ export LHAPDF_LIB_DIR=$SKNANO_HOME/external/lhapdf/$SYSTEM/lib
 #export LHAPDF_INCLUDE_DIR=`lhapdf-config --incdir`
 #export LHAPDF_LIB_DIR=`lhapdf-config --libdir`
 
-echo -e "\033[33m@@@@ LHAPDF include: $LHAPDF_INCLUDE_DIR\033[0m"
-echo -e "\033[33m@@@@ LHAPDF lib: $LHAPDF_LIB_DIR\033[0m"
-echo -e "\033[33m@@@@ reading data from $LHAPDF_DATA_PATH\033[0m"
+echo "@@@@ LHAPDF include: $LHAPDF_INCLUDE_DIR"
+echo "@@@@ LHAPDF lib: $LHAPDF_LIB_DIR"
+echo "@@@@ reading data from $LHAPDF_DATA_PATH"
 
 # setting up libtorch
 if [[ ! -d "external/libtorch" ]]; then
@@ -149,63 +149,62 @@ export CORRECTION_INCLUDE_DIR=`correction config --incdir`
 export CORRECTION_LIB_DIR=`correction config --libdir`
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CORRECTION_LIB_DIR
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$CORRECTION_LIB_DIR
-echo -e "\033[33m@@@@ Correction include: $CORRECTION_INCLUDE_DIR"
-echo -e "\033[33m@@@@ Correction lib: $CORRECTION_LIB_DIR"
+echo "@@@@ Correction include: $CORRECTION_INCLUDE_DIR"
+echo "@@@@ Correction lib: $CORRECTION_LIB_DIR"
 
 # JSONPOG integration auto-update
+echo -e "\033[33m@@@@ Checking for updates in jsonpog-integration repository...\033[0m"
 JSONPOG_REPO_PATH="$SKNANO_HOME/external/jsonpog-integration"
 
 if [ ! -d "$JSONPOG_REPO_PATH" ]; then
-    echo "@@@@ JSONPOG Repository not found"
+    echo -e "\033[31m@@@@ JSONPOG Repository not found\033[0m"
 else
-    echo "@@@@ Checking for updates in jsonpog-integration repository..."
     cd "$JSONPOG_REPO_PATH"
     git fetch origin
-
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
     if [ -z "$(git symbolic-ref -q HEAD)" ]; then
-        echo "@@@@ HEAD is detached. Switching back to the previous branch: $CURRENT_BRANCH"
+        echo -e "\033[33m@@@@ HEAD is detached. Switching back to the previous branch: $CURRENT_BRANCH\033[0m"
         git checkout "$CURRENT_BRANCH"
     fi
 
     #Check the current version of local and jsonpog version
     LOCAL_COMMIT_HASH=$(git rev-parse HEAD)
     LOCAL_COMMIT_DATE=$(git log -1 --format=%ci)
-    echo "@@@@ Current Local commit: $LOCAL_COMMIT_HASH"
-    echo "@@@@ Current Local commit date: $LOCAL_COMMIT_DATE"
+    echo -e "\033[33m@@@@ Current Local commit: $LOCAL_COMMIT_HASH\033[0m"
+    echo -e "\033[33m@@@@ Current Local commit date: $LOCAL_COMMIT_DATE\033[0m"
     UPSTREAM_COMMIT_HASH=$(git ls-remote origin -h refs/heads/master | awk '{print $1}')
     UPSTREAM_COMMIT_DATE=$(git log -1 --format=%ci origin/master)
-    echo "@@@@ Latest JSONPOG (origin/master) commit: $UPSTREAM_COMMIT_HASH"
-    echo "@@@@ Latest JSONPOG commit date: $UPSTREAM_COMMIT_DATE"
+    echo -e "\033[33m@@@@ Latest JSONPOG (origin/master) commit: $UPSTREAM_COMMIT_HASH\033[0m"
+    echo -e "\033[33m@@@@ Latest JSONPOG commit date: $UPSTREAM_COMMIT_DATE\033[0m"
     
     # Check if the local repository is behind the remote repository
     BEHIND=$(git rev-list --count origin/master..HEAD)
 
     if [ "$BEHIND" -gt 0 ]; then
-        echo "@@@@ Repository is $BEHIND commits behind origin/master."
+        echo -e "\033[33m@@@@ Repository is $BEHIND commits behind origin/master.\033[0m"
 
         # Check if the user wants to update
         while true; do
             read -p "Do you want to update jsonpog correction? (Y/N): " USER_INPUT
             case "$USER_INPUT" in
                 [Yy]* ) 
-                    echo "@@@@ Updating jsonpog-integration repository..."
+                    echo -e "\033[33m@@@@ Updating jsonpog-integration repository...\033[0m"
                     git merge origin/master
-                    echo "@@@@ Update completed!"
+                    echo -e "\033[33m@@@@ Update completed!\033[0m"
                     break  
                     ;;
                 [Nn]* ) 
-                    echo "@@@@ Update skipped."
+                    echo -e "\033[33m@@@@ Update skipped.\033[0m"
                     break  
                     ;;
                 * ) 
-                    echo "@@@@ Invalid input. Please enter Y or N."
+                    echo -e "\033[31m@@@@ Invalid input. Please enter Y or N.\033[0m"
                     ;;
             esac
         done
     else
-        echo "@@@@ jsonpog-integration repository is already up-to-date."
+        echo -e "\033[33m@@@@ jsonpog-integration repository is already up-to-date.\033[0m"
     fi
 
     cd "$SKNANO_HOME"
@@ -220,5 +219,5 @@ if [ -z "$ONNXRUNTIME" ]; then
 fi
 export ONNXRUNTIME_INCLUDE_DIR=${CONDA_PREFIX}/include/onnxruntime/core/session
 export ONNXRUNTIME_LIB_DIR=${CONDA_PREFIX}/lib
-echo -e "\033[33m@@@@ onnxruntime include: $ONNXRUNTIME_INCLUDE_DIR\033[0m"
-echo -e "\033[33m@@@@ onnxruntime lib: $ONNXRUNTIME_LIB_DIR\033[0m"
+echo "@@@@ onnxruntime include: $ONNXRUNTIME_INCLUDE_DIR"
+echo "@@@@ onnxruntime lib: $ONNXRUNTIME_LIB_DIR"

@@ -9,7 +9,6 @@ void ExampleRun::initializeAnalyzer() {
     
     // if you use "--userflags RunSyst" with SKFlat.py, HasFlag("RunSyst") will return true
     RunSyst = HasFlag("RunSyst");
-    RunSyst = false;
     cout << "[ExampleRun::initializeAnalyzer] RunSyst = " << RunSyst << endl;
 
     // Dimuon Z-peak with two muon IDs
@@ -21,20 +20,23 @@ void ExampleRun::initializeAnalyzer() {
     // You can define sample-dependent or era-dependent variables here
     // example: era-dependent variables
     // "TString IsoMuTriggerName;" and "float TriggerSafePtCut;" are defined in Analyzers/include/ExampleRun.h
-    // IsoMuTriggerName is an era-dependent variable, which is used throhughout the events(let's make it global variable)
-    if (DataEra == "2022") {
+    // IsoMuTriggerName is an era-dependent variable, which is used throhoughout the events(let's make it global variable)
+    if (DataEra == "2016preVFP" || DataEra == "2016postVFP" || DataEra == "2018") {
         IsoMuTriggerName = "HLT_IsoMu24";
         TriggerSafePtCut = 26.;
-    }
-    else if (DataEra == "2022EE") {
+    } else if (DataEra == "2017") {
+        IsoMuTriggerName = "HLT_IsoMu27";
+        TriggerSafePtCut = 29.;
+    } else if (DataEra == "2022") {
         IsoMuTriggerName = "HLT_IsoMu24";
         TriggerSafePtCut = 26.;
-    }
-    else if (DataEra == "2023") {
+    } else if (DataEra == "2022EE") {
+        IsoMuTriggerName = "HLT_IsoMu24";
+        TriggerSafePtCut = 26.;
+    } else if (DataEra == "2023") {
         IsoMuTriggerName = "";
         TriggerSafePtCut = 26.;
-    }
-    else {
+    } else {
         cerr << "[ExampleRun::initializeAnalyzer] DataEra is not set properly" << endl;
         exit(EXIT_FAILURE);
     }
@@ -50,20 +52,16 @@ void ExampleRun::initializeAnalyzer() {
     myCorr = new MyCorrection(DataEra, IsDATA?DataStream:MCSample ,IsDATA);
     // SystematicHelper
     string SKNANO_HOME = getenv("SKNANO_HOME");
-    if (IsDATA)
-    {
+    if (IsDATA) {
         systHelper = std::make_unique<SystematicHelper>(SKNANO_HOME + "/docs/noSyst.yaml", DataStream);
-    }
-    else
-    {
+    } else {
         systHelper = std::make_unique<SystematicHelper>(SKNANO_HOME + "/docs/ExampleSystematic.yaml", MCSample);
     }
 
     //==== Example 2
     //==== Using new PDF
     //==== It consumes so much time, so only being activated with --userflags RunNewPDF
-    //RunNewPDF = HasFlag("RunNewPDF");
-    RunNewPDF = false;
+    RunNewPDF = HasFlag("RunNewPDF");
     cout << "[ExampleRun::initializeAnalyzer] RunNewPDF = " << RunNewPDF << endl;
     if (RunNewPDF && !IsDATA) {
         LHAPDFHandler LHAPDFHandler_Prod;
@@ -136,27 +134,29 @@ void ExampleRun::executeEvent() {
 
 void ExampleRun::executeEventFromParameter() {
     // Assign systematic sources, In this example, only muon ID scale factors are considered
-    string Mu_ID_SF_Key;
-    Muon::MuonID Muon_Tight_ID;
-    if(systHelper->getCurrentSysName() == "Central"){
-        Mu_ID_SF_Key = MuonIDSFKeys[0];
-        Muon_Tight_ID = MuonIDs[0];
-    }
-    // In this case, change of Muon ID is considered as systematic variation.
-    // Of course this only has one varation, not up and down
-    // I turned on OneSided option in the yaml file, then it variates in "Up" variation and stays same in "Down" variation
-    else if(systHelper->getCurrentSysName() == "Muon_ID_Tight_Up"){
-        Mu_ID_SF_Key = MuonIDSFKeys[1];
-        Muon_Tight_ID = MuonIDs[1];
-    }
-    else{
+    Muon::MuonID this_muon_id;
+    TString this_muon_id_sf_key;
+
+    const TString this_syst = systHelper->getCurrentSysName();
+    if(this_syst == "Central"){
+        this_muon_id = MuonIDs[0];
+        this_muon_id_sf_key = MuonIDSFKeys[0];        
+    } else if (this_syst == "Muon_ID_Tight_Up") {
+        // In this case, change of Muon ID is considered as systematic variation.
+        // Of course this only has one varation, not up and down
+        // I turned on OneSided option in the yaml file, then it variates in "Up" variation and stays same in "Down" variation
+        this_muon_id = MuonIDs[1];
+        this_muon_id_sf_key = MuonIDSFKeys[1];
+    } else{
+        //cerr << "[ExampleRun::executeEventFromParameter] check syst.yaml to set the systematic source for " << this_syst << endl;
+        //exit(EXIT_FAILURE);
         return;
     }
 
     std::unordered_map<std::string, std::variant<std::function<float(MyCorrection::variation, TString)>, std::function<float()>>> weight_function_map;
 
     // No cut
-    //FillHist(param.Name+"/NoCut_"+param.Name, 0., 1., 1, 0., 1.);
+    FillHist(this_syst+"/NoCut", 0., 1., 1, 0., 1.);
 
     // No MET filter for NanoAODv12? 
     Event ev = GetEvent();
@@ -169,7 +169,7 @@ void ExampleRun::executeEventFromParameter() {
     //RVec<Jet> this_AllJets = AllJets;
 
     // apply ID selections using this_AllXXX
-    RVec<Muon> muons = SelectMuons(this_AllMuons, Muon_Tight_ID, 20., 2.4);
+    RVec<Muon> muons = SelectMuons(this_AllMuons, this_muon_id, 20., 2.4);
     //RVec<Jet> jets = SelectJets(this_AllJets, param.Jet_ID, 30., 2.4);
     
     // sort in pt-order
@@ -195,7 +195,7 @@ void ExampleRun::executeEventFromParameter() {
 
     // example of applying muon scale factors
     auto mu_id_lambda = [&](MyCorrection::variation syst, TString source)
-    { return myCorr->GetMuonIDSF(Mu_ID_SF_Key, muons, syst, source); };
+    { return myCorr->GetMuonIDSF(this_muon_id_sf_key, muons, syst, source); };
     weight_function_map["Muon_ID"] = mu_id_lambda;
     systHelper->assignWeightFunctionMap(weight_function_map);
 
@@ -211,8 +211,10 @@ void ExampleRun::executeEventFromParameter() {
         for (const auto &w : weight_map)
         {
             // fill histograms
-            string Name = systHelper->getCurrentSysName();
-            FillHist(Name+"/ZCand_Mass_"+w.first, ZCand.M(), default_weight*w.second, 50, 70., 110.);
+            FillHist(this_syst+"/ZCand_Mass_"+w.first, ZCand.M(), default_weight*w.second, 50, 70., 110.);
         }
+    } else {
+        // fill histograms
+        FillHist(this_syst+"/ZCand_Mass_"+this_syst, ZCand.M(), weight, 50, 70., 110.);
     }
 }

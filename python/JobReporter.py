@@ -32,8 +32,6 @@ if __name__ == '__main__':
     argparse.add_argument('--master_dir', type=str, required=True)
     args = argparse.parse_args()
     
-    
-    
     master_dir = args.master_dir
     #check job is done by condor_rm
     with open(os.path.join(master_dir,'dags', 'finaldag.dag.dagman.out'), 'r') as f:
@@ -70,4 +68,3 @@ if __name__ == '__main__':
                 break
             
     requests.get(f'https://api.telegram.org/bot{args.TOKEN}/sendMessage?chat_id={args.chatID}&text={sendingMessage}')
-        

@@ -5,12 +5,12 @@ MyCorrection::EraConfig MyCorrection::GetEraConfig(TString era, string btagging_
 
     EraConfig config;
 
-    const char *json_pog_path = getenv("JSONPOG_INTEGRATION_PATH");
+    const char *json_pog_path = getenv("JSONPOG_REPO_PATH");
     const char *sknano_data = getenv("SKNANO_DATA");
 
     if (!json_pog_path || !sknano_data)
     {
-        throw std::runtime_error("JSONPOG_INTEGRATION_PATH or SKNANO_DATA is not set");
+        throw std::runtime_error("JSONPOG_REPO_PATH or SKNANO_DATA is not set");
     }
 
     std::string json_pog_path_str(json_pog_path);

@@ -213,8 +213,23 @@ Basic usage is as aboves. There are some additional options for the submission:
 - --batchname: set the batch name for the job. Default is the analyzer name_userflags.
 - --skimming\_mode: by passing this flag, SKFlat.py will submit the jobs for the skimming mode. Detailed information as follows.
 
+## How to make SampleList
+Here we expect that you have saved your central or customized NanoAOD in /gv0. Follow the steps to update sample info in `data/$ERA/Sample/CommonSampleInfo.json`.
+1. Update CommonSampleInfo.json with the alias of the sample and the name of the sample used for crab submission.
+2. Run the following command. It will search for root files under `/gv0/Users/$USER/SKNano/` and update the sample list.
+```bash
+./scripts/MakeSamplePathInfo.py --era $ERA
+```
+3. Run GetEffLumi analyzer to calculate the number of events(data) or sum of weights(MC) for each sample.
+```bash
+SKNano.py -a GetEffLumi -i $SAMPLENAME -e $ERA -n 10
+```
+4. After the job is done, update the CommonSampleInfo.json.
+```bash
+./scripts/parseEffLumi.py --era $ERA
+```
 
-### Skimming mode
+## Skimming mode
 By passing --skimming\_mode, SKFlat.py will submit the jobs for the skimming mode. In this mode, the jobs will create the output in `$SKNANO_RUN[2,3]_NANOAODPATH/Era/[Data,MC]/Skim/$USERNAME` directory, Instead of submit hadd layer in DAG, *PostProc* layer will add in the DAG. 
 
 If your analyzer has name that starts with "Skim_", you will be asked to be enable the skimming mode. If you choose to enable the skimming mode, then skimming mode will be activated. Of course you can manually activate the skimming mode by passing --skimming\_mode flag.

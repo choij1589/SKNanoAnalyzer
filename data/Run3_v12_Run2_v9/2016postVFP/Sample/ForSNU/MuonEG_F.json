@@ -1,0 +1,36 @@
+{
+    "name": "MuonEG",
+    "isMC": 0,
+    "NEvents": [
+        1896750.0,
+        33573016.0,
+        28812786.0
+    ],
+    "path": [
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_1.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_2.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_3.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_4.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_5.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_6.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_7.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_8.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_9.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_10.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_11.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_12.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_13.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_14.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_15.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_16.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_17.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_18.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_19.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_20.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_21.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_22.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_23.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_24.root",
+        "/gv0/Users/choij/SKNano/MuonEG/crab_DATA_2016postVFP_MuonEG_Run2016F/250310_065527/0000/NANOAOD_25.root"
+    ]
+}

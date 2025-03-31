@@ -1,0 +1,16 @@
+{
+    "name": "SingleMuon",
+    "isMC": 0,
+    "NEvents": [
+        8003612.0,
+        147945680.0,
+        171137952.0
+    ],
+    "path": [
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleMuon/PeriodF/240919_082150/0000/tree_1.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleMuon/PeriodF/240919_082150/0000/tree_2.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleMuon/PeriodF/240919_082150/0000/tree_3.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleMuon/PeriodF/240919_082150/0000/tree_4.root",
+        "/gv0/DATA/SKNano/Run2NanoAODv9/2016postVFP/DATA/SingleMuon/PeriodF/240919_082150/0000/tree_5.root"
+    ]
+}

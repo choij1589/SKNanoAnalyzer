@@ -22,7 +22,7 @@ if [ $use_ninja -eq 1 ]; then
 else
     cmake -DCMAKE_INSTALL_PREFIX=$SKNANO_INSTALLDIR $CORRECTION_CMAKE_PREFIX \
           -DCMAKE_PREFIX_PATH=$LIBTORCH_INSTALL_DIR $SKNANO_HOME \
-          -DCMAKE_BUILD_TYPE=Release --log-level=VERBOSE
+          -DCMAKE_BUILD_TYPE=Release
     echo @@@@ make -j6
     make -j6
 
