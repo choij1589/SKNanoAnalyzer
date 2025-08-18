@@ -3,16 +3,11 @@ install/*
 test/*
 test.root
 LocalRuns/**
-external/lhapdf/*
-external/libtorch/*
 config/config.*
 !config/config.default
 **/Skim*.json
 external/** 
 *.onnx
-!external/KinematicFitter
-!external/jsonpog-integration
-!external/RoccoR
 **/__pycache__/**
 .DS_Store
 SKFlatAnalyzer
@@ -21,6 +16,7 @@ SKNanoOutput
 Run*NanoAOD*
 
 #Temporary Added to my personal temp files
+setup.sh
 DataCOPY/** 
 MCCOPY/**
 .vscode/**
