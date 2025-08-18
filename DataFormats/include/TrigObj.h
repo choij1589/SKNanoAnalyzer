@@ -33,36 +33,6 @@ public:
     // Helper function to check if a specific bit is set
     inline bool hasBit(int bit) const { return (j_filterBits & (1 << bit)) != 0; }
     
-    // Main helper function for trigger matching
-    bool passTriggerFilter(int id, const TString& hltPath) const;
-    
-    // Electron-specific filter checks
-    bool passElectronFilter(const TString& hltPath) const;
-    
-    // Muon-specific filter checks
-    bool passMuonFilter(const TString& hltPath) const;
-    
-    // Tau-specific filter checks
-    bool passTauFilter(const TString& hltPath) const;
-    
-    // Jet-specific filter checks
-    bool passJetFilter(const TString& hltPath) const;
-    
-    // HT-specific filter checks
-    bool passHTFilter(const TString& hltPath) const;
-    
-    // MHT-specific filter checks
-    bool passMHTFilter(const TString& hltPath) const;
-    
-    // Photon-specific filter checks
-    bool passPhotonFilter(const TString& hltPath) const;
-    
-    // FatJet-specific filter checks
-    bool passFatJetFilter(const TString& hltPath) const;
-    
-    // BoostedTau-specific filter checks
-    bool passBoostedTauFilter(const TString& hltPath) const;
-
 private:
     // Object ID: 11=Electron, 22=Photon, 13=Muon, 15=Tau, 1=Jet, 6=FatJet, 2=MET, 3=HT, 4=MHT, 1515=BoostedTau
     int j_id;

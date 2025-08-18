@@ -129,30 +129,30 @@ void MeasTrigEff::measEMuTrigEff_MuLegs(RVec<Muon> &tightMuons, RVec<Muon> &loos
     
     // Trigger object matching for electron
     if (! PassSLT(el, trigObjs)) return;
-    const float offline_pt_cut = (Run == 3 ? 33: (DataYear == 2016 ? 30: 35));
+    const float offline_pt_cut = (Run == 3 ? 32: (DataYear == 2016 ? 30: 35));
     if (! (el.Pt() > offline_pt_cut)) return;
     if (! (mu.Charge()+el.Charge() == 0)) return;
     if (! (mu.DeltaR(el) > 0.4)) return;
 
     // Define Binning
-    RVec<float> Mu23PtBins = {10., 20., 23., 25., 30., 40., 50., 100., 200.};
+    RVec<float> Mu23PtBins = {5., 10., 20., 23., 25., 30., 40., 50., 100., 200.};
     RVec<float> Mu8PtBins = {5., 8., 10., 15., 20., 30., 50., 100., 200.};
     RVec<float> EtaBins = {0., 0.8, 1.6, 2.4};
 
     const bool passMu23Leg = PassEMT_MuLeg(mu, trigObjs, 23.f);
     const bool passMu8Leg = PassEMT_MuLeg(mu, trigObjs, 8.f);
 
-    FillHist("TrigEff_Mu23El12_MuLeg_DENOM/Central/fEta_Pt", fabs(mu.Eta()), mu.Pt(), weight, EtaBins, Mu23PtBins);
-    FillHist("TrigEff_Mu8El23_MuLeg_DENOM/Central/fEta_Pt", fabs(mu.Eta()), mu.Pt(), weight, EtaBins, Mu8PtBins);
-    if (passMu23Leg) FillHist("TrigEff_Mu23El12_MuLeg_NUM/Central/fEta_Pt", fabs(mu.Eta()), mu.Pt(), weight, EtaBins, Mu23PtBins);
-    if (passMu8Leg)  FillHist("TrigEff_Mu8El23_MuLeg_NUM/Central/fEta_Pt", fabs(mu.Eta()), mu.Pt(), weight, EtaBins, Mu8PtBins);
+    FillHist("TrigEff_Mu23El12_MuLeg_DENOM/Central/fEta_Pt", fabs(mu.Eta()), mu.OriginalPt(), weight, EtaBins, Mu23PtBins);
+    FillHist("TrigEff_Mu8El23_MuLeg_DENOM/Central/fEta_Pt", fabs(mu.Eta()), mu.OriginalPt(), weight, EtaBins, Mu8PtBins);
+    if (passMu23Leg) FillHist("TrigEff_Mu23El12_MuLeg_NUM/Central/fEta_Pt", fabs(mu.Eta()), mu.OriginalPt(), weight, EtaBins, Mu23PtBins);
+    if (passMu8Leg)  FillHist("TrigEff_Mu8El23_MuLeg_NUM/Central/fEta_Pt", fabs(mu.Eta()), mu.OriginalPt(), weight, EtaBins, Mu8PtBins);
 
     // Syst: QCD Contamination
     if (el.Pt() > 40.) {
-        FillHist("TrigEff_Mu23El12_MuLeg_DENOM/AltTag/fEta_Pt", fabs(mu.Eta()), mu.Pt(), weight, EtaBins, Mu23PtBins);
-        FillHist("TrigEff_Mu8El23_MuLeg_DENOM/AltTag/fEta_Pt", fabs(mu.Eta()), mu.Pt(), weight, EtaBins, Mu8PtBins);
-        if (passMu23Leg) FillHist("TrigEff_Mu23El12_MuLeg_NUM/AltTag/fEta_Pt", fabs(mu.Eta()), mu.Pt(), weight, EtaBins, Mu23PtBins);
-        if (passMu8Leg)  FillHist("TrigEff_Mu8El23_MuLeg_NUM/AltTag/fEta_Pt", fabs(mu.Eta()), mu.Pt(), weight, EtaBins, Mu8PtBins);
+        FillHist("TrigEff_Mu23El12_MuLeg_DENOM/AltTag/fEta_Pt", fabs(mu.Eta()), mu.OriginalPt(), weight, EtaBins, Mu23PtBins);
+        FillHist("TrigEff_Mu8El23_MuLeg_DENOM/AltTag/fEta_Pt", fabs(mu.Eta()), mu.OriginalPt(), weight, EtaBins, Mu8PtBins);
+        if (passMu23Leg) FillHist("TrigEff_Mu23El12_MuLeg_NUM/AltTag/fEta_Pt", fabs(mu.Eta()), mu.OriginalPt(), weight, EtaBins, Mu23PtBins);
+        if (passMu8Leg)  FillHist("TrigEff_Mu8El23_MuLeg_NUM/AltTag/fEta_Pt", fabs(mu.Eta()), mu.OriginalPt(), weight, EtaBins, Mu8PtBins);
     }
 }
 
@@ -168,24 +168,24 @@ void MeasTrigEff::measEMuTrigEff_ElLegs(RVec<Muon> &tightMuons, RVec<Muon> &loos
     if (! (mu.DeltaR(el) > 0.4)) return;
 
     // Define Binning
-    RVec<float> El23PtBins = {10.,20.,23.,25.,30.,40.,50.,100.,200.};
-    RVec<float> El12PtBins = {10.,12.,15.,20.,30.,50.,100.,200.};
+    RVec<float> El23PtBins = {5.,10.,20.,23.,25.,30.,40.,50.,100.,200.};
+    RVec<float> El12PtBins = {5.,10.,12.,15.,20.,30.,50.,100.,200.};
     RVec<float> EtaBins = {0., 0.8, 1.479, 2.5};
 
     const bool passEl12Leg = PassEMT_ElLeg(el, trigObjs, 12.f);
     const bool passEl23Leg = PassEMT_ElLeg(el, trigObjs, 23.f);
 
-    FillHist("TrigEff_Mu23El12_ElLeg_DENOM/Central/fEta_Pt", fabs(el.Eta()), el.Pt(), weight, EtaBins, El12PtBins);
-    FillHist("TrigEff_Mu8El23_ElLeg_DENOM/Central/fEta_Pt", fabs(el.Eta()), el.Pt(), weight, EtaBins, El23PtBins);
-    if (passEl12Leg) FillHist("TrigEff_Mu23El12_ElLeg_NUM/Central/fEta_Pt", fabs(el.Eta()), el.Pt(), weight, EtaBins, El12PtBins);
-    if (passEl23Leg) FillHist("TrigEff_Mu8El23_ElLeg_NUM/Central/fEta_Pt", fabs(el.Eta()), el.Pt(), weight, EtaBins, El23PtBins);
+    FillHist("TrigEff_Mu23El12_ElLeg_DENOM/Central/fEta_Pt", fabs(el.scEta()), el.Pt(), weight, EtaBins, El12PtBins);
+    FillHist("TrigEff_Mu8El23_ElLeg_DENOM/Central/fEta_Pt", fabs(el.scEta()), el.Pt(), weight, EtaBins, El23PtBins);
+    if (passEl12Leg) FillHist("TrigEff_Mu23El12_ElLeg_NUM/Central/fEta_Pt", fabs(el.scEta()), el.Pt(), weight, EtaBins, El12PtBins);
+    if (passEl23Leg) FillHist("TrigEff_Mu8El23_ElLeg_NUM/Central/fEta_Pt", fabs(el.scEta()), el.Pt(), weight, EtaBins, El23PtBins);
 
     // Syst: QCD Contamination
     if (mu.Pt() > 35. && mu.PfRelIso04() < 0.15) {
-        FillHist("TrigEff_Mu23El12_ElLeg_DENOM/AltTag/fEta_Pt", fabs(el.Eta()), el.Pt(), weight, EtaBins, El12PtBins);
-        FillHist("TrigEff_Mu8El23_ElLeg_DENOM/AltTag/fEta_Pt", fabs(el.Eta()), el.Pt(), weight, EtaBins, El23PtBins);
-        if (passEl12Leg) FillHist("TrigEff_Mu23El12_ElLeg_NUM/AltTag/fEta_Pt", fabs(el.Eta()), el.Pt(), weight, EtaBins, El12PtBins);
-        if (passEl23Leg) FillHist("TrigEff_Mu8El23_ElLeg_NUM/AltTag/fEta_Pt", fabs(el.Eta()), el.Pt(), weight, EtaBins, El23PtBins);
+        FillHist("TrigEff_Mu23El12_ElLeg_DENOM/AltTag/fEta_Pt", fabs(el.scEta()), el.Pt(), weight, EtaBins, El12PtBins);
+        FillHist("TrigEff_Mu8El23_ElLeg_DENOM/AltTag/fEta_Pt", fabs(el.scEta()), el.Pt(), weight, EtaBins, El23PtBins);
+        if (passEl12Leg) FillHist("TrigEff_Mu23El12_ElLeg_NUM/AltTag/fEta_Pt", fabs(el.scEta()), el.Pt(), weight, EtaBins, El12PtBins);
+        if (passEl23Leg) FillHist("TrigEff_Mu8El23_ElLeg_NUM/AltTag/fEta_Pt", fabs(el.scEta()), el.Pt(), weight, EtaBins, El23PtBins);
     }
 }
 
@@ -360,7 +360,7 @@ bool MeasTrigEff::PassDLT(const Muon &mu, const RVec<TrigObj> &trigObjs, float p
     for (const auto &trigObj : trigObjs) {
         if (! trigObj.isMuon()) continue;
         if (! (trigObj.DeltaR(mu) < 0.3)) continue;
-        if (! (trigObj.hasBit(0) && trigObj.hasBit(4))) continue;
+        if (! (trigObj.hasBit(4))) continue;
         if (! (trigObj.Pt() > pt_cut)) continue;
         return true;
     }
@@ -368,10 +368,11 @@ bool MeasTrigEff::PassDLT(const Muon &mu, const RVec<TrigObj> &trigObjs, float p
 }
 
 bool MeasTrigEff::PassEMT_ElLeg(const Electron &el, const RVec<TrigObj> &trigObjs, float pt_cut){
+    const int trigBit = (Run == 2) ? 5 : 6; // 5 for Run2, 6 for Run3
     for (const auto &trigObj : trigObjs) {
         if (! trigObj.isElectron()) continue;
         if (! (trigObj.DeltaR(el) < 0.3)) continue;
-        if (! (trigObj.hasBit(6))) continue;
+        if (! (trigObj.hasBit(trigBit))) continue;
         if (! (trigObj.Pt() > pt_cut)) continue;
         return true;
     }

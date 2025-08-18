@@ -5,15 +5,17 @@ DiLeptonBase::~DiLeptonBase() {}
 
 void DiLeptonBase::initializeAnalyzer() {
     // Flags
-    RunDiMu = HasFlag("RunDiMu");
-    RunEMu = HasFlag("RunEMu");
+    RunDiMu      = HasFlag("RunDiMu");
+    RunEMu       = HasFlag("RunEMu");
+    Run1E2Mu     = HasFlag("Run1E2Mu");
+    Run3Mu       = HasFlag("Run3Mu");
     RunNoVetoMap = HasFlag("RunNoVetoMap");
-    MeasFakeMu8 = HasFlag("MeasFakeMu8");
+    MeasFakeMu8  = HasFlag("MeasFakeMu8");
     MeasFakeMu17 = HasFlag("MeasFakeMu17");
-    MeasFakeEl8 = HasFlag("MeasFakeEl8");
+    MeasFakeEl8  = HasFlag("MeasFakeEl8");
     MeasFakeEl12 = HasFlag("MeasFakeEl12");
     MeasFakeEl23 = HasFlag("MeasFakeEl23");
-    RunSyst = HasFlag("RunSyst");
+    RunSyst      = HasFlag("RunSyst");
 
     // Lepton IDs and triggers
     MuonIDs = new IDContainer("HcToWATight", "HcToWALoose");

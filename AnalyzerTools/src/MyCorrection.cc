@@ -1,8 +1,7 @@
 #include "MyCorrection.h"
 
 MyCorrection::MyCorrection() {}
-MyCorrection::MyCorrection(const TString &era, const TString &period, const TString &sample, const bool IsData, const string &btagging_eff_file, const string &ctagging_eff_file, const string &btagging_R_file, const string &ctagging_R_file)
-{ 
+MyCorrection::MyCorrection(const TString &era, const TString &period, const TString &sample, const bool IsData, const string &btagging_eff_file, const string &ctagging_eff_file, const string &btagging_R_file, const string &ctagging_R_file) { 
     cout << "[MyCorrection::MyCorrection] MyCorrection created for " << era << endl;
     SetEra(era);
     SetPeriod(period);
@@ -764,13 +763,13 @@ float MyCorrection::GetPairwiseFilterEff(const TString &filter_name, const bool 
         } else if (GetEra() == "2018") {
             return isData? 0.9988 : 0.9998;
         } else if (GetEra() == "2022") {
-            return isData? 1. : 0.9998;
+            return isData? 0.9996 : 0.9998;
         } else if (GetEra() == "2022EE") {
             return isData? 0.9994 : 0.9998;
         } else if (GetEra() == "2023") {
-            return isData? 0.9993 : 0.9998;
+            return isData? 0.9993 : 0.9997;
         } else if (GetEra() == "2023BPix") {
-            return isData? 0.9989 : 0.9997;
+            return isData? 0.9989 : 0.9996;
         } else {
             cerr << "[MyCorrection::GetPairwiseFilterEff] " << filter_name << " is not implemented for " << GetEra() << endl;
             return 1.;
@@ -859,7 +858,7 @@ float MyCorrection::GetBTaggingEff(const float eta, const float pt, const int fl
 
 float MyCorrection::GetBTaggingSF(const RVec<Jet> &jets, const JetTagging::JetFlavTagger tagger, const JetTagging::JetFlavTaggerWP wp, const JetTagging::JetTaggingSFMethod method, const variation syst, const TString &source) {
     if (Run == 2 && tagger != JetTagging::JetFlavTagger::DeepJet) {
-        cerr << "[MyCorrection::GetBTaggingSF] DeepJet is the only supported tagger for 2016preVFP, 2016postVFP, 2017, 2018, and 2018UL" << endl;
+        cerr << "[MyCorrection::GetBTaggingSF] DeepJet is the only supported tagger for Run2 UL" << endl;
         return 1.;
     }
     
@@ -897,7 +896,7 @@ float MyCorrection::GetBTaggingSF(const RVec<Jet> &jets, const JetTagging::JetFl
             }
         }
         return weight;
-    } else if (method == JetTagging::JetTaggingSFMethod::comb or method == JetTagging::JetTaggingSFMethod::mujets) {
+    } else if ((method == JetTagging::JetTaggingSFMethod::comb) || (method == JetTagging::JetTaggingSFMethod::mujets)) {
         auto cset = cset_btagging->at(this_taggerStr + "_" + JetTagging::GetJetTaggingSFMethodStr(method).Data());
         string light_str;
         if (Run == 2)

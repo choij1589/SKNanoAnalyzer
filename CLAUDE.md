@@ -62,6 +62,38 @@ SKNano.py -a Skim_AnalyzerName -i SampleName -e 2022 --skimming_mode
 3. Add to `Analyzers/include/AnalyzersLinkDef.hpp`
 4. Use enum classes for constants instead of magic numbers/strings
 
+### Analyzer Implementation Structure
+When implementing new analyzers, follow the established pattern from `DiLepton.cc`:
+
+1. **Core Structure**:
+   - `initializeAnalyzer()`: Set up channels, systematic helper, and analysis configuration
+   - `executeEvent()`: Main event processing with sequential filters and systematic handling
+   - Helper methods: `defineObjects()`, `selectEvent()`, `getWeights()`, `fillObjects()`
+
+2. **Systematic Handling Pattern**:
+   - Use `SystematicHelper` for managing systematic variations
+   - Process Central objects first, then weight-only systematics
+   - Handle object-variation systematics with event re-processing
+   - Implement systematic-aware histogram organization: `channel/systematic/object/variable`
+
+3. **Event Processing Flow**:
+   - Apply sequential event filters (noise filter, veto maps, etc.)
+   - Define physics objects with systematic variations
+   - Apply channel-specific event selection
+   - Calculate systematic weights and scale factors
+   - Fill histograms with proper systematic categorization
+
+4. **Object Definition Best Practices**:
+   - Create object copies for systematic variations
+   - Apply scale/smearing based on systematic names
+   - Implement Type-I MET corrections
+   - Sort objects by pT and apply selection criteria consistently
+
+5. **Weight Calculation**:
+   - Handle all systematic weight variations through `MyCorrection` class
+   - Include trigger, lepton ID/reconstruction, b-tagging, and pileup scale factors
+   - Apply generator weights, L1 prefire, and physics-specific reweighting
+
 ### Systematic Uncertainties
 - Use `SystematicHelper` class for systematic variations
 - Implement variations using `variation` enum (nom, up, down)
