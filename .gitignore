@@ -14,6 +14,7 @@ SKFlatAnalyzer
 HSNanoAnalyzer
 SKNanoOutput
 Run*NanoAOD*
+**/BTV/*.json
 
 #Temporary Added to my personal temp files
 setup.sh

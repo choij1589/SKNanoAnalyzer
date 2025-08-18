@@ -856,10 +856,70 @@ float MyCorrection::GetBTaggingEff(const float eta, const float pt, const int fl
     return safeEvaluate(cset, "GetBTaggingSF", {"central", this_wpStr, flav, fabs(eta), pt});
 }
 
+// For fixed point WP
+// sources are central, hf_corr, hf_uncorr, lf_corr, lf_uncorr
+float MyCorrection::GetBTaggingReweightMethod1a(const RVec<Jet> &jets, const JetTagging::JetFlavTagger tagger, const JetTagging::JetFlavTaggerWP wp, const JetTagging::JetTaggingSFMethod method, const variation syst, const TString &source) {
+    if (tagger != JetTagging::JetFlavTagger::DeepJet) {
+        cerr << "[MyCorrection::GetBTaggingSF] Current implementation is for DeepJet tagger << endl";
+        exit(EXIT_FAILURE);
+    }
+    if (! (method == JetTagging::JetTaggingSFMethod::comb || method == JetTagging::JetTaggingSFMethod::mujets)) {
+        cerr << "[MyCorrection::GetBTaggingSF] Current implementation is for comb or mujets method only" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    string this_taggerStr = JetTagging::GetTaggerCorrectionLibStr(tagger).Data();
+    string this_wpStr = JetTagging::GetTaggerCorrectionWPStr(wp).Data();
+    string syst_str = getSystString_BTV(syst);
+    
+    // Set source string for hf / lf
+    string source_lf = "central";
+    string source_hf = "central";
+    if (source == "hf_corr") {
+        source_hf = syst_str+"_correlated";
+    } else if (source == "hf_uncorr") {
+        source_hf = syst_str+"_uncorrelated";
+    } else if (source == "lf_corr") {
+        source_lf = syst_str+"_correlated";
+    } else if (source == "lf_uncorr") {
+        source_lf = syst_str+"_uncorrelated";
+    } else {
+        try {
+            assert(source == "central");
+        } catch (const std::exception &e) {
+            cerr << "[MyCorrection::GetBTaggingSF] Invalid source: " << source << endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    float weight = 1.;
+    auto cset = cset_btagging->at(this_taggerStr+"_"+JetTagging::GetJetTaggingSFMethodStr(method).Data());
+    string light_str = (Run == 2) ? this_taggerStr+"_incl" : this_taggerStr+"_light";
+    auto cset_light = cset_btagging->at(light_str);
+    float this_cut = GetBTaggingWP(tagger, wp);
+    for (const auto &jet : jets) {
+        const bool is_heavy = abs(jet.hadronFlavour()) == 5 || abs(jet.hadronFlavour()) == 4;
+        const int this_flav = is_heavy ? abs(jet.hadronFlavour()) : 0;
+        auto this_source = is_heavy ? source_hf : source_lf;
+        auto this_cset = is_heavy ? cset : cset_light;
+        const float eff = GetBTaggingEff(jet.Eta(), jet.Pt(), this_flav, tagger, wp, syst);
+
+        const float sf = safeEvaluate(this_cset, "GetBTaggingSF", {this_source, this_wpStr, this_flav, fabs(jet.Eta()), jet.Pt()});
+        if (jet.GetBTaggerResult(tagger) > this_cut) {
+            weight *= sf;
+        } else {
+            weight *= (1. - eff * sf) / (1. - eff);
+        }
+    }
+    return weight;
+}
+
+
+
 float MyCorrection::GetBTaggingSF(const RVec<Jet> &jets, const JetTagging::JetFlavTagger tagger, const JetTagging::JetFlavTaggerWP wp, const JetTagging::JetTaggingSFMethod method, const variation syst, const TString &source) {
     if (Run == 2 && tagger != JetTagging::JetFlavTagger::DeepJet) {
         cerr << "[MyCorrection::GetBTaggingSF] DeepJet is the only supported tagger for Run2 UL" << endl;
-        return 1.;
+        exit(EXIT_FAILURE);
     }
     
     string this_taggerStr = JetTagging::GetTaggerCorrectionLibStr(tagger).Data();

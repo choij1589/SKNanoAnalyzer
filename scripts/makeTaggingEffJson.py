@@ -251,7 +251,7 @@ def main():
     args = parser.parse_args()
 
     # List of eras to process (adjust as needed)
-    totalEras = ['2017']
+    totalEras = ['2016preVFP', '2016postVFP', '2017', '2018', '2022', '2022EE', '2023', '2023BPix']
     for era in totalEras:
         out_dir = os.path.join(os.environ.get('SKNANO_DATA', ''), era, 'BTV')
         os.makedirs(out_dir, exist_ok=True)

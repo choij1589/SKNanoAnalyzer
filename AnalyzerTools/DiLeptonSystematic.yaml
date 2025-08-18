@@ -35,3 +35,11 @@ systematics:
   - syst: ElectronIDSF
     
   - syst: PileupJetIDSF
+
+  - syst: BtagSF_HFcorr
+
+  - syst: BtagSF_HFuncorr
+
+  - syst: BtagSF_LFcorr
+
+  - syst: BtagSF_LFuncorr

@@ -402,7 +402,13 @@ DiLepton::WeightInfo DiLepton::getWeights(const DiLepton::Channel& channel,
         JetTagging::JetFlavTagger tagger = JetTagging::JetFlavTagger::DeepJet;
         JetTagging::JetFlavTaggerWP wp = JetTagging::JetFlavTaggerWP::Medium;
         JetTagging::JetTaggingSFMethod method = JetTagging::JetTaggingSFMethod::mujets;
-        weights.btagSF = myCorr->GetBTaggingSF(jets, tagger, wp, method);
+        //weights.btagSF = myCorr->GetBTaggingSF(jets, tagger, wp, method);
+        string source="central";
+        if (syst.Contains("HFcorr")) source = "hf_corr";
+        if (syst.Contains("HFuncorr")) source = "hf_uncorr";
+        if (syst.Contains("LFcorr")) source = "lf_corr";
+        if (syst.Contains("LFuncorr")) source = "lf_uncorr";
+        weights.btagSF = myCorr->GetBTaggingReweightMethod1a(jets, tagger, wp, method, var, source);
     } else {
         weights.btagSF = 1.;
     }
@@ -437,6 +443,7 @@ void DiLepton::fillObjects(const DiLepton::Channel& channel, const RecoObjects& 
             if (syst.Contains("ElectronIDSF")) weight /= (weights.eleIDSF*weights.trigSF);
             if (syst.Contains("DblMuTrigSF")) weight /= weights.trigSF;
             if (syst.Contains("EMuTrigSF")) weight /= weights.trigSF;
+            if (syst.Contains("BtagSF")) weight /= weights.btagSF;
         }
 
 

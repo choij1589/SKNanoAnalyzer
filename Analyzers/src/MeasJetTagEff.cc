@@ -6,14 +6,15 @@ MeasJetTagEff::MeasJetTagEff() {}
 MeasJetTagEff::~MeasJetTagEff(){}
 
 void MeasJetTagEff::initializeAnalyzer(){
-    fChain->SetBranchStatus("*", 0);
-    fChain->SetBranchStatus("Jet_*", 1);
-    fChain->SetBranchStatus("GenJet_*", 1);
-    fChain->SetBranchStatus("Muon_*", 1);
-    fChain->SetBranchStatus("Electron_*", 1);
-    fChain->SetBranchStatus("Pileup_*", 1);
-    fChain->SetBranchStatus("PV_*", 1);
-    fChain->SetBranchStatus("genWeight", 1);
+    DiLeptonBase::initializeAnalyzer();
+    //fChain->SetBranchStatus("*", 0);
+    //fChain->SetBranchStatus("Jet_*", 1);
+    //fChain->SetBranchStatus("GenJet_*", 1);
+    //fChain->SetBranchStatus("Muon_*", 1);
+    //fChain->SetBranchStatus("Electron_*", 1);
+    //fChain->SetBranchStatus("Pileup_*", 1);
+    //fChain->SetBranchStatus("PV_*", 1);
+    //fChain->SetBranchStatus("genWeight", 1);
 
     myCorr = new MyCorrection(DataEra, DataPeriod, IsDATA?DataStream:MCSample ,IsDATA);
     TString datapath = getenv("DATA_DIR");
@@ -23,13 +24,13 @@ void MeasJetTagEff::initializeAnalyzer(){
     WPs.clear();
 
     Taggers.push_back(JetTagging::JetFlavTagger::DeepJet);
-    Taggers.push_back(JetTagging::JetFlavTagger::ParticleNet);
-    Taggers.push_back(JetTagging::JetFlavTagger::ParT);
+    //Taggers.push_back(JetTagging::JetFlavTagger::ParticleNet);
+    //Taggers.push_back(JetTagging::JetFlavTagger::ParT);
     WPs.push_back(JetTagging::JetFlavTaggerWP::Loose);
     WPs.push_back(JetTagging::JetFlavTaggerWP::Medium);
     WPs.push_back(JetTagging::JetFlavTaggerWP::Tight);
-    WPs.push_back(JetTagging::JetFlavTaggerWP::VeryTight);
-    WPs.push_back(JetTagging::JetFlavTaggerWP::SuperTight);
+    //WPs.push_back(JetTagging::JetFlavTaggerWP::VeryTight);
+    //WPs.push_back(JetTagging::JetFlavTaggerWP::SuperTight);
 
     vec_etabins = {0.0, 0.8, 1.6, 2.1, 2.5};
     vec_ptbins = {20., 25., 30., 50., 70., 100., 140., 200., 300., 600., 1000.}; // PT bins used in POG SF measurements
@@ -90,8 +91,8 @@ void MeasJetTagEff::executeEvent() {
         if (! ((mu.Pt() > 25. && el.Pt() > 15) || (mu.Pt() > 10. && el.Pt() > 25.))) return;
     } else if (atLeastDiMu) {
         if (!ev.PassTrigger(DblMuTriggers)) return;
-        const Muon& mu1 = tightMuons[1];
-        const Muon& mu2 = tightMuons[2];
+        const Muon& mu1 = tightMuons[0];
+        const Muon& mu2 = tightMuons[1];
         if (! (mu1.Pt() > 20.)) return;
         if (! (mu2.Pt() > 10.)) return;
     } else {
@@ -105,13 +106,15 @@ void MeasJetTagEff::executeEvent() {
     float w_PU = myCorr->GetPUWeight(ev.nTrueInt()); 
     weight *= w_Gen * w_Norm * w_PU;
     // tagging performance depends on PU, so it is better reweight to proper PU profile
-
+    /*
     auto isWPAvailable= [&](const std::string flav, const std::string tagger, const JetTagging::JetFlavTaggerWP wp, const int run){ 
         if(wp != JetTagging::JetFlavTaggerWP::VeryTight && wp != JetTagging::JetFlavTaggerWP::SuperTight) return true;
         if(flav == "c") return false;
         if(run == 2) return false;
         return true;
-    };
+    }
+    */
+
     //==== code to measure btag efficiencies in TT MC
     //==== Reference : https://github.com/rappoccio/usercode/blob/Dev_53x/EDSHyFT/plugins/BTaggingEffAnalyzer.cc
     for (unsigned int ij = 0; ij < tightJets_vetoLep.size(); ij++) {
@@ -126,14 +129,14 @@ void MeasJetTagEff::executeEvent() {
         FillHist(string("tagging#b") + "##era#" + DataEra.Data() + "##flavor#" + string(flav) + "##systematic#central##den", this_Eta, this_Pt, weight, NEtaBin, etabins, NPtBin, ptbins);
         FillHist(string("tagging#c") + "##era#" + DataEra.Data() + "##flavor#" + string(flav) + "##systematic#central##den", this_Eta, this_Pt, weight, NEtaBin, etabins, NPtBin, ptbins);
         FillHist("DeepJetBTaggingScore"+flav, jet.GetBTaggerResult(JetTagging::JetFlavTagger::DeepJet), weight, 100, 0, 1);
-        FillHist("ParticleNetBTaggingScore"+flav, jet.GetBTaggerResult(JetTagging::JetFlavTagger::ParticleNet), weight, 100, 0, 1);
-        FillHist("ParTBTaggingScore"+flav, jet.GetBTaggerResult(JetTagging::JetFlavTagger::ParT), weight, 100, 0, 1);
+        //FillHist("ParticleNetBTaggingScore"+flav, jet.GetBTaggerResult(JetTagging::JetFlavTagger::ParticleNet), weight, 100, 0, 1);
+        //FillHist("ParTBTaggingScore"+flav, jet.GetBTaggerResult(JetTagging::JetFlavTagger::ParT), weight, 100, 0, 1);
         for(unsigned int i_tag=0; i_tag < Taggers.size(); i_tag++){
             JetTagging::JetFlavTagger this_tagger = Taggers.at(i_tag);
             //============ b-tagging
             for(unsigned int i_wp=0; i_wp < WPs.size(); i_wp++){
                 JetTagging::JetFlavTaggerWP this_wp = WPs.at(i_wp);
-                if (!isWPAvailable("b", JetTagging::GetTaggerCorrectionLibStr(this_tagger).Data(), this_wp, Run)) continue;
+                //if (!isWPAvailable("b", JetTagging::GetTaggerCorrectionLibStr(this_tagger).Data(), this_wp, Run)) continue;
                 myCorr->SetTaggingParam(this_tagger, this_wp);
                 float this_bTaggingCut = myCorr->GetBTaggingWP();
                 if (jet.GetBTaggerResult(this_tagger) > this_bTaggingCut)
@@ -142,7 +145,7 @@ void MeasJetTagEff::executeEvent() {
             //============ c-tagging
             for(unsigned int i_wp=0; i_wp < WPs.size(); i_wp++){
                 JetTagging::JetFlavTaggerWP this_wp = WPs.at(i_wp);
-                if (!isWPAvailable("c", JetTagging::GetTaggerCorrectionLibStr(this_tagger).Data(), this_wp, Run)) continue;
+                //if (!isWPAvailable("c", JetTagging::GetTaggerCorrectionLibStr(this_tagger).Data(), this_wp, Run)) continue;
                 myCorr->SetTaggingParam(this_tagger, this_wp);
                 float this_CvBCut = myCorr->GetCTaggingWP().first;
                 float this_CvLCut = myCorr->GetCTaggingWP().second;
