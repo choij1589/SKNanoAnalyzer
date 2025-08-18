@@ -49,14 +49,14 @@ void Muon::SetBIDBit(BooleanID id, bool idbit) {
 
 void Muon::SetWIDBit(WorkingPointID id, unsigned char wp) {
     switch (id) {
-        case WorkingPointID::HIGHPT:    j_highPtId = (unsigned char)(wp+1); break;
+        case WorkingPointID::HIGHPT:    j_highPtId = (unsigned char)(wp); break;
         case WorkingPointID::MINIISO:   j_miniIsoId = (unsigned char)(wp+1); break;
         case WorkingPointID::MULTIISO:  j_multiIsoId = (unsigned char)(wp+1); break;
         case WorkingPointID::MVAMU:     j_mvaMuId = (unsigned char)(wp+2); break;
         //case WorkingPointID::MVALOWPT:  j_mvaLowPtId = (unsigned char)(wp+1); break;
         case WorkingPointID::PFISO:     j_pfIsoId = (unsigned char)wp; break;
         case WorkingPointID::PUPPIISO:  j_puppiIsoId = (unsigned char)(wp+1); break;
-        case WorkingPointID::TKISO:     j_tkIsoId = (unsigned char)(wp+1); break;
+        case WorkingPointID::TKISO:     j_tkIsoId = (unsigned char)(wp); break;
         default: break;
     }
 }
@@ -128,9 +128,9 @@ bool Muon::PassID(const MuonID ID) const {
         case MuonID::POG_TRIGGER_LOOSE:
             return isPOGTriggerIdLoose();
         case MuonID::POG_TRACKER_HIGH_PT:
-            return (int)HighPtId() == 1;
-        case MuonID::POG_GLOBAL_HIGH_PT:
             return (int)HighPtId() == 2;
+        case MuonID::POG_GLOBAL_HIGH_PT:
+            return (int)HighPtId() == 3;
         case MuonID::POG_MINISO_LOOSE:
             return (int)MiniIsoId() >= (int)(WorkingPoint::LOOSE);
         case MuonID::POG_MINISO_MEDIUM:
@@ -166,9 +166,9 @@ bool Muon::PassID(const MuonID ID) const {
         case MuonID::POG_PUPPIISO_TIGHT:
             return (int)PuppiIsoId() >= (int)(WorkingPoint::TIGHT);
         case MuonID::POG_TKISO_LOOSE:
-            return (int)TkIsoId() == 1;
-        case MuonID::POG_TKISO_TIGHT:
             return (int)TkIsoId() == 2;
+        case MuonID::POG_TKISO_TIGHT:
+            return (int)TkIsoId() == 3;
         default:
             break;
     }
