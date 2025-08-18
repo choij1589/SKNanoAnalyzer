@@ -129,10 +129,23 @@ DiLepton::RecoObjects DiLepton::defineObjects(Event& ev,
     }
     
     // Get MET from event and re-apply Type-I correction and XY correction
-    Particle METv_default = ev.GetMETVector(Event::MET_Type::PUPPI);
-    Particle METv = ApplyTypeICorrection(METv_default, allJets, allElectrons, allMuons, syst);
+    Particle METv_default;
+    if (syst.Contains("UnclusteredEn")) {
+        Event::MET_Syst variation = syst.Contains("Up") ? Event::MET_Syst::UE_UP : Event::MET_Syst::UE_DOWN;
+        METv_default = ev.GetMETVector(Event::MET_Type::PUPPI, variation);
+    } else {
+        METv_default = ev.GetMETVector(Event::MET_Type::PUPPI);
+    }
+    Particle METv = ApplyTypeICorrection(METv_default, allJets, allElectrons, allMuons);
     // XY correction is not recommended for PUPPI MET
-    //myCorr->METXYCorrection(METv, ev.run(), ev.nPV(), MyCorrection::XYCorrection_MetType::Type1PFMET);
+    
+    // Example for using CHS MET
+    // UE variation should be done inside of ApplyTypeICorrection
+    // Particle METv_default = ev.GetMETVector(Event::MET_Type::CHS);
+    // Particle METv = ApplyTypeICorrection(METv_default, allJets, allElectrons, allMuons);
+    // Particle METv = ApplyTypeICorrection(METv_default, allJets, allElectrons, allMuons, MyCorrection::variation::up); // unclustered up
+    // Particle METv = ApplyTypeICorrection(METv_default, allJets, allElectrons, allMuons, MyCorrection::variation::down); // unclustered down
+    // METv = myCorr->METXYCorrection(METv, ev.run(), ev.nPV(), MyCorrection::XYCorrection_MetType::Type1CHSMET);
 
     // Sort objects in pt order
     sort(allMuons.begin(), allMuons.end(), [](const Muon& a, const Muon& b) { return a.Pt() > b.Pt(); });

@@ -346,13 +346,13 @@ Particle AnalyzerCore::ApplyTypeICorrection(const Particle& MET,
                                             const RVec<Jet>& jets,
                                             const RVec<Electron>& electrons,
                                             const RVec<Muon>& muons,
-                                            const TString& systName) {
-    // Determine unclustered-only systematic (others are alaeady encoded in input objects)
-    MyCorrection::variation unclustered_syst = MyCorrection::variation::nom;
-    if (systName.Contains("UnclusteredEn")) {
-        if (systName.Contains("Up")) unclustered_syst = MyCorrection::variation::up;
-        else if (systName.Contains("Down")) unclustered_syst = MyCorrection::variation::down;
-    }
+                                            const MyCorrection::variation& unclustered_syst) {
+    // Unclustered energy systematic is calculated separately by variation.
+    // We keep this functionaltiy for the CHS MET usage, as there is no branch for UE_UP and UE_DOWN.
+    // If you are using PUPPI MET, you can use the branches PuppiMET_ptUnclusteredUp and PuppiMET_ptUnclusteredDown
+    // So only use up/down variations for unclustered energy if you are using CHS MET.
+    // For the others (like JES, JER, etc.), we assume they are already applied to the input
+
 
     // Apply Type-I correction using TLorentzVector
     TLorentzVector metVector;
@@ -485,6 +485,8 @@ Event AnalyzerCore::GetEvent() {
     ev.SetGenMET(GenMET_pt, GenMET_phi);
     ev.SetMETVector(MET_pt, MET_phi, Event::MET_Type::CHS);
     ev.SetMETVector(PuppiMET_pt, PuppiMET_phi, Event::MET_Type::PUPPI);
+    ev.SetMETVector(PuppiMET_ptUnclusteredUp, PuppiMET_phiUnclusteredUp, Event::MET_Type::PUPPI, Event::MET_Syst::UE_UP);
+    ev.SetMETVector(PuppiMET_ptUnclusteredDown, PuppiMET_phiUnclusteredDown, Event::MET_Type::PUPPI, Event::MET_Syst::UE_DOWN);
     ev.SetTrigger(TriggerMap);
     ev.SetEra(GetEra());
     ev.setRho(fixedGridRhoFastjetAll);

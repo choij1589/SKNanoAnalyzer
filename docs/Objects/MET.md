@@ -28,8 +28,8 @@ The Type-I MET correction is implemented in `AnalyzerCore::ApplyTypeICorrection(
    - Only systematic variations are applied on the fly
 
 4. **Unclustered Energy**:
-   - Calculated as: MET + jets + leptons
-   - ±10% systematic variation applied
+   - For PUPPI MET, use NanoAOD stored unclustered energy
+   - For CHS MET, calculated as: MET + jets + leptons, ±10% systematic variation applied
 
 ### Systematic Variations
 
@@ -46,12 +46,13 @@ Particle ApplyTypeICorrection(const Particle& MET,
                               const RVec<Jet>& jets,
                               const RVec<Electron>& electrons,
                               const RVec<Muon>& muons,
-                              const TString& systName = "Central");
+                              const MyCorrection::variation& var);
 ```
 
 #### Systematic Handling
 - Correlated variations (JES/JER, MuonEn, ElectronEn/Res) are applied by passing the already scaled/smeared `jets`, `muons`, and `electrons`.
-- Only `UnclusteredEn_Up/Down` is interpreted inside the method and applied as a ±10% variation on the unclustered component.
+- For unclustered energy, the systematic variations are handled by using `PuppiMET_pt/phiUnclusterdUp/Down` in NanoAOD branches for PUPPI MET, or
+  re-calculated from other objects for CHS MET.
 
 #### Object Access
 - **Jets**: Uses `OriginalPt()` method for raw momentum
@@ -63,8 +64,8 @@ Particle ApplyTypeICorrection(const Particle& MET,
 #### DiLepton Analyzer
 ```cpp
 // In defineObjects method
-Particle MET_default = ev.GetMETVector(Event::MET_Type::PUPPI);
-Particle METv = ApplyTypeICorrection(MET, allJets, allElectrons, allMuons, syst);
+Particle MET_default = ev.GetMETVector(Event::MET_Type::PUPPI, Event::MET_Syst::CENTRAL);
+Particle METv = ApplyTypeICorrection(MET, allJets, allElectrons, allMuons);
 
 // XY correction is applied on top of Type-I correction
 // Not recommended for PUPPI MET

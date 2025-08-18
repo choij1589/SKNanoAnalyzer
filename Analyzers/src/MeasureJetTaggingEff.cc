@@ -42,9 +42,9 @@ void MeasureJetTaggingEff::initializeAnalyzer()
 
 
 
-    // Following the recommended binning in https://btv-wiki.docs.cern.ch/PerformanceCalibration/fixedWPSFRecommendations/
-    vec_etabins = {0.0, 0.8, 1.6, 2.1, 2.5};
-    vec_ptbins = {20., 30., 50., 70., 100., 140., 200., 300., 600., 1000.}; // PT bins used in POG SF measurements
+
+    vec_etabins = {0.0, 0.8, 1.6, 2., 2.5};
+    vec_ptbins = {20., 25., 30., 50., 70., 100., 140., 200., 300., 600., 1000.}; // PT bins used in POG SF measurements
     // for average users, this binning will be sufficient.
     // but eta-dependence of efficiency can be larger for |eta|>~2, where track & muon detector information of jet constituents starts to get lost, which is critical in tagging.
     // precision analysis with high-eta b may use finer binnings there, but beware of small number of b-jets in high-eta, high-pt bins if you use ttbar sample; proper optimization of bin size should be studied.
@@ -71,13 +71,13 @@ void MeasureJetTaggingEff::executeEvent()
     RVec<Muon> AllMuons = GetAllMuons();
     if(!PassJetVetoMap(AllJets,AllMuons)) return;
 
-    float JetPtCut = 20.;
-    float JetEtaCut = GetEra().Contains("2016") ? 2.4 : 2.5;
+    float JetPtCut = 25.;
+    float JetEtaCut = 2.4;
 
     //define your analysis phase space here
-    //throw std::runtime_error("Please define your analysis phase space");
-    RVec<Jet> jets = SelectJets(AllJets, Jet::JetID::TIGHT, JetPtCut, JetEtaCut);
-    if (jets.size() < 2)
+    throw std::runtime_error("Please define your analysis phase space");
+    RVec<Jet> jets = SelectJets(AllJets, Jet::JetID::TIGHT, 25., 2.5);
+    if (jets.size() < 4)
         return;
 
     float weight = 1.;

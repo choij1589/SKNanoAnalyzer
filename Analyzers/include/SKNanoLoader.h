@@ -541,45 +541,10 @@ public:
     RVec<Int_t> FatJet_subJetIdx2_RunII;
 
     // MET
-    // For Run2 (NanoV9): MET - chs MET with Type-I corrected using chs jets
-    // For Run3 (NanoV13): PuppiMET - Puppi MET with Type-I corrected using Puppi jets
     Float_t MET_pt;
     Float_t MET_phi;
-    Float_t PuppiMET_pt;
-    Float_t PuppiMET_phi;
-
-    //PuppiMET----------------------------
-    /*
-    Float_t PuppiMET_pt;
-    Float_t PuppiMET_phi;
-    Float_t PuppiMET_sumEt;
-    Float_t PuppiMET_ptJERDown;
-    Float_t PuppiMET_phiJERDown;
-    Float_t PuppiMET_ptJERUp;
-    Float_t PuppiMET_phiJERUp;
-    Float_t PuppiMET_ptJESDown;
-    Float_t PuppiMET_phiJESDown;
-    Float_t PuppiMET_ptJESUp;
-    Float_t PuppiMET_phiJESUp;
-    Float_t PuppiMET_ptUnclusteredDown;
-    Float_t PuppiMET_phiUnclusteredDown;
-    Float_t PuppiMET_ptUnclusteredUp;
-    Float_t PuppiMET_phiUnclusteredUp;
-
-    //MET----------------------------
-    Float_t MET_MetUnclustEnUpDeltaX;
-    Float_t MET_MetUnclustEnUpDeltaY;
-    Float_t MET_covXX;
-    Float_t MET_covXY;
-    Float_t MET_covYY;
-    Float_t MET_fiducialGenPhi;
-    Float_t MET_fiducialGenPt;
-    Float_t MET_phi;
-    Float_t MET_pt;
-    Float_t MET_significance;
-    Float_t MET_sumEt;
-    Float_t MET_sumPtUnclustered;
-    */
+    Float_t PuppiMET_pt, PuppiMET_ptUnclusteredUp, PuppiMET_ptUnclusteredDown;
+    Float_t PuppiMET_phi, PuppiMET_phiUnclusteredUp, PuppiMET_phiUnclusteredDown;
 
     // rho
     Float_t fixedGridRhoFastjetAll;

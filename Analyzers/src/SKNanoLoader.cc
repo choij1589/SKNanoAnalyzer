@@ -1100,39 +1100,10 @@ void SKNanoLoader::Init() {
     SafeSetBranchAddress("MET_phi", &MET_phi);
     SafeSetBranchAddress("PuppiMET_pt", &PuppiMET_pt);
     SafeSetBranchAddress("PuppiMET_phi", &PuppiMET_phi);
-
-    /*
-    //PuppiMET----------------------------
-    SafeSetBranchAddress("PuppiMET_phi", &PuppiMET_phi);
-    SafeSetBranchAddress("PuppiMET_pt", &PuppiMET_pt);
-    SafeSetBranchAddress("PuppiMET_sumEt", &PuppiMET_sumEt);
-    SafeSetBranchAddress("PuppiMET_ptJESUp", &PuppiMET_ptJESUp);
-    SafeSetBranchAddress("PuppiMET_ptJESDown", &PuppiMET_ptJESDown);
-    SafeSetBranchAddress("PuppiMET_phiJESUp", &PuppiMET_phiJESUp);
-    SafeSetBranchAddress("PuppiMET_phiJESDown", &PuppiMET_phiJESDown);
-    SafeSetBranchAddress("PuppiMET_ptJERUp", &PuppiMET_ptJERUp);
-    SafeSetBranchAddress("PuppiMET_ptJERDown", &PuppiMET_ptJERDown);
-    SafeSetBranchAddress("PuppiMET_phiJERUp", &PuppiMET_phiJERUp);
-    SafeSetBranchAddress("PuppiMET_phiJERDown", &PuppiMET_phiJERDown);
     SafeSetBranchAddress("PuppiMET_ptUnclusteredUp", &PuppiMET_ptUnclusteredUp);
-    SafeSetBranchAddress("PuppiMET_ptUnclusteredDown", &PuppiMET_ptUnclusteredDown);
     SafeSetBranchAddress("PuppiMET_phiUnclusteredUp", &PuppiMET_phiUnclusteredUp);
-    SafeSetBranchAddress("PuppiMET_phiUnclusteredDown", &PuppiMET_phiUnclusteredDown);
-
-    //MET----------------------------
-    SafeSetBranchAddress("MET_MetUnclustEnUpDeltaX", &MET_MetUnclustEnUpDeltaX);
-    SafeSetBranchAddress("MET_MetUnclustEnUpDeltaY", &MET_MetUnclustEnUpDeltaY);
-    SafeSetBranchAddress("MET_covXX", &MET_covXX);
-    SafeSetBranchAddress("MET_covXY", &MET_covXY);
-    SafeSetBranchAddress("MET_covYY", &MET_covYY);
-    SafeSetBranchAddress("MET_fiducialGenPhi", &MET_fiducialGenPhi);
-    SafeSetBranchAddress("MET_fiducialGenPt", &MET_fiducialGenPt);
-    SafeSetBranchAddress("MET_phi", &MET_phi);
-    SafeSetBranchAddress("MET_pt", &MET_pt);
-    SafeSetBranchAddress("MET_significance", &MET_significance);
-    SafeSetBranchAddress("MET_sumEt", &MET_sumEt);
-    SafeSetBranchAddress("MET_sumPtUnclustered", &MET_sumPtUnclustered);
-    */
+    SafeSetBranchAddress("PuppiMET_ptUnclusteredDown", &PuppiMET_ptUnclusteredDown);
+    SafeSetBranchAddress("PuppiMET_phiUnclusteredDown", &PuppiMET_phiUnclusteredDown); 
 
     //Rho----------------------------
     if(Run == 3) {

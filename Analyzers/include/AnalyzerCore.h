@@ -161,7 +161,7 @@ public:
                                   const RVec<Jet>& jets,
                                   const RVec<Electron>& electrons,
                                   const RVec<Muon>& muons,
-                                  const TString& systName = "Central");
+                                  const MyCorrection::variation& unclustered_syst=MyCorrection::variation::nom);
     
     // Histogram Handlers
     TFile* GetOutfile() { return outfile; }
