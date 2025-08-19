@@ -23,3 +23,4 @@
 #pragma link C++ class MeasJetTagEff+;
 #pragma link C++ class MuonTnPProducer+;
 #pragma link C++ class ClosDiLepTrigs+;
+#pragma link C++ class MeasFakeRate+;

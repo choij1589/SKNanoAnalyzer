@@ -191,19 +191,33 @@ void SystematicHelper::make_Iter_obj_EvtLoopAgain()
     {
         if (syst.evtLoopAgain)
         {
-            SystematicHelper::Iter_obj obj_up;
-            SystematicHelper::Iter_obj obj_down;
-            obj_up.iter_name = syst.syst + variation_prefix[MyCorrection::variation::up];
-            obj_down.iter_name = syst.syst + variation_prefix[MyCorrection::variation::down];
-            obj_up.syst_name = syst.syst;
-            obj_up.syst_source = syst.source;
-            obj_up.variation = MyCorrection::variation::up;
-            obj_down.syst_name = syst.syst;
-            obj_down.syst_source = syst.source;
-            obj_down.variation = MyCorrection::variation::down;
+            if (syst.oneSided)
+            {
+                // For one-sided systematics, create only one variation (no _Up/_Down suffix)
+                SystematicHelper::Iter_obj obj_single;
+                obj_single.iter_name = syst.syst;
+                obj_single.syst_name = syst.syst;
+                obj_single.syst_source = syst.source;
+                obj_single.variation = MyCorrection::variation::nom;
+                systematics_evtLoopAgain.push_back(obj_single);
+            }
+            else
+            {
+                // For two-sided systematics, create both up and down variations
+                SystematicHelper::Iter_obj obj_up;
+                SystematicHelper::Iter_obj obj_down;
+                obj_up.iter_name = syst.syst + variation_prefix[MyCorrection::variation::up];
+                obj_down.iter_name = syst.syst + variation_prefix[MyCorrection::variation::down];
+                obj_up.syst_name = syst.syst;
+                obj_up.syst_source = syst.source;
+                obj_up.variation = MyCorrection::variation::up;
+                obj_down.syst_name = syst.syst;
+                obj_down.syst_source = syst.source;
+                obj_down.variation = MyCorrection::variation::down;
 
-            systematics_evtLoopAgain.push_back(obj_up);
-            systematics_evtLoopAgain.push_back(obj_down);
+                systematics_evtLoopAgain.push_back(obj_up);
+                systematics_evtLoopAgain.push_back(obj_down);
+            }
         }
         else if (!syst.hasDedicatedSample)
         {

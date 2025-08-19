@@ -25,7 +25,6 @@ private:
     
     // ID variables
     bool isMVANoIsoWP90[20];
-    bool isMVANoIsoWPLoose[20];
     bool isPOGMedium[20];
     bool isPOGTight[20];
     bool convVeto[20];
@@ -37,10 +36,12 @@ private:
     int   nearestJetFlavour[20];
 
     // Trigger matching variables
-    bool isTrigMatched[20];
+    bool isIsoElTrigMatched[20];
+    bool isEMuTrigMatched[20];
 
     // For event selection
-    RVec<TString> EMuTriggers;
+    RVec<TString> SglMuTriggers;
+    //RVec<TString> EMuTriggers;
 
 public:
     ParseEleIDVariables();
@@ -49,6 +50,9 @@ public:
     void initializeAnalyzer();
     void executeEvent();
     void WriteHist();
+    bool PassSLT(const Muon &mu, const RVec<TrigObj> &trigObjs);
+    bool PassIsoElT(const Electron &el, const RVec<TrigObj> &trigObjs);
+    bool PassEMT(const Electron &el, const RVec<TrigObj> &trigObjs);
 };
 
 #endif

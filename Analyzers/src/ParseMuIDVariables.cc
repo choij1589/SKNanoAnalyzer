@@ -16,33 +16,19 @@ void ParseMuIDVariables::initializeAnalyzer() {
     Events->Branch("sip3d", sip3d, "sip3d[nMuons]/F");
     Events->Branch("tkRelIso", tkRelIso, "tkRelIso[nMuons]/F");
     Events->Branch("miniPFRelIso", miniPFRelIso, "miniPFRelIso[nMuons]/F");
-    Events->Branch("isTrigMatched", isTrigMatched, "isTrigMatched[nMuons]/O");
+    Events->Branch("isEMuTrigMatched", isEMuTrigMatched, "isEMuTrigMatched[nMuons]/O");
+    Events->Branch("isIsoMuTrigMatched", isIsoMuTrigMatched, "isIsoMuTrigMatched[nMuons]/O");
 
     if (DataEra == "2016preVFP") {
-        EMuTriggers = {
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL"
-        };
+        SglElTriggers = {"HLT_Ele27_WPTight_Gsf"};
     } else if (DataEra == "2016postVFP") {
-        EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
-        };
+        SglElTriggers = {"HLT_Ele27_WPTight_Gsf"};
     } else if (DataEra == "2017") {
-        EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
-        };
+        SglElTriggers = {"HLT_Ele32_WPTight_Gsf_L1DoubleEG"};
     } else if (DataEra == "2018") {
-        EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
-        };
+        SglElTriggers = {"HLT_Ele32_WPTight_Gsf"};
     } else if (Run == 3) {
-        EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
-        };
+        SglElTriggers = {"HLT_Ele30_WPTight_Gsf"};
     } else {
         cerr << "[ParseEleIDVariables::initializeAnalyzer] " << DataEra << " is not implemented" << endl;
         exit(EXIT_FAILURE);
@@ -61,23 +47,13 @@ void ParseMuIDVariables::executeEvent() {
     RVec<Gen> truth = GetAllGens();
     RVec<TrigObj> trigObjs = GetAllTrigObjs();
 
-    // Require event to pass EMu trigger
-    // and hard electron for the tag
-    if (! ev.PassTrigger(EMuTriggers)) return;
+    if (! ev.PassTrigger(SglElTriggers)) return;
     if (! (electrons.size() == 1)) return;
     const auto &el = electrons.at(0);
-    // Require electron to match the trigger object
-    bool isElectronTrigMatched = false;
-    for (const auto &trigObj : trigObjs) {
-        if (trigObj.isElectron() && trigObj.DeltaR(el) < 0.1) {
-            if (trigObj.hasBit(0)) {
-                isElectronTrigMatched = true;
-                break;
-            }
-        }
-    }
-    if (!isElectronTrigMatched) return;
-    if (!(muons.size() > 0)) return;
+    const float safePtCut = (Run == 3 ? 32: (DataYear == 2016 ? 30 : 35));
+    if (! (el.Pt() > safePtCut)) return;
+    if (! PassSLT(el, trigObjs)) return;
+    if (! (muons.size() > 0)) return;
     
     // Update branches
     genWeight = MCweight()*ev.GetTriggerLumi("Full")*GetL1PrefireWeight()*myCorr->GetPUWeight(ev.nTrueInt());
@@ -112,15 +88,8 @@ void ParseMuIDVariables::executeEvent() {
             }
         }
 
-        isTrigMatched[i] = false;
-        for (const auto &trigObj : trigObjs) {
-            if (trigObj.isMuon() && trigObj.DeltaR(mu) < 0.1) {
-                if (trigObj.hasBit(0)) {
-                    isTrigMatched[i] = true;
-                    break;
-                }
-            }
-        }
+        isEMuTrigMatched[i] = PassEMT(mu, trigObjs);
+        isIsoMuTrigMatched[i] = PassIsoMuT(mu, trigObjs);
     }
     Events->Fill();
 }
@@ -129,4 +98,37 @@ void ParseMuIDVariables::WriteHist() {
     TFile* outfile = GetOutfile();
     Events->Write();
     outfile->Close();
+}
+
+bool ParseMuIDVariables::PassSLT(const Electron &el, const RVec<TrigObj> &trigObjs) {
+    const float trig_pt_cut = (Run == 3 ? 30: (DataYear == 2016 ? 27 : 32));
+    for (const auto &trigObj : trigObjs) {
+        if (! trigObj.isElectron()) continue;
+        if (! (trigObj.DeltaR(el) < 0.3)) continue;
+        if (! (trigObj.hasBit(1))) continue;
+        if (! (trigObj.Pt() > trig_pt_cut)) continue;
+        return true;
+    }
+    return false;
+}
+
+bool ParseMuIDVariables::PassEMT(const Muon &mu, const RVec<TrigObj> &trigObjs) {
+    for (const auto &trigObj : trigObjs) {
+        if (! trigObj.isMuon()) continue;
+        if (! (trigObj.DeltaR(mu) < 0.3)) continue;
+        if (! (trigObj.hasBit(5))) continue;
+        //if (! (trigObj.Pt() > pt_cut)) continue;
+        return true;
+    }
+    return false;
+}
+
+bool ParseMuIDVariables::PassIsoMuT(const Muon &mu, const RVec<TrigObj> &trigObjs) {
+    for (const auto &trigObj : trigObjs) {
+        if (! trigObj.isMuon()) continue;
+        if (! (trigObj.DeltaR(mu) < 0.3)) continue;
+        if (! (trigObj.hasBit(0)))continue;
+        return true;
+    }
+    return false;
 }

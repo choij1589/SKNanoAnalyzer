@@ -1,8 +1,5 @@
 # SKNanoAnalyzer
 ---
-
-## THIS IS DEVELOPMENT VERSION!!
-
 ## Introduction
 - If you want to engage in the development and commit to the repository, please read [Development Guide](docs/DevelopmentGuide.md) first.
 - For setting up the environment and starting the analysis, please refer [Getting Started](docs/GettingStarted.md).
@@ -12,10 +9,6 @@
 - [ ] FatJet and Tau: **Youngwan**
 - [ ] SKNano.py skimming test **Yeonjoon**
 - [ ] Auto-Validation: Check the consistency of the output for a specific NanoAOD file: **Jin**
-
-For DY, check the before/after of correction
-- [ ] Leptons **Jihoon**
-- [ ] Jets(B-tagging) **Taehee**
 
 ## Make Tutorial
 - [ ] From make Training tree, Export ONNX, Use this model in the Analyzer : **Yeonjoon(Review: Youngwan)**
@@ -32,7 +25,7 @@ For DY, check the before/after of correction
 - [MiniAOD](https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD)
 - [NanoAOD](https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD)
 - [NanoAOD-Tools (for postproc)](https://github.com/cms-sw/cmssw/tree/master/PhysicsTools/NanoAODTools)
-- [SNU_SKFlatProduction](https://docs.google.com/spreadsheets/d/12SfHxUR_1_-13Tzt6mI0slnenQeeCT40zDdggx_KPR8/edit?pli=1#gid=1739893496)
+- [SNU\_SKFlatProduction](https://docs.google.com/spreadsheets/d/12SfHxUR_1_-13Tzt6mI0slnenQeeCT40zDdggx_KPR8/edit?pli=1#gid=1739893496)
 - [NanoAOD wiki@gitlab](https://gitlab.cern.ch/cms-nanoAOD/nanoaod-doc/-/wikis/home)
 - [Run2 Summer20 UL](https://docs.google.com/spreadsheets/d/1ABl2p2uwr2EfEbolBEVNcKb_fIXigYY9sqCRT8XIi1Q/edit#gid=1318927481)
 - [Run3 Common Bkg Sample Preparation](https://docs.google.com/spreadsheets/d/1xEbHtxzJVaWJpxDrJ7tSpxcVQMRIFbZeoeO7davNFMA/edit#gid=1396344675)

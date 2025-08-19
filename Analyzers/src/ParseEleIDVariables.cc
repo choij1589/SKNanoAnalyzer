@@ -19,7 +19,6 @@ void ParseEleIDVariables::initializeAnalyzer() {
     Events->Branch("rho", rho, "rho[nElectrons]/F");
     Events->Branch("dr03TkSumPt", dr03TkSumPt, "dr03TkSumPt[nElectrons]/F");
     Events->Branch("isMVANoIsoWP90", isMVANoIsoWP90, "isMVANoIsoWP90[nElectrons]/O");
-    Events->Branch("isMVANoIsoWPLoose", isMVANoIsoWPLoose, "isMVANoIsoWPLoose[nElectrons]/O");
     Events->Branch("isPOGMedium", isPOGMedium, "isPOGMedium[nElectrons]/O");
     Events->Branch("isPOGTight", isPOGTight, "isPOGTight[nElectrons]/O");
     Events->Branch("convVeto",  convVeto, "convVeto[nElectrons]/O");
@@ -29,36 +28,15 @@ void ParseEleIDVariables::initializeAnalyzer() {
     Events->Branch("miniPFRelIso", miniPFRelIso, "miniPFRelIso[nElectrons]/F");
     Events->Branch("mvaNoIso", mvaNoIso, "mvaNoIso[nElectrons]/F");
     Events->Branch("nearestJetFlavour", nearestJetFlavour, "nearestJetFlavour[nElectrons]/I");
-    Events->Branch("isTrigMatched", isTrigMatched, "isTrigMatched[nElectrons]/O");
+    Events->Branch("isEMuTrigMatched", isEMuTrigMatched, "isEMuTrigMatched[nElectrons]/O");
+    Events->Branch("isIsoElTrigMatched", isIsoElTrigMatched, "isIsoElTrigMatched[nElectrons]/O");
 
-    if (DataEra == "2016preVFP") {
-        EMuTriggers = {
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL"
-        };
-    } else if (DataEra == "2016postVFP") {
-        EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
-        };
+    if (DataEra.Contains("2016")) {
+        SglMuTriggers = {"HLT_IsoMu24", "HLT_IsoTkMu24"};
     } else if (DataEra == "2017") {
-        EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
-        };
-    } else if (DataEra == "2018") {
-        EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
-        };
-    } else if (Run == 3) {
-        EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
-        };
+        SglMuTriggers = {"HLT_IsoMu27"};
     } else {
-        cerr << "[ParseEleIDVariables::initializeAnalyzer] " << DataEra << " is not implemented" << endl;
-        exit(EXIT_FAILURE);
+        SglMuTriggers = {"HLT_IsoMu24"};
     }
 
     myCorr = new MyCorrection(DataEra, DataPeriod, MCSample, IsDATA);
@@ -76,21 +54,13 @@ void ParseEleIDVariables::executeEvent() {
 
     // Require event to pass EMu trigger
     // and hard muon for the tag
-    if (! ev.PassTrigger(EMuTriggers)) return;
+    if (! ev.PassTrigger(SglMuTriggers)) return;
     if (! (muons.size() == 1)) return;
     const auto &mu = muons.at(0);
-    // Require muon to match the trigger object
-    bool isMuonTrigMatched = false;
-    for (const auto &trigObj : trigObjs) {
-        if (trigObj.isMuon() && trigObj.DeltaR(mu) < 0.1) {
-            if (trigObj.hasBit(0)) {
-                isMuonTrigMatched = true;
-                break;
-            }
-        }
-    }
-    if (!isMuonTrigMatched) return;
-    if (!(electrons.size() > 0)) return;
+    const float safePtCut = (DataEra.Contains("2017") ? 30. : 27.);
+    if (! (mu.Pt() > safePtCut)) return;
+    if (! PassSLT(mu, trigObjs)) return;
+    if (! (electrons.size() > 0)) return;
     
     // Update branches
     genWeight = MCweight()*ev.GetTriggerLumi("Full")*GetL1PrefireWeight()*myCorr->GetPUWeight(ev.nTrueInt());
@@ -108,7 +78,6 @@ void ParseEleIDVariables::executeEvent() {
         rho[i] = el.rho();
         dr03TkSumPt[i] = el.dr03TkSumPt();
         isMVANoIsoWP90[i] = el.PassID("POGMVANoIsoWP90");
-        isMVANoIsoWPLoose[i] = el.PassID("POGMVANoIsoWPLoose");
         isPOGMedium[i] = el.PassID("POGMedium");
         isPOGTight[i] = el.PassID("POGTight");
         convVeto[i] = el.ConvVeto();
@@ -140,17 +109,8 @@ void ParseEleIDVariables::executeEvent() {
         }
         
         // Check trigger object matching for CaloIdL_TrackIdL_IsoVL filter
-        isTrigMatched[i] = false;
-        for (const auto &trigObj : trigObjs) {
-            // Check if trigger object is an electron and within deltaR < 0.3
-            if (trigObj.isElectron() && trigObj.DeltaR(el) < 0.1) {
-                // Check if it passes the CaloIdL_TrackIdL_IsoVL filter (bit 0)
-                if (trigObj.hasBit(0)) {
-                    isTrigMatched[i] = true;
-                    break; // Found a match, no need to check other trigger objects
-                }
-            }
-        }
+        isEMuTrigMatched[i] = PassEMT(el, trigObjs);
+        isIsoElTrigMatched[i] = PassIsoElT(el, trigObjs);
     }
     Events->Fill();
 }
@@ -159,4 +119,38 @@ void ParseEleIDVariables::WriteHist() {
     TFile* outfile = GetOutfile();
     Events->Write();
     outfile->Close();
+}
+
+bool ParseEleIDVariables::PassSLT(const Muon &mu, const RVec<TrigObj> &trigObjs) {
+    const float trig_pt_cut = (DataYear == 2017 ? 27: 24);
+    for (const auto &trigObj : trigObjs) {
+        if (! trigObj.isMuon()) continue;
+        if (! (trigObj.DeltaR(mu) < 0.3)) continue;
+        if (! (trigObj.hasBit(3))) continue;
+        if (! (trigObj.Pt() > trig_pt_cut)) continue;
+        return true;
+    }
+    return false;
+}
+
+bool ParseEleIDVariables::PassIsoElT(const Electron &el, const RVec<TrigObj> &trigObjs) {
+    for (const auto &trigObj : trigObjs) {
+        if (! trigObj.isElectron()) continue;
+        if (! (trigObj.DeltaR(el) < 0.3)) continue;
+        if (! trigObj.hasBit(0)) continue;
+        return true;
+    }
+    return false;
+}
+
+bool ParseEleIDVariables::PassEMT(const Electron &el, const RVec<TrigObj> &trigObjs){
+    const int trigBit = (Run == 2) ? 5 : 6; // 5 for Run2, 6 for Run3
+    for (const auto &trigObj : trigObjs) {
+        if (! trigObj.isElectron()) continue;
+        if (! (trigObj.DeltaR(el) < 0.3)) continue;
+        if (! (trigObj.hasBit(trigBit))) continue;
+        //if (! (trigObj.Pt() > pt_cut)) continue;
+        return true;
+    }
+    return false;
 }

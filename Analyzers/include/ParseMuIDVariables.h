@@ -21,10 +21,12 @@ private:
     float miniPFRelIso[20];
 
     // Trigger matching variables
-    bool isTrigMatched[20];
+    bool isEMuTrigMatched[20];
+    bool isIsoMuTrigMatched[20];
     
     // For event selection
-    RVec<TString> EMuTriggers;
+    //RVec<TString> EMuTriggers;
+    RVec<TString> SglElTriggers;
 
 public:
     ParseMuIDVariables();
@@ -33,6 +35,9 @@ public:
     void initializeAnalyzer();
     void executeEvent();
     void WriteHist();
+    bool PassSLT(const Electron &el, const RVec<TrigObj> &trigObjs);
+    bool PassEMT(const Muon &mu, const RVec<TrigObj> &trigObjs);
+    bool PassIsoMuT(const Muon &mu, const RVec<TrigObj> &trigObjs);
 };
 
 #endif

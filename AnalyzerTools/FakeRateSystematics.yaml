@@ -1,0 +1,33 @@
+systematics:
+  # Object variations that require event re-processing
+  - syst: JetRes
+    evtLoopAgain: true
+    
+  - syst: JetEn
+    evtLoopAgain: true
+    
+  - syst: ElectronRes
+    evtLoopAgain: true
+    
+  - syst: ElectronEn
+    evtLoopAgain: true
+    
+  - syst: MuonEn
+    evtLoopAgain: true
+
+  # Selection variations that require event re-processing
+  - syst: MotherJetPt
+    evtLoopAgain: true
+    
+  - syst: RequireHeavyTag
+    evtLoopAgain: true
+    oneSided: true
+
+  # Weight-only variations (no evtLoopAgain needed)
+  - syst: L1Prefire
+    
+  - syst: MuonRecoSF
+    
+  - syst: ElectronRecoSF
+    
+  - syst: PileupReweight

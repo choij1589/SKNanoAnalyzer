@@ -1,9 +1,9 @@
-#WJets
+WJets
 #DYJets
-#DYJets10to50
-#WW_pythia
-#WZ_pythia
-#ZZ_pythia
+DYJets10to50
+WW_pythia
+WZ_pythia
+ZZ_pythia
 #TTLJ_powheg
 #TTLL_powheg
 SingleTop_sch_Lep
