@@ -128,9 +128,9 @@ bool Muon::PassID(const MuonID ID) const {
         case MuonID::POG_TRIGGER_LOOSE:
             return isPOGTriggerIdLoose();
         case MuonID::POG_TRACKER_HIGH_PT:
-            return (int)HighPtId() == 2;
+            return (int)HighPtId() == 1;
         case MuonID::POG_GLOBAL_HIGH_PT:
-            return (int)HighPtId() == 3;
+            return (int)HighPtId() == 2;
         case MuonID::POG_MINISO_LOOSE:
             return (int)MiniIsoId() >= (int)(WorkingPoint::LOOSE);
         case MuonID::POG_MINISO_MEDIUM:
@@ -166,9 +166,9 @@ bool Muon::PassID(const MuonID ID) const {
         case MuonID::POG_PUPPIISO_TIGHT:
             return (int)PuppiIsoId() >= (int)(WorkingPoint::TIGHT);
         case MuonID::POG_TKISO_LOOSE:
-            return (int)TkIsoId() == 2;
+            return (int)TkIsoId() == 1;
         case MuonID::POG_TKISO_TIGHT:
-            return (int)TkIsoId() == 3;
+            return (int)TkIsoId() == 2;
         default:
             break;
     }
