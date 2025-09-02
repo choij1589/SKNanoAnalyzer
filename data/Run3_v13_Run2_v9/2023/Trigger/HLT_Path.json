@@ -860,7 +860,8 @@
         "lumi": 17794.0
     },
     "HLT_Mu8_TrkIsoVVL": {
-        "lumi": 17794.0
+        "lumi": 17794.0,
+        "active": true
     },
     "HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ": {
         "lumi": 17794.0
@@ -895,7 +896,8 @@
         "active": true
     },
     "HLT_Mu17_TrkIsoVVL": {
-        "lumi": 17794.0
+        "lumi": 17794.0,
+        "active": true
     },
     "HLT_Mu19_TrkIsoVVL": {
         "lumi": 17794.0
@@ -1365,16 +1367,19 @@
         "lumi": 17794.0
     },
     "HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30": {
-        "lumi": 17794.0
+        "lumi": 17794.0,
+        "active": true
     },
     "HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30": {
-        "lumi": 17794.0
+        "lumi": 17794.0,
+        "active": true
     },
     "HLT_Ele15_CaloIdL_TrackIdL_IsoVL_PFJet30": {
         "lumi": 17794.0
     },
     "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30": {
-        "lumi": 17794.0
+        "lumi": 17794.0,
+        "active": true
     },
     "HLT_Ele8_CaloIdM_TrackIdM_PFJet30": {
         "lumi": 17794.0

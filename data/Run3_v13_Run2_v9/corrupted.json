@@ -1,0 +1,10 @@
+[
+    {"dataEra": "2022EE", "pd": "Muon_F", "event": 998661168, "run": 361365, "lumi": 468},
+    {"dataEra": "2022EE", "pd": "Muon_F", "event": 2619197964, "run": 361475, "lumi": 1270},
+    {"dataEra": "2023", "pd": "Muon0_C_v4", "event": 156940125, "run": 368548, "lumi": 77},
+    {"dataEra": "2022EE", "pd": "MuonEG_F", "event": 998758066, "run": 361365, "lumi": 468},
+    {"dataEra": "2022EE", "pd": "EGamma_F", "event": 2618085740, "run": 361475, "lumi": 1269},
+    {"dataEra": "2022EE", "pd": "EGamma_F", "event": 998340609, "run": 361365, "lumi": 468},
+    {"dataEra": "2022EE", "pd": "EGamma_F", "event": 2618852576, "run": 361475, "lumi": 1270},
+    {"dataEra": "2023", "pd": "EGamma0_C_v4", "event": 156373642, "run": 368548, "lumi": 77}
+]
