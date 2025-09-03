@@ -2,10 +2,6 @@
 #include "SKNanoLoader.h"
 using json = nlohmann::json;
 
-// Static members for signal handling
-jmp_buf SKNanoLoader::segfault_jmpbuf;
-SKNanoLoader* SKNanoLoader::current_loader = nullptr;
-
 SKNanoLoader::SKNanoLoader() {
     MaxEvent = -1;
     NSkipEvent = 0;
@@ -18,8 +14,6 @@ SKNanoLoader::SKNanoLoader() {
     sumW = 1.;
     sumSign = 1.;
     Userflags.clear();
-    segfault_detected = false;
-    current_loader = this;
 }
 
 SKNanoLoader::~SKNanoLoader() {
@@ -31,80 +25,12 @@ SKNanoLoader::~SKNanoLoader() {
     delete fChain;
 }
 
-void SKNanoLoader::segfault_handler(int sig) {
-    const char* signame = "UNKNOWN";
-    switch(sig) {
-        case SIGSEGV: signame = "SIGSEGV"; break;
-        case SIGABRT: signame = "SIGABRT"; break;
-        case SIGFPE: signame = "SIGFPE"; break;
-        case SIGILL: signame = "SIGILL"; break;
-        case SIGBUS: signame = "SIGBUS"; break;
-        case SIGTERM: signame = "SIGTERM"; break;
-        case SIGQUIT: signame = "SIGQUIT"; break;
-        case SIGTRAP: signame = "SIGTRAP"; break;
-        case SIGALRM: signame = "SIGALRM (TIMEOUT)"; break;
-    }
-    
-    // Prevent infinite recursion by counting signal calls
-    static volatile int signal_count = 0;
-    signal_count = signal_count + 1;
-    
-    if (signal_count > 3) {
-        // Too many signals, just exit
-        const char msg[] = "[SKNanoLoader::segfault_handler] Too many recursive signals, terminating\n";
-        write(STDERR_FILENO, msg, sizeof(msg)-1);
-        _exit(1);
-    }
-    
-    // Use write() instead of cout/cerr for signal safety
-    char buffer[256];
-    if (current_loader && signal_count == 1) {
-        // Only try to access current_loader on first signal
-        int len = snprintf(buffer, sizeof(buffer), 
-            "[SKNanoLoader::segfault_handler] Signal %s (%d) detected in event: %llu, %d, %d\n",
-            signame, sig, current_loader->EventNumber, current_loader->RunNumber, current_loader->LumiBlock);
-        write(STDERR_FILENO, buffer, len);
-        
-        current_loader->segfault_detected = true;
-    } else {
-        int len = snprintf(buffer, sizeof(buffer), 
-            "[SKNanoLoader::segfault_handler] Signal %s (%d) detected (stack corrupted)\n",
-            signame, sig);
-        write(STDERR_FILENO, buffer, len);
-    }
-    
-    // Reset signal count and try longjmp only on first signal
-    if (signal_count == 1) {
-        signal_count = 0;
-        longjmp(segfault_jmpbuf, 1);
-    } else {
-        // Stack is corrupted, just exit
-        _exit(1);
-    }
-}
-
 void SKNanoLoader::Loop() {
     long nentries = fChain->GetEntries();
     if (MaxEvent > 0) nentries = std::min(nentries, MaxEvent);
     auto startTime = std::chrono::steady_clock::now();
     cout << "[SKNanoLoader::Loop] Event Loop Started" << endl;
     
-    // Set up robust signal handlers using sigaction
-    struct sigaction sa;
-    sa.sa_handler = segfault_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;
-    
-    sigaction(SIGSEGV, &sa, nullptr);  // Segmentation fault
-    sigaction(SIGABRT, &sa, nullptr);  // Abort signal  
-    sigaction(SIGFPE, &sa, nullptr);   // Floating point exception
-    sigaction(SIGILL, &sa, nullptr);   // Illegal instruction
-    sigaction(SIGBUS, &sa, nullptr);   // Bus error
-    sigaction(SIGTERM, &sa, nullptr);  // Termination signal
-    sigaction(SIGQUIT, &sa, nullptr);  // Quit signal
-    sigaction(SIGTRAP, &sa, nullptr);  // Trace/breakpoint trap
-    sigaction(SIGALRM, &sa, nullptr);  // Alarm signal (timeout)
-
     for (long jentry = 0; jentry < nentries; jentry++) {
         if (jentry < NSkipEvent) continue;
 
@@ -122,13 +48,6 @@ void SKNanoLoader::Loop() {
         if (fChain->GetEntry(jentry) < 0) {
             cerr << "[SKNanoLoader::Loop] Error reading event " << jentry << endl;
             exit(1);
-        }
-        
-        // Skip known corrupted events
-        auto eventTuple = make_tuple(RunNumber, LumiBlock);
-        if (corruptedEvents.find(eventTuple) != corruptedEvents.end()) {
-            cout << "[SKNanoLoader::Loop] Skipping corrupted event: " << EventNumber << ", " << RunNumber << ", " << LumiBlock << endl;
-            continue;
         }
         
         // make sure Run2 and Run3 variables are in sync
@@ -149,45 +68,9 @@ void SKNanoLoader::Loop() {
             nTrigObj = static_cast<Int_t>(nTrigObj_RunII);
         }
         
-        // Use setjmp/longjmp to catch segfaults during event processing
-        segfault_detected = false;
-        if (setjmp(segfault_jmpbuf) == 0) {
-            // Normal execution
-            //cout << "[DEBUG] About to execute event: " << EventNumber << endl;
-            //cout.flush();
-            
-            // Set up alarm for timeout detection (10 seconds per event)
-            alarm(10);
-            executeEvent();
-            alarm(0);  // Cancel alarm
-            
-            //cout << "[DEBUG] Event executed successfully: " << EventNumber << endl;
-            //cout.flush();
-        } else {
-            // We jumped here from segfault handler
-            alarm(0);  // Cancel any pending alarm
-            cout << "CORRUPTED_EVENT: {\"dataEra\": \"" << DataEra << "\", \"pd\": \"" << DataStream 
-                 << "\", \"event\": " << EventNumber << ", \"run\": " << RunNumber 
-                 << ", \"lumi\": " << LumiBlock << "}" << endl;
-            cout.flush();
-            
-            // sigaction handlers persist, no need to re-register
-            
-            // Continue with next event
-        }
+        executeEvent();
     }
     cout << "[SKNanoLoader::Loop] Event Loop Finished"<< endl;
-    
-    // Disable signal handlers after event loop to avoid confusion during cleanup
-    signal(SIGSEGV, SIG_DFL);
-    signal(SIGABRT, SIG_DFL);
-    signal(SIGFPE, SIG_DFL);
-    signal(SIGILL, SIG_DFL);
-    signal(SIGBUS, SIG_DFL);
-    signal(SIGTERM, SIG_DFL);
-    signal(SIGQUIT, SIG_DFL);
-    signal(SIGTRAP, SIG_DFL);
-    signal(SIGALRM, SIG_DFL);
 }
 
 void SKNanoLoader::SetMaxLeafSize(){
@@ -515,6 +398,8 @@ void SKNanoLoader::SetMaxLeafSize(){
         Jet_partonFlavour.resize(kMaxJet);
         Jet_svIdx1.resize(kMaxJet);
         Jet_svIdx2.resize(kMaxJet);
+        Jet_chMultiplicity.resize(kMaxJet);
+        Jet_neMultiplicity.resize(kMaxJet);
         Jet_bRegCorr.resize(0);
         Jet_bRegRes.resize(0);
         Jet_btagCSVV2.resize(0);
@@ -538,8 +423,6 @@ void SKNanoLoader::SetMaxLeafSize(){
         Jet_puId.resize(0);
         Jet_puIdDisc.resize(0);
         Jet_qgl.resize(0);
-        Jet_chMultiplicity.resize(0);
-        Jet_neMultiplicity.resize(0);
     }
     else if(Run == 2){
         Jet_PNetRegPtRawCorr.resize(0);
@@ -1316,36 +1199,4 @@ void SKNanoLoader::Init() {
     }
     else cerr << "[SKNanoLoader::Init] Cannot open " << json_path << endl;
     
-    LoadCorruptedEvents();
-}
-
-void SKNanoLoader::LoadCorruptedEvents() {
-    const char *sknano_data = getenv("SKNANO_DATA");
-    TString jsonPath = TString(sknano_data) + "/corrupted.json";
-    cout << "[SKNanoLoader::LoadCorruptedEvents] Loadtion corrupted file lists from " << jsonPath << endl;
-    ifstream jsonFile(jsonPath);
-    
-    if (!jsonFile.is_open()) {
-        cout << "[SKNanoLoader::LoadCorruptedEvents] Warning: Cannot open " << jsonPath << ", skipping corrupted events check" << endl;
-        return;
-    }
-    
-    nlohmann::json j;
-    try {
-        jsonFile >> j;
-        
-        for (const auto& item : j) {
-            Long_t eventNumber = item["event"];
-            Int_t runNumber = item["run"];
-            Int_t lumiBlock = item["lumi"];
-            
-            corruptedEvents.insert(make_tuple(runNumber, lumiBlock));
-        }
-        
-        cout << "[SKNanoLoader::LoadCorruptedEvents] Loaded " << corruptedEvents.size() << " corrupted events to skip" << endl;
-    } catch (const exception& e) {
-        cerr << "[SKNanoLoader::LoadCorruptedEvents] Error parsing JSON: " << e.what() << endl;
-    }
-    
-    jsonFile.close();
 }

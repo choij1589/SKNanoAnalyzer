@@ -4,10 +4,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <set>
-#include <tuple>
-#include <csignal>
-#include <csetjmp>
 using namespace std;
 
 #include "TROOT.h"
@@ -49,16 +45,6 @@ public:
     virtual void SetMaxLeafSize();
     virtual void Loop();
     virtual void executeEvent(){};
-
-    // Corrupted events storage
-    std::set<std::tuple<Int_t, Int_t>> corruptedEvents; // (RunNumber, LumiBlock)
-    virtual void LoadCorruptedEvents();
-    
-    // Signal handling for catching segfaults
-    static jmp_buf segfault_jmpbuf;
-    static SKNanoLoader* current_loader;
-    static void segfault_handler(int sig);
-    bool segfault_detected;
 
     virtual void SetEra(TString era) {
         DataEra=era;
