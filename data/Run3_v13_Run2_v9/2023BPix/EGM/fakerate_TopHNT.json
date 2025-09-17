@@ -1,0 +1,154 @@
+{
+  "schema_version": 2,
+  "description": "electron fake rate corrections for 2023BPix (includes QCD systematic sources)",
+  "corrections": [
+    {
+      "name": "fakerate_electron_Central",
+      "description": "electron fake rate - Central",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "scEta",
+          "type": "real",
+          "description": "Supercluster pseudorapidity"
+        },
+        {
+          "name": "ptCorr",
+          "type": "real",
+          "description": "Corrected transverse momentum [GeV]"
+        }
+      ],
+      "output": {
+        "name": "out",
+        "type": "real",
+        "description": "out"
+      },
+      "data": {
+        "nodetype": "multibinning",
+        "inputs": [
+          "scEta",
+          "ptCorr"
+        ],
+        "edges": [
+          [
+            -2.5,
+            -1.479,
+            -0.8,
+            0.0,
+            0.8,
+            1.479,
+            2.5
+          ],
+          [
+            15.0,
+            20.0,
+            25.0,
+            35.0,
+            50.0
+          ]
+        ],
+        "content": [
+          0.217848765183369,
+          0.20858512909137933,
+          0.18116165430936346,
+          0.22132344596949868,
+          0.23613007094998203,
+          0.227398996280504,
+          0.208486143036198,
+          0.21599700768365374,
+          0.20089255575950932,
+          0.20033256402829033,
+          0.17571109711475377,
+          0.1586820653800135,
+          0.19116934542360134,
+          0.18621645244505186,
+          0.18983443841922654,
+          0.2269114850267232,
+          0.2186366351909318,
+          0.20606920714551646,
+          0.19746098362054074,
+          0.23021262978045332,
+          0.1904758338391301,
+          0.2002632356903549,
+          0.18680013758860423,
+          0.20599449238037343
+        ],
+        "flow": "clamp"
+      }
+    },
+    {
+      "name": "fakerate_electron_QCD_EMEnriched",
+      "description": "electron fake rate systematic - QCD_EMEnriched",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "scEta",
+          "type": "real",
+          "description": "Supercluster pseudorapidity"
+        },
+        {
+          "name": "ptCorr",
+          "type": "real",
+          "description": "Corrected transverse momentum [GeV]"
+        }
+      ],
+      "output": {
+        "name": "out",
+        "type": "real",
+        "description": "out"
+      },
+      "data": {
+        "nodetype": "multibinning",
+        "inputs": [
+          "scEta",
+          "ptCorr"
+        ],
+        "edges": [
+          [
+            -2.5,
+            -1.479,
+            -0.8,
+            0.0,
+            0.8,
+            1.479,
+            2.5
+          ],
+          [
+            15.0,
+            20.0,
+            25.0,
+            35.0,
+            50.0
+          ]
+        ],
+        "content": [
+          0.21484085396172753,
+          0.16054520142433257,
+          0.24970615365422683,
+          0.2780906882554249,
+          0.17568824288857657,
+          0.20372614030706382,
+          0.3398288568017551,
+          0.2936234044547425,
+          0.12962475301444512,
+          0.14419170330322026,
+          0.34046478019783943,
+          0.10500904436048086,
+          0.02235425427803625,
+          0.3095705016032778,
+          0.06591703071353634,
+          0.22167376469657246,
+          0.36552146570942023,
+          0.17132963003145035,
+          0.231236688684995,
+          0.32448555857428163,
+          0.13569244635943256,
+          0.2161730287826557,
+          0.15803403470979882,
+          0.21107410792693565
+        ],
+        "flow": "clamp"
+      }
+    }
+  ]
+}

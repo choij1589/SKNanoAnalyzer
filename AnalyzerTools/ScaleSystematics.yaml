@@ -1,0 +1,22 @@
+systematics:
+  # Jet variations
+  - syst: JetRes
+    evtLoopAgain: true
+    
+  - syst: JetEn
+    evtLoopAgain: true
+    
+  # Electron variations
+  - syst: ElectronRes
+    evtLoopAgain: true
+    
+  - syst: ElectronEn
+    evtLoopAgain: true
+    
+  # Muon variations 
+  - syst: MuonEn
+    evtLoopAgain: true
+
+  # MET
+  - syst: UnclusteredEn
+    evtLoopAgain: true

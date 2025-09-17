@@ -15,6 +15,9 @@ systematics:
   - syst: MuonEn
     evtLoopAgain: true
 
+  - syst: UnclusteredEn
+    evtLoopAgain: true
+
   # Selection variations that require event re-processing
   - syst: MotherJetPt
     evtLoopAgain: true
@@ -31,3 +34,5 @@ systematics:
   - syst: ElectronRecoSF
     
   - syst: PileupReweight
+
+  - syst: PileupJetIDSF

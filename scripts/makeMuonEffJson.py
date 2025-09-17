@@ -165,17 +165,8 @@ def makingJson(era, target_binning):
                 
         
         main_json['corrections'].append(trig_eff_dict)
-        
-        
-        
     return main_json
                     
-                
-        
-        
-
-
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Create JSON file for b-tagging efficiency')

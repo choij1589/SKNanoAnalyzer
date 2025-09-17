@@ -562,7 +562,7 @@ public:
     Bool_t Flag_eeBadScFilter;
     Int_t RunNumber;
     Int_t LumiBlock;
-    Int_t EventNumber;
+    Long_t EventNumber;
 
     // TrigObj----------------------------
     Int_t nTrigObj;

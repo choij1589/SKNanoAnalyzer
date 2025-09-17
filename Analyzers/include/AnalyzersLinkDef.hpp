@@ -7,6 +7,7 @@
 #pragma link C++ class AnalyzerCore+;
 #pragma link C++ class ExampleRun+;
 #pragma link C++ class GetEffLumi+;
+#pragma link C++ class Skim_TriLep+;
 #pragma link C++ class MeasureJetTaggingEff+;
 #pragma link C++ class MeasureJetTaggingR+;
 #pragma link C++ class Vcb_FH+;
@@ -15,12 +16,17 @@
 #pragma link C++ class FullHadronicTriggerTnP+;
 #pragma link C++ class GeneratorBase+;
 #pragma link C++ class DiLeptonBase+;
+#pragma link C++ class TriLeptonBase+;
 #pragma link C++ class DiLepton+;
 #pragma link C++ class ParseEleIDVariables+;
 #pragma link C++ class ParseMuIDVariables+;
 #pragma link C++ class TestGetLeptonType+;
-#pragma link C++ class MeasTrigEff+;
 #pragma link C++ class MeasJetTagEff+;
 #pragma link C++ class MuonTnPProducer+;
+#pragma link C++ class TriggerStudy+;
+#pragma link C++ class MeasTrigEff+;
 #pragma link C++ class ClosDiLepTrigs+;
 #pragma link C++ class MeasFakeRate+;
+#pragma link C++ class MeasFakeRateV2+;
+#pragma link C++ class ClosFakeRate+;
+#pragma link C++ class EvtTreeProducer+;

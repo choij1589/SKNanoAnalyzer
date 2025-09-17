@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "description": "electron fake rate corrections for 2018 (includes QCD systematic sources)",
+  "corrections": [
+    {
+      "name": "fakerate_electron_Central",
+      "description": "electron fake rate - Central",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "absScEta",
+          "type": "real",
+          "description": "Absolute supercluster pseudorapidity"
+        },
+        {
+          "name": "ptCorr",
+          "type": "real",
+          "description": "Corrected transverse momentum [GeV]"
+        }
+      ],
+      "output": {
+        "name": "out",
+        "type": "real",
+        "description": "out"
+      },
+      "data": {
+        "nodetype": "multibinning",
+        "inputs": [
+          "absScEta",
+          "ptCorr"
+        ],
+        "edges": [
+          [
+            0.0,
+            0.8,
+            1.479,
+            2.5
+          ],
+          [
+            15.0,
+            20.0,
+            25.0,
+            35.0,
+            50.0
+          ]
+        ],
+        "content": [
+          0.26064161225065374,
+          0.19200800795274037,
+          0.1353078921660135,
+          0.14035523029776503,
+          0.29363196169703254,
+          0.22459810132842256,
+          0.1764234797232875,
+          0.19115623546429866,
+          0.40534257338807284,
+          0.30295096083310186,
+          0.21978749348045243,
+          0.19403272734908225
+        ],
+        "flow": "clamp"
+      }
+    },
+    {
+      "name": "fakerate_electron_QCD_EMEnriched",
+      "description": "electron fake rate systematic - QCD_EMEnriched",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "absScEta",
+          "type": "real",
+          "description": "Absolute supercluster pseudorapidity"
+        },
+        {
+          "name": "ptCorr",
+          "type": "real",
+          "description": "Corrected transverse momentum [GeV]"
+        }
+      ],
+      "output": {
+        "name": "out",
+        "type": "real",
+        "description": "out"
+      },
+      "data": {
+        "nodetype": "multibinning",
+        "inputs": [
+          "absScEta",
+          "ptCorr"
+        ],
+        "edges": [
+          [
+            0.0,
+            0.8,
+            1.479,
+            2.5
+          ],
+          [
+            15.0,
+            20.0,
+            25.0,
+            35.0,
+            50.0
+          ]
+        ],
+        "content": [
+          0.39550122817780736,
+          0.22169600421077915,
+          0.16849539879437564,
+          0.1418992053984492,
+          0.39059546379813903,
+          0.28334325905853297,
+          0.1732716504021729,
+          0.1658740701073776,
+          0.43098846610715896,
+          0.3417909594222759,
+          0.2525131077239897,
+          0.20464673755834928
+        ],
+        "flow": "clamp"
+      }
+    }
+  ]
+}

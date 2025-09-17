@@ -53,3 +53,8 @@ ERA=$1
   --outputPath ${SKNANO_DATA}/${ERA}/EGM/efficiency_Mu23El12_El12Leg.json
 
 ./scripts/convertTaggingEffToJson.py --era ${ERA}
+
+./scripts/convertLeptonFakeRateToJson.py --era ${ERA} --lepton electron
+./scripts/convertLeptonFakeRateToJson.py --era ${ERA} --lepton muon
+
+echo "All done for era ${ERA}."

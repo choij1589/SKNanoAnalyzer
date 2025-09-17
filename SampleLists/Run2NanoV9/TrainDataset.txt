@@ -1,0 +1,12 @@
+TTToHcToWAToMuMu-MHc100_MA95
+TTToHcToWAToMuMu-MHc115_MA87
+TTToHcToWAToMuMu-MHc130_MA90
+TTToHcToWAToMuMu-MHc130_MA100
+TTToHcToWAToMuMu-MHc145_MA92
+TTToHcToWAToMuMu-MHc160_MA85
+TTToHcToWAToMuMu-MHc160_MA98
+Skim_TriLep_WZTo3LNu_amcatnlo
+Skim_TriLep_WZTo3LNu_powheg_mllmin4p0
+Skim_TriLep_ZZTo4L_powheg
+Skim_TriLep_TTLL_powheg
+Skim_TriLep_TTZToLLNuNu

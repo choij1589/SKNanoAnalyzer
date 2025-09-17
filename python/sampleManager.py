@@ -180,12 +180,18 @@ def updateMcInfo(era):
 def makeSkimTreeInfo(era,skimTreeFolder,skimTreeSuffix,skimTreeOrigPD):
     from copy import deepcopy
     isMC = True
-    if skimTreeOrigPD.split("_")[-1].isupper() and len(skimTreeOrigPD.split("_")[-1]) == 1:
-        #if sample is ends with _one capital letter, it is data
-        #hope there will be no exception(please)
-        isMC = False
-        period = skimTreeOrigPD.split("_")[-1]
-        skimTreeOrigPD = skimTreeOrigPD[:-2]
+    sample_parts = skimTreeOrigPD.split("_")
+    if len(sample_parts) >= 2:
+        # Check for 2023 format: C_v1, C_v2, etc.
+        if len(sample_parts) >= 2 and sample_parts[-2].isupper() and len(sample_parts[-2]) == 1 and sample_parts[-1].startswith('v'):
+            isMC = False
+            period = f"{sample_parts[-2]}_{sample_parts[-1]}"
+            skimTreeOrigPD = "_".join(sample_parts[:-2])
+        # Check for older format: single capital letter
+        elif sample_parts[-1].isupper() and len(sample_parts[-1]) == 1:
+            isMC = False
+            period = sample_parts[-1]
+            skimTreeOrigPD = "_".join(sample_parts[:-1])
         
 
     sampleInfos = loadCommonSampleInfo(era)

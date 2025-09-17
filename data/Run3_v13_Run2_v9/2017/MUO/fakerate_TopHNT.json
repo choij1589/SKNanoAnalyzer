@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "description": "muon fake rate corrections for 2017 (includes QCD systematic sources)",
+  "corrections": [
+    {
+      "name": "fakerate_muon_Central",
+      "description": "muon fake rate - Central",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "absEta",
+          "type": "real",
+          "description": "Absolute pseudorapidity"
+        },
+        {
+          "name": "ptCorr",
+          "type": "real",
+          "description": "Corrected transverse momentum [GeV]"
+        }
+      ],
+      "output": {
+        "name": "out",
+        "type": "real",
+        "description": "out"
+      },
+      "data": {
+        "nodetype": "multibinning",
+        "inputs": [
+          "absEta",
+          "ptCorr"
+        ],
+        "edges": [
+          [
+            0.0,
+            0.9,
+            1.6,
+            2.4
+          ],
+          [
+            10.0,
+            15.0,
+            20.0,
+            30.0,
+            50.0
+          ]
+        ],
+        "content": [
+          0.35845420347806145,
+          0.18712132066622136,
+          0.1233386807185237,
+          0.07635981216338736,
+          0.39885207759399804,
+          0.19622948453512828,
+          0.16139961778722062,
+          0.09901125522946609,
+          0.4428465788846922,
+          0.23368230974202372,
+          0.1810159849285882,
+          0.1199034096012741
+        ],
+        "flow": "clamp"
+      }
+    },
+    {
+      "name": "fakerate_muon_QCD_MuEnriched",
+      "description": "muon fake rate systematic - QCD_MuEnriched",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "absEta",
+          "type": "real",
+          "description": "Absolute pseudorapidity"
+        },
+        {
+          "name": "ptCorr",
+          "type": "real",
+          "description": "Corrected transverse momentum [GeV]"
+        }
+      ],
+      "output": {
+        "name": "out",
+        "type": "real",
+        "description": "out"
+      },
+      "data": {
+        "nodetype": "multibinning",
+        "inputs": [
+          "absEta",
+          "ptCorr"
+        ],
+        "edges": [
+          [
+            0.0,
+            0.9,
+            1.6,
+            2.4
+          ],
+          [
+            10.0,
+            15.0,
+            20.0,
+            30.0,
+            50.0
+          ]
+        ],
+        "content": [
+          0.3792914265185105,
+          0.20079248847433379,
+          0.1365268493846693,
+          0.08049631273573628,
+          0.3901718633231501,
+          0.21655345097237894,
+          0.15385153284106506,
+          0.09603320998684395,
+          0.42118894443635446,
+          0.2466256296374751,
+          0.19539222401151396,
+          0.1367102513538258
+        ],
+        "flow": "clamp"
+      }
+    }
+  ]
+}

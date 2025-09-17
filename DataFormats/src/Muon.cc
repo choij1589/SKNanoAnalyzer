@@ -102,7 +102,8 @@ bool Muon::PassID(const TString ID) const {
     if (ID == "POGTkIsoLoose")    return (int)TkIsoId() == 1;
     if (ID == "POGTkIsoTight")    return (int)TkIsoId() == 2;
     if (ID == "HcToWATight")      return Pass_HcToWATight();
-    if (ID == "HcToWALoose")      return Pass_HcToWALoose();
+    if (ID == "HcToWALooseRun2")      return Pass_HcToWALooseRun2();
+    if (ID == "HcToWALooseRun3")      return Pass_HcToWALooseRun3();
     cerr << "[Muon::PassID] " << ID << " is not implemented." << endl;
     exit(ENODATA);
 
@@ -179,16 +180,27 @@ bool Muon::Pass_HcToWATight() const {
     if (! isPOGMediumId()) return false;
     if (! (fabs(dZ()) < 0.1)) return false;
     if (! (SIP3D() < 3.)) return false;
-    if (! (TkRelIso() < 0.4*Pt())) return false;
+    if (! (TkRelIso() < 0.4)) return false;
     if (! (MiniPFRelIso() < 0.1)) return false;
     return true;
 }
 
-bool Muon::Pass_HcToWALoose() const {
+bool Muon::Pass_HcToWALooseRun2() const {
     if (! isPOGMediumId()) return false;
     if (! (fabs(dZ()) < 0.1)) return false;
     if (! (SIP3D() < 5.)) return false;
-    if (! (TkRelIso() < 0.4*Pt())) return false;
+    if (! (TkRelIso() < 0.4)) return false;
     if (! (MiniPFRelIso() < 0.6)) return false;
     return true;
 }
+
+bool Muon::Pass_HcToWALooseRun3() const {
+    if (! isPOGMediumId()) return false;
+    if (! (fabs(dZ()) < 0.1)) return false;
+    if (! (SIP3D() < 8.)) return false;
+    if (! (TkRelIso() < 0.4)) return false;
+    if (! (MiniPFRelIso() < 0.4)) return false;
+    return true;
+}
+
+

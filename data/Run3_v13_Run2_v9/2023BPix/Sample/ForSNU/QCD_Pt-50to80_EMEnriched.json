@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "QCD_PT-50to80_EMEnriched_TuneCP5_13p6TeV_pythia8",
     "xsec": 2118000.0,
-    "sumsign": 985509.0,
-    "sumW": 985509.0,
-    "nmc": 985509.0,
+    "sumsign": -1,
+    "sumW": -1,
+    "nmc": -1,
     "path": [
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/QCD_PT-50to80_EMEnriched_TuneCP5_13p6TeV_pythia8/250617_131016/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/QCD_PT-50to80_EMEnriched_TuneCP5_13p6TeV_pythia8/250617_131016/0000/NANOAOD_2.root",

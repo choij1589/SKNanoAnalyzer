@@ -5,7 +5,7 @@
     "xsec": 5.315,
     "sumsign": -1,
     "sumW": -1,
-    "nmc": 0,
+    "nmc": -1,
     "path": [
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/WZto3LNu-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250617_130920/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/WZto3LNu-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250617_130920/0000/NANOAOD_2.root",

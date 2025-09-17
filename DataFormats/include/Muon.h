@@ -114,7 +114,8 @@ public:
 
     // Private IDs
     bool Pass_HcToWATight() const;
-    bool Pass_HcToWALoose() const;
+    bool Pass_HcToWALooseRun2() const;
+    bool Pass_HcToWALooseRun3() const;
 
 private:
     bool j_isTracker, j_isStandalone, j_isGlobal;

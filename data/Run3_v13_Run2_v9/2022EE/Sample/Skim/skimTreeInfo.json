@@ -1,0 +1,372 @@
+{
+    "Skim_TriLep_MuonEG": {
+        "suffix": "TriLep",
+        "PD": "MuonEG",
+        "isMC": 0,
+        "periods": [
+            "G",
+            "F",
+            "E"
+        ]
+    },
+    "Skim_TriLep_Muon": {
+        "suffix": "TriLep",
+        "PD": "Muon",
+        "isMC": 0,
+        "periods": [
+            "G",
+            "F",
+            "E"
+        ]
+    },
+    "Skim_TriLep_QCD_Pt-250toInf_bcToE": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-250toInf_bcToE",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-170to250_bcToE": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-170to250_bcToE",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-80to170_bcToE": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-80to170_bcToE",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-30to80_bcToE": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-30to80_bcToE",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-20to30_bcToE": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-20to30_bcToE",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-1000toInf_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-1000toInf_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-800to1000_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-800to1000_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-600to800_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-600to800_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-470to600_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-470to600_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-300to470_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-300to470_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-170to300_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-170to300_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-120to170_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-120to170_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-80to120_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-80to120_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-50to80_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-50to80_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-30to50_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-30to50_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-20to30_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-20to30_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-15to20_MuEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-15to20_MuEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-300toInf_EMEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-300toInf_EMEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-170to300_EMEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-170to300_EMEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-120to170_EMEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-120to170_EMEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-80to120_EMEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-80to120_EMEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-50to80_EMEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-50to80_EMEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-30to50_EMEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-30to50_EMEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_QCD_Pt-10to30_EMEnriched": {
+        "suffix": "TriLep",
+        "PD": "QCD_Pt-10to30_EMEnriched",
+        "isMC": 1
+    },
+    "Skim_TriLep_tHq": {
+        "suffix": "TriLep",
+        "PD": "tHq",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTHToNonbb": {
+        "suffix": "TriLep",
+        "PD": "TTHToNonbb",
+        "isMC": 1
+    },
+    "Skim_TriLep_VHToNonbb": {
+        "suffix": "TriLep",
+        "PD": "VHToNonbb",
+        "isMC": 1
+    },
+    "Skim_TriLep_VBFHToZZTo4L": {
+        "suffix": "TriLep",
+        "PD": "VBFHToZZTo4L",
+        "isMC": 1
+    },
+    "Skim_TriLep_ggHToZZTo4L": {
+        "suffix": "TriLep",
+        "PD": "ggHToZZTo4L",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTG_PTG200toInf": {
+        "suffix": "TriLep",
+        "PD": "TTG_PTG200toInf",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTG_PTG100to200": {
+        "suffix": "TriLep",
+        "PD": "TTG_PTG100to200",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTG_PTG10to100": {
+        "suffix": "TriLep",
+        "PD": "TTG_PTG10to100",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYGTo2LG_MLL50_PTG200toInf": {
+        "suffix": "TriLep",
+        "PD": "DYGTo2LG_MLL50_PTG200toInf",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYGTo2LG_MLL50_PTG100to200": {
+        "suffix": "TriLep",
+        "PD": "DYGTo2LG_MLL50_PTG100to200",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYGTo2LG_MLL50_PTG10to100": {
+        "suffix": "TriLep",
+        "PD": "DYGTo2LG_MLL50_PTG10to100",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYGTo2LG_MLL4to50_PTG200toInf": {
+        "suffix": "TriLep",
+        "PD": "DYGTo2LG_MLL4to50_PTG200toInf",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYGTo2LG_MLL4to50_PTG100to200": {
+        "suffix": "TriLep",
+        "PD": "DYGTo2LG_MLL4to50_PTG100to200",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYGTo2LG_MLL4to50_PTG10to100": {
+        "suffix": "TriLep",
+        "PD": "DYGTo2LG_MLL4to50_PTG10to100",
+        "isMC": 1
+    },
+    "Skim_TriLep_ZZZ": {
+        "suffix": "TriLep",
+        "PD": "ZZZ",
+        "isMC": 1
+    },
+    "Skim_TriLep_WZZ": {
+        "suffix": "TriLep",
+        "PD": "WZZ",
+        "isMC": 1
+    },
+    "Skim_TriLep_WWZ": {
+        "suffix": "TriLep",
+        "PD": "WWZ",
+        "isMC": 1
+    },
+    "Skim_TriLep_WWW": {
+        "suffix": "TriLep",
+        "PD": "WWW",
+        "isMC": 1
+    },
+    "Skim_TriLep_ZZTo4L_powheg": {
+        "suffix": "TriLep",
+        "PD": "ZZTo4L_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_WZTo3LNu_powheg": {
+        "suffix": "TriLep",
+        "PD": "WZTo3LNu_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_ZZ_pythia": {
+        "suffix": "TriLep",
+        "PD": "ZZ_pythia",
+        "isMC": 1
+    },
+    "Skim_TriLep_WZ_pythia": {
+        "suffix": "TriLep",
+        "PD": "WZ_pythia",
+        "isMC": 1
+    },
+    "Skim_TriLep_WW_pythia": {
+        "suffix": "TriLep",
+        "PD": "WW_pythia",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTTT": {
+        "suffix": "TriLep",
+        "PD": "TTTT",
+        "isMC": 1
+    },
+    "Skim_TriLep_tZq": {
+        "suffix": "TriLep",
+        "PD": "tZq",
+        "isMC": 1
+    },
+    "Skim_TriLep_ST_tch_antitop": {
+        "suffix": "TriLep",
+        "PD": "ST_tch_antitop",
+        "isMC": 1
+    },
+    "Skim_TriLep_ST_tch_top": {
+        "suffix": "TriLep",
+        "PD": "ST_tch_top",
+        "isMC": 1
+    },
+    "Skim_TriLep_ST_tW_antitop_Lep": {
+        "suffix": "TriLep",
+        "PD": "ST_tW_antitop_Lep",
+        "isMC": 1
+    },
+    "Skim_TriLep_ST_tW_top_Lep": {
+        "suffix": "TriLep",
+        "PD": "ST_tW_top_Lep",
+        "isMC": 1
+    },
+    "Skim_TriLep_ST_tW_antitop_Semilep": {
+        "suffix": "TriLep",
+        "PD": "ST_tW_antitop_Semilep",
+        "isMC": 1
+    },
+    "Skim_TriLep_ST_tW_top_Semilep": {
+        "suffix": "TriLep",
+        "PD": "ST_tW_top_Semilep",
+        "isMC": 1
+    },
+    "Skim_TriLep_ST_sch_antitop_Lep": {
+        "suffix": "TriLep",
+        "PD": "ST_sch_antitop_Lep",
+        "isMC": 1
+    },
+    "Skim_TriLep_ST_sch_top_Lep": {
+        "suffix": "TriLep",
+        "PD": "ST_sch_top_Lep",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTZ_NoFullyHad": {
+        "suffix": "TriLep",
+        "PD": "TTZ_NoFullyHad",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTZ_M4to50": {
+        "suffix": "TriLep",
+        "PD": "TTZ_M4to50",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTZ_M50": {
+        "suffix": "TriLep",
+        "PD": "TTZ_M50",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTWToLNu": {
+        "suffix": "TriLep",
+        "PD": "TTWToLNu",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLJ_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLJ_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYJets10to50_MG": {
+        "suffix": "TriLep",
+        "PD": "DYJets10to50_MG",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYJets10to50": {
+        "suffix": "TriLep",
+        "PD": "DYJets10to50",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYJets_MG": {
+        "suffix": "TriLep",
+        "PD": "DYJets_MG",
+        "isMC": 1
+    },
+    "Skim_TriLep_DYJets": {
+        "suffix": "TriLep",
+        "PD": "DYJets",
+        "isMC": 1
+    },
+    "Skim_TriLep_WJets_MG": {
+        "suffix": "TriLep",
+        "PD": "WJets_MG",
+        "isMC": 1
+    },
+    "Skim_TriLep_WJets": {
+        "suffix": "TriLep",
+        "PD": "WJets",
+        "isMC": 1
+    },
+    "Skim_TriLep_WZTo3LNu_amcatnlo": {
+        "suffix": "TriLep",
+        "PD": "WZTo3LNu_amcatnlo",
+        "isMC": 1
+    }
+}

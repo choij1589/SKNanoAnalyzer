@@ -1,0 +1,33 @@
+# Conv
+Skim_TriLep_DYJets
+Skim_TriLep_DYJets10to50
+Skim_TriLep_DYGTo2LG_MLL4to50_PTG10to100
+Skim_TriLep_DYGTo2LG_MLL4to50_PTG100to200
+Skim_TriLep_DYGTo2LG_MLL4to50_PTG200toInf
+Skim_TriLep_DYGTo2LG_MLL50_PTG10to100
+Skim_TriLep_DYGTo2LG_MLL50_PTG100to200
+Skim_TriLep_DYGTo2LG_MLL50_PTG200toInf
+Skim_TriLep_DYGTo2LG_MLL50_PTG200to400
+Skim_TriLep_DYGTo2LG_MLL50_PTG400to600
+Skim_TriLep_DYGTo2LG_MLL50_PTG600toInf
+Skim_TriLep_TTG_PTG10to100
+Skim_TriLep_TTG_PTG100to200
+Skim_TriLep_TTG_PTG200toInf
+# VV
+Skim_TriLep_WZTo3LNu_powheg
+Skim_TriLep_ZZTo4L_powheg
+# TT+X
+Skim_TriLep_TTWToLNu
+Skim_TriLep_TTZ_M4to50
+Skim_TriLep_TTZ_M50
+Skim_TriLep_TTHToNonbb
+# rare
+Skim_TriLep_tZq
+Skim_TriLep_tHq
+Skim_TriLep_WWW
+Skim_TriLep_WWZ
+Skim_TriLep_WZZ
+Skim_TriLep_ZZZ
+Skim_TriLep_TTTT
+Skim_TriLep_VBFHToZZTo4L
+Skim_TriLep_ggHToZZTo4L

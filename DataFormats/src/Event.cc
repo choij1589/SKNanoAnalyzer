@@ -37,7 +37,7 @@ bool Event::PassTrigger(const RVec<TString> trigs) const {
 //               -u /pb -i /afs/cern.ch/user/c/choij/private/brilcalc/json/Run3/2023.json \
 //               --hltpath "HLT_IsoMu24_v*"
 // /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json for 2022, normtag_BRIL.json for 2023 (2024.07.11)
-float Event::GetTriggerLumi(TString trig) {
+float Event::GetTriggerLumi(TString trig) const {
     if(j_HLT_TriggerMapPtr->find(trig) == j_HLT_TriggerMapPtr->end()) {
         cerr << "[Event::GetTriggerLumi] Trigger " << trig << " not found" << endl;
         return -999.;

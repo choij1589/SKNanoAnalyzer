@@ -54,6 +54,7 @@ public:
     inline float GetMuonISOSF(const TString &Muon_ISO_SF_Key, const RVec<Muon> &muons, const variation syst = variation::nom, const TString &source = "") { return GetMuonIDSF(Muon_ISO_SF_Key, muons, syst); }
     float GetMuonIDSF(const TString &Muon_ID_SF_Key, const Muon &muon, const variation syst = variation::nom) const;
     float GetMuonIDSF(const TString &Muon_ID_SF_Key, const RVec<Muon> &muons, const variation syst = variation::nom) const;
+    float GetFakeRate(const Muon muon, const TString &id_key, const TString &syst_key) const;
 
     // electron
     float GetElectronScaleUnc(const float scEta, const unsigned char seedGain, const unsigned int runNumber, const float r9, const float pt, const variation syst = variation::nom) const;
@@ -62,6 +63,8 @@ public:
     float GetElectronRECOSF(const RVec<Electron> &electrons, const variation syst = variation::nom) const;
     float GetElectronIDSF(const TString &Electron_ID_SF_Key, const float abseta, const float pt, const float phi, const variation syst = variation::nom) const;
     float GetElectronIDSF(const TString &Electron_ID_SF_Key, const RVec<Electron> &electrons, const variation syst = variation::nom) const;
+    float GetFakeRate(const Electron &electron, const TString &id_key, const TString &fakerate_key) const;
+    
     // photon
 
     // Trigger
@@ -130,6 +133,9 @@ public:
     
     // reweighting
     float GetTopPtReweight(const RVec<Gen> &gens) const;
+
+    // WZ Nj SF
+    float GetWZNjetsSF(const float &njets, const string &syst="Central") const;
 
     // Safe evaluation function for correction sets with comprehensive error handling
     template<typename... Args>
@@ -205,9 +211,12 @@ private:
         string json_muon_TopHNT_dblmu_leg2_eff;
         string json_muon_TopHNT_emu_leg1_eff;
         string json_muon_TopHNT_emu_leg2_eff;
+        string json_muon_TopHNT_fakerate;
         string json_electron_TopHNT_idsf;
         string json_electron_TopHNT_emu_leg1_eff;
         string json_electron_TopHNT_emu_leg2_eff;
+        string json_electron_TopHNT_fakerate;
+        string json_WZ_Nj_SF;
     };
     EraConfig GetEraConfig(TString era, const string &btagging_eff_file, const string &ctagging_eff_file, const string &btagging_R_file, const string &ctagging_R_file) const;
 
@@ -305,9 +314,12 @@ private:
     unique_ptr<CorrectionSet> cset_muon_TopHNT_dblmu_leg2_eff;
     unique_ptr<CorrectionSet> cset_muon_TopHNT_emu_leg1_eff;
     unique_ptr<CorrectionSet> cset_muon_TopHNT_emu_leg2_eff;
+    unique_ptr<CorrectionSet> cset_muon_TopHNT_fakerate;
     unique_ptr<CorrectionSet> cset_electron_TopHNT_idsf;
     unique_ptr<CorrectionSet> cset_electron_TopHNT_emu_leg1_eff;
     unique_ptr<CorrectionSet> cset_electron_TopHNT_emu_leg2_eff;
+    unique_ptr<CorrectionSet> cset_electron_TopHNT_fakerate;
+    unique_ptr<CorrectionSet> cset_WZ_Nj_SF;
 
     unordered_map<string, string> MUO_keys;
     unordered_map<string, string> LUM_keys;

@@ -1,0 +1,49 @@
+systematics:
+  # Jet variations
+  - syst: JetRes
+    evtLoopAgain: true
+    
+  - syst: JetEn
+    evtLoopAgain: true
+    
+  # Electron variations
+  - syst: ElectronRes
+    evtLoopAgain: true
+    
+  - syst: ElectronEn
+    evtLoopAgain: true
+    
+  # Muon variations 
+  - syst: MuonEn
+    evtLoopAgain: true
+
+  # MET
+  - syst: UnclusteredEn
+    evtLoopAgain: true
+
+  # Weight-only variations
+  - syst: L1Prefire
+    
+  - syst: DblMuTrigSF
+    
+  - syst: EMuTrigSF
+    
+  - syst: PileupReweight
+    
+  - syst: MuonIDSF
+    
+  - syst: ElectronIDSF
+    
+  - syst: PileupJetIDSF
+
+  - syst: BtagSF_HFcorr
+
+  - syst: BtagSF_HFuncorr
+
+  - syst: BtagSF_LFcorr
+
+  - syst: BtagSF_LFuncorr
+
+  - syst: WZNjetsSF_prompt
+
+  - syst: WZNjetsSF_nonprompt

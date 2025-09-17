@@ -7,7 +7,6 @@
 ## To do
 ### Assigned
 - [ ] FatJet and Tau: **Youngwan**
-- [ ] SKNano.py skimming test **Yeonjoon**
 - [ ] Auto-Validation: Check the consistency of the output for a specific NanoAOD file: **Jin**
 
 ## Make Tutorial

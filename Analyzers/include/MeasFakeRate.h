@@ -13,20 +13,24 @@ public:
     void initializeAnalyzer();
     void executeEvent();
 
-public:
     enum class Channel {
         NONE,
         INCLUSIVE,
+        QCDENRICHED,
+        WENRICHED,
         ZENRICHED
     };
 
     inline TString channelToString(Channel ch) {
         if (ch == Channel::INCLUSIVE) return "Inclusive";
+        if (ch == Channel::QCDENRICHED) return "QCDEnriched";
+        if (ch == Channel::WENRICHED) return "WEnriched";
         if (ch == Channel::ZENRICHED) return "ZEnriched";
         return "NONE";
     }
 
     enum class LeptonType {
+        NONE,
         MUON,
         ELECTRON
     };
@@ -34,12 +38,10 @@ public:
     struct RecoObjects {
         RVec<Muon> looseMuons;
         RVec<Muon> tightMuons;
-        RVec<Muon> vetoMuons;
         RVec<Electron> looseElectrons;
         RVec<Electron> tightElectrons;
-        RVec<Electron> vetoElectrons;
         RVec<Jet> tightJets;
-        RVec<Jet> tightJets_vetoLep;
+        //RVec<Jet> tightJets_vetoLep;
         RVec<Jet> bjets;
         RVec<GenJet> genJets;
         Particle METv;
@@ -53,6 +55,7 @@ public:
         float muonRecoSF;
         float eleRecoSF;
         float btagSF;
+        float pileupIDSF;
     };
 
 private:
@@ -64,11 +67,10 @@ private:
 
     // Analysis configuration
     LeptonType leptonType;
-    TString currentID;
     
     // Binning
-    RVec<double> ptcorr_bins;
-    RVec<double> abseta_bins;
+    RVec<float> ptcorr_bins;
+    RVec<float> abseta_bins;
     
     // IDs
     IDContainer *MuonIDs, *ElectronIDs;
@@ -79,7 +81,6 @@ private:
 
     // SystematicHelper
     std::unique_ptr<SystematicHelper> systHelper;
-    void processWeightOnlySystematics(const Channel& channel, const TString& ID, const Event& event, const RecoObjects& recoObjects, const RVec<Gen>& genParts);
 
     // Core analysis methods
     Channel selectEvent(Event& ev, const RecoObjects& recoObjects, const TString& ID, const TString& syst);
@@ -103,8 +104,23 @@ private:
                      const TString& syst = "Central");
 
     // Helper methods
-    TString findBin(const double ptcorr, const double abseta);
-    double getJetPtCut(const TString& selection);
+    TString getBinPrefix(const double ptcorr, const double abseta);
+    float getJetPtCut(const TString& selection);
+
+    // Cutflow functionality
+    enum class CutStage {
+        Initial = 0,
+        NoiseFilter = 1,
+        VetoMap = 2,
+        Trigger = 3,
+        LeptonSelection = 4,
+        JetRequirements = 5,
+        AwayJetRequirements = 6,
+        ZMassWindow = 7,
+        Final = 8
+    };
+    
+    void fillCutflow(CutStage stage, const Channel& channel, const TString& ID, float weight, const TString& syst);
 };
 
 #endif

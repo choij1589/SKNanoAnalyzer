@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "WZto3LNu-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
     "xsec": 5.315,
-    "sumsign": -1,
-    "sumW": -1,
-    "nmc": 0,
+    "sumsign": 3586392.0,
+    "sumW": 46005686.16201782,
+    "nmc": 5658660.0,
     "path": [
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2022/WZto3LNu-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250617_130005/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2022/WZto3LNu-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250617_130005/0000/NANOAOD_2.root",

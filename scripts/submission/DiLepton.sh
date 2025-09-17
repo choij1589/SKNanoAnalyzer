@@ -16,7 +16,7 @@ for ch in "${CHANNEL[@]}"; do
     fi
 
     SKNano.py -a DiLepton -i $DATASTREAM -n 20 -e $ERA --userflags Run${ch},RunSyst
-    SKNano.py -a DiLepton -i DYJets,TTLL_powheg,TTLJ_powheg -n 50 -e $ERA --userflags Run${ch},RunSyst
+    SKNano.py -a DiLepton -i DYJets,WJets,TTLL_powheg,TTLJ_powheg -n 50 -e $ERA --userflags Run${ch},RunSyst
     if [[ $ERA == 201* ]]; then
         SKNano.py -a DiLepton -i SampleLists/Run2NanoV9/DiLepton.txt -n 20 -e $ERA --userflags Run${ch},RunSyst
     elif [[ $ERA == 202* ]]; then

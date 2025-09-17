@@ -1,6 +1,6 @@
 #include "MeasFakeRate.h"
 
-MeasFakeRate::MeasFakeRate() : leptonType(LeptonType::MUON), currentID("") {}
+MeasFakeRate::MeasFakeRate() : leptonType(LeptonType::NONE) {}
 
 MeasFakeRate::~MeasFakeRate() {}
 
@@ -11,25 +11,23 @@ void MeasFakeRate::initializeAnalyzer() {
     MeasFakeEl8 = HasFlag("MeasFakeEl8");
     MeasFakeEl12 = HasFlag("MeasFakeEl12");
     MeasFakeEl23 = HasFlag("MeasFakeEl23");
-    MeasFakeMu = MeasFakeMu8 || MeasFakeMu17;
-    MeasFakeEl = MeasFakeEl8 || MeasFakeEl12 || MeasFakeEl23;
     RunSyst = HasFlag("RunSyst");
 
     // Determine lepton type and binning
-    if (MeasFakeMu) {
+    if (MeasFakeMu8 || MeasFakeMu17) {
         leptonType = LeptonType::MUON;
         ptcorr_bins = {10., 15., 20., 30., 50., 100., 200.};
         abseta_bins = {0., 0.9, 1.6, 2.4};
-    } else if (MeasFakeEl) {
+    } else if (MeasFakeEl8 || MeasFakeEl12 || MeasFakeEl23) {
         leptonType = LeptonType::ELECTRON;
-        ptcorr_bins = {15., 20., 25., 35., 50., 100., 200.};
+        ptcorr_bins = {10., 15., 20., 25., 35., 50., 100., 200.};
         abseta_bins = {0., 0.8, 1.479, 2.5};
     } else {
         throw std::runtime_error("[MeasFakeRate::initializeAnalyzer] No lepton type specified by flags");
     }
 
     // Set IDs
-    MuonIDs = new IDContainer("HcToWATight", "HcToWALoose");
+    MuonIDs = new IDContainer("HcToWATight", ((Run == 2) ? "HcToWALooseRun2" : "HcToWALooseRun3"));
     ElectronIDs = new IDContainer("HcToWATight", ((Run == 2) ? "HcToWALooseRun2" : "HcToWALooseRun3"));
 
     // Set triggers
@@ -48,6 +46,8 @@ void MeasFakeRate::initializeAnalyzer() {
     } else if (MeasFakeEl23) {
         isoSglLepTrig = "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30";
         trigSafePtCut = 25.;
+    } else {
+        throw std::runtime_error("[MeasFakeRate::initializeAnalyzer] No trigger specified by userflags");
     }
 
     // Initialize correction
@@ -56,23 +56,34 @@ void MeasFakeRate::initializeAnalyzer() {
     // Initialize SystematicHelper
     string SKNANO_HOME = getenv("SKNANO_HOME");
     if (IsDATA) {
-        systHelper = std::make_unique<SystematicHelper>(SKNANO_HOME + "/AnalyzerTools/noSyst.yaml", DataStream, DataEra);
+        systHelper = std::make_unique<SystematicHelper>(SKNANO_HOME + "/AnalyzerTools/FakeSystematics.data.yaml", DataStream, DataEra);
     } else {
-        systHelper = std::make_unique<SystematicHelper>(SKNANO_HOME + "/AnalyzerTools/FakeRateSystematics.yaml", MCSample, DataEra);
+        if (RunSyst) {
+            systHelper = std::make_unique<SystematicHelper>(SKNANO_HOME + "/AnalyzerTools/FakeSystematics.mc.yaml", MCSample, DataEra);
+        } else {
+            systHelper = std::make_unique<SystematicHelper>(SKNANO_HOME + "/AnalyzerTools/noSyst.yaml", DataStream, DataEra);
+        }
     }
-
 }
 
 void MeasFakeRate::executeEvent() {
     Event ev = GetEvent();
     
+    // Initial cutflow entry
+    float initialWeight = IsDATA ? 1.0 : MCweight() * ev.GetTriggerLumi("Full");
+    fillCutflow(CutStage::Initial, Channel::NONE, "event", initialWeight, "Central");
+    
     RVec<Jet> rawJets = GetAllJets();
     if (!PassNoiseFilter(rawJets, ev)) return;
+    fillCutflow(CutStage::NoiseFilter, Channel::NONE, "event", initialWeight, "Central");
     
     RVec<Muon> rawMuons = GetAllMuons();
-    RVec<Electron> rawElectrons = GetAllElectrons();
+    if (!PassVetoMap(rawJets, rawMuons, "jetvetomap")) return;
+    fillCutflow(CutStage::VetoMap, Channel::NONE, "event", initialWeight, "Central");
     
+    RVec<Electron> rawElectrons = GetAllElectrons();
     if (!ev.PassTrigger(isoSglLepTrig)) return;
+    fillCutflow(CutStage::Trigger, Channel::NONE, "event", initialWeight, "Central");
     
     RVec<Gen> genParts = !IsDATA ? GetAllGens() : RVec<Gen>();
     RVec<GenJet> genJets = !IsDATA ? GetAllGenJets() : RVec<GenJet>();
@@ -81,42 +92,51 @@ void MeasFakeRate::executeEvent() {
     RVec<TString> IDs = {"loose", "tight"};
     
     for (const auto& ID : IDs) {
-        currentID = ID;
-        
-        if (!IsDATA && RunSyst && systHelper) {
+        if (RunSyst && systHelper) {
             // Process Central objects and weight-only systematics
             RecoObjects centralObjects = defineObjects(ev, rawMuons, rawElectrons, rawJets, genJets, ID, "Central");
             Channel selectedChannel = selectEvent(ev, centralObjects, ID, "Central");
             
             if (selectedChannel != Channel::NONE) {
+                fillCutflow(CutStage::Final, selectedChannel, ID, initialWeight, "Central");
                 WeightInfo centralWeights = getWeights(selectedChannel, ID, ev, centralObjects, genParts, "Central");
                 fillObjects(selectedChannel, ID, centralObjects, centralWeights, "Central");
+
+                // process weight-only systematics with central objects
+                vector<string> weightOnlySysts = systHelper->getWeightOnlySystematics();
+                for (const auto &systName : weightOnlySysts) {
+                    TString systNameUp = systName + "_Up";
+                    WeightInfo weightsUp = getWeights(selectedChannel, ID, ev, centralObjects, genParts, systNameUp);
+                    fillObjects(selectedChannel, ID, centralObjects, weightsUp, systNameUp);
+
+                    TString systNameDown = systName + "_Down";
+                    WeightInfo weightsDown = getWeights(selectedChannel, ID, ev, centralObjects, genParts, systNameDown);
+                    fillObjects(selectedChannel, ID, centralObjects, weightsDown, systNameDown);
+                }
+            }
                 
-                // Process weight-only systematics using Central objects
-                processWeightOnlySystematics(selectedChannel, ID, ev, centralObjects, genParts);
-                
-                // Process systematics requiring evtLoopAgain (object variations)
-                for (const auto& syst : *systHelper) {
-                    TString systName = syst.iter_name;
+            // Process systematics requiring evtLoopAgain
+            for (const auto& syst : *systHelper) {
+                TString systName = syst.iter_name;
                     
-                    // Skip Central and weight-only systematics
-                    if (systName == "Central" || !systHelper->findSystematic(syst.syst_name)->evtLoopAgain) continue;
+                // Skip Central and weight-only systematics
+                if (systName == "Central" || (!systHelper->findSystematic(syst.syst_name)->evtLoopAgain)) continue;
                     
-                    RecoObjects recoObjects = defineObjects(ev, rawMuons, rawElectrons, rawJets, genJets, ID, systName);
-                    Channel systChannel = selectEvent(ev, recoObjects, ID, systName);
+                RecoObjects recoObjects = defineObjects(ev, rawMuons, rawElectrons, rawJets, genJets, ID, systName);
+                Channel systChannel = selectEvent(ev, recoObjects, ID, systName);
                     
-                    if (systChannel != Channel::NONE) {
-                        WeightInfo weights = getWeights(systChannel, ID, ev, recoObjects, genParts, systName);
-                        fillObjects(systChannel, ID, recoObjects, weights, systName);
-                    }
+                if (systChannel != Channel::NONE) {
+                    WeightInfo weights = getWeights(systChannel, ID, ev, recoObjects, genParts, systName);
+                    fillObjects(systChannel, ID, recoObjects, weights, systName);
                 }
             }
         } else {
-            // Process only Central for DATA or when systematics are off
+            // systematics are off
             RecoObjects recoObjects = defineObjects(ev, rawMuons, rawElectrons, rawJets, genJets, ID, "Central");
             Channel selectedChannel = selectEvent(ev, recoObjects, ID, "Central");
             
             if (selectedChannel != Channel::NONE) {
+                fillCutflow(CutStage::Final, selectedChannel, ID, initialWeight, "Central");
                 WeightInfo weights = getWeights(selectedChannel, ID, ev, recoObjects, genParts, "Central");
                 fillObjects(selectedChannel, ID, recoObjects, weights, "Central");
             }
@@ -153,11 +173,12 @@ MeasFakeRate::RecoObjects MeasFakeRate::defineObjects(Event& ev,
     } else if (syst.Contains("JetRes")) {
         TString variation = syst.Contains("Up") ? "up" : "down";
         allJets = SmearJets(allJets, genJets, variation);
+    } else {
+        // No scale variation
     }
     
     // Get MET
-    Particle METv = ev.GetMETVector(Event::MET_Type::PUPPI);
-    METv = ApplyTypeICorrection(METv, allJets, allElectrons, allMuons);
+    Particle METv = ApplyTypeICorrection(ev.GetMETVector(Event::MET_Type::PUPPI), allJets, allElectrons, allMuons);
     
     // Sort objects by pT
     sort(allMuons.begin(), allMuons.end(), [](const Muon& a, const Muon& b) { return a.Pt() > b.Pt(); });
@@ -165,11 +186,8 @@ MeasFakeRate::RecoObjects MeasFakeRate::defineObjects(Event& ev,
     sort(allJets.begin(), allJets.end(), [](const Jet& a, const Jet& b) { return a.Pt() > b.Pt(); });
 
     // Select objects based on ID
-    RVec<Muon> vetoMuons = SelectMuons(allMuons, MuonIDs->GetID("loose"), 10., 2.4);
-    RVec<Electron> vetoElectrons = SelectElectrons(allElectrons, ElectronIDs->GetID("loose"), 10., 2.5);
-    
     RVec<Muon> looseMuons = SelectMuons(allMuons, MuonIDs->GetID("loose"), 10., 2.4);
-    RVec<Electron> looseElectrons = SelectElectrons(allElectrons, ElectronIDs->GetID("loose"), 15., 2.5);
+    RVec<Electron> looseElectrons = SelectElectrons(allElectrons, ElectronIDs->GetID("loose"), 10., 2.5);
     
     RVec<Muon> tightMuons;
     RVec<Electron> tightElectrons;
@@ -179,20 +197,26 @@ MeasFakeRate::RecoObjects MeasFakeRate::defineObjects(Event& ev,
         tightElectrons = looseElectrons;
     } else if (ID == "tight") {
         tightMuons = SelectMuons(allMuons, MuonIDs->GetID("tight"), 10., 2.4);
-        tightElectrons = SelectElectrons(allElectrons, ElectronIDs->GetID("tight"), 15., 2.5);
+        tightElectrons = SelectElectrons(allElectrons, ElectronIDs->GetID("tight"), 10., 2.5);
     }
     
     // Jet selection with potential selection variations
     const float jetPtCut = getJetPtCut(syst);
     const float max_jeteta = DataEra.Contains("2016") ? 2.4 : 2.5;
     RVec<Jet> tightJets = SelectJets(allJets, "tight", jetPtCut, max_jeteta);
-    if (Run == 2) tightJets = SelectJets(tightJets, "loosePuId", jetPtCut, max_jeteta);
-    RVec<Jet> tightJets_vetoLep = JetsVetoLeptonInside(tightJets, vetoElectrons, vetoMuons, 0.4);
-    
+    if (Run == 2) {
+        RVec<Jet> tightJets_vetoMap;
+        for (const auto &jet : SelectJets(tightJets, "loosePuId", jetPtCut, max_jeteta)) {
+            if (PassVetoMap(jet, allMuons, "jetvetomap")) tightJets_vetoMap.push_back(jet);
+        }
+        tightJets = tightJets_vetoMap;
+    }
+    tightJets = JetsVetoLeptonInside(tightJets, looseElectrons, looseMuons, 0.4);
+
     // B-jet selection
     RVec<Jet> bjets;
     float wp = myCorr->GetBTaggingWP(JetTagging::JetFlavTagger::DeepJet, JetTagging::JetFlavTaggerWP::Medium);
-    for (const auto& jet : tightJets_vetoLep) {
+    for (const auto& jet : tightJets) {
         float btagScore = jet.GetBTaggerResult(JetTagging::JetFlavTagger::DeepJet);
         if (btagScore > wp) bjets.emplace_back(jet);
     }
@@ -200,12 +224,10 @@ MeasFakeRate::RecoObjects MeasFakeRate::defineObjects(Event& ev,
     RecoObjects objects;
     objects.looseMuons = looseMuons;
     objects.tightMuons = tightMuons;
-    objects.vetoMuons = vetoMuons;
     objects.looseElectrons = looseElectrons;
     objects.tightElectrons = tightElectrons;
-    objects.vetoElectrons = vetoElectrons;
     objects.tightJets = tightJets;
-    objects.tightJets_vetoLep = tightJets_vetoLep;
+    //objects.tightJets_vetoLep = tightJets_vetoLep;
     objects.bjets = bjets;
     objects.genJets = genJets;
     objects.METv = METv;
@@ -216,23 +238,28 @@ MeasFakeRate::RecoObjects MeasFakeRate::defineObjects(Event& ev,
 MeasFakeRate::Channel MeasFakeRate::selectEvent(Event& ev, const RecoObjects& recoObjects, const TString& ID, const TString& syst) {
     const RVec<Muon>& muons = (ID == "loose") ? recoObjects.looseMuons : recoObjects.tightMuons;
     const RVec<Electron>& electrons = (ID == "loose") ? recoObjects.looseElectrons : recoObjects.tightElectrons;
-    const RVec<Jet>& jets = recoObjects.tightJets_vetoLep;
+    const RVec<Muon>& vetoMuons = recoObjects.looseMuons;
+    const RVec<Electron>& vetoElectrons = recoObjects.looseElectrons;
+    const RVec<Jet>& jets = recoObjects.tightJets;
     const RVec<Jet>& bjets = recoObjects.bjets;
     
+    float weight = IsDATA ? 1.0 : MCweight() * ev.GetTriggerLumi("Full");
+    
     if (leptonType == LeptonType::MUON) {
-        bool singleMu = (muons.size() == 1 && recoObjects.looseMuons.size() == 1 && 
-                        electrons.size() == 0 && recoObjects.looseElectrons.size() == 0);
-        bool doubleMu = (muons.size() == 2 && recoObjects.looseMuons.size() == 2 && 
-                        electrons.size() == 0 && recoObjects.looseElectrons.size() == 0);
+        const bool sglMu = (muons.size() == 1 && vetoMuons.size() == 1 && 
+                            electrons.size() == 0 && vetoElectrons.size() == 0);
+        const bool dblMu = (muons.size() == 2 && vetoMuons.size() == 2 && 
+                            electrons.size() == 0 && vetoElectrons.size() == 0);
         
-        if (!singleMu && !doubleMu) return Channel::NONE;
-        if (muons[0].Pt() <= trigSafePtCut) return Channel::NONE;
-        if (jets.size() == 0) return Channel::NONE;
+        if (! (sglMu || dblMu)) return Channel::NONE;
+        fillCutflow(CutStage::LeptonSelection, Channel::INCLUSIVE, ID, weight, syst);
         
-        // RequireHeavyTag selection variation
+        if (! (muons[0].Pt() > trigSafePtCut)) return Channel::NONE;
+        if (! (jets.size() > 0)) return Channel::NONE;
         if (syst.Contains("RequireHeavyTag") && bjets.size() == 0) return Channel::NONE;
-        
-        if (singleMu) {
+        fillCutflow(CutStage::JetRequirements, Channel::INCLUSIVE, ID, weight, syst);
+
+        if (sglMu) {
             // Check for away jet
             bool existAwayJet = false;
             for (const auto& jet : jets) {
@@ -242,27 +269,30 @@ MeasFakeRate::Channel MeasFakeRate::selectEvent(Event& ev, const RecoObjects& re
                 }
             }
             if (!existAwayJet) return Channel::NONE;
+            fillCutflow(CutStage::AwayJetRequirements, Channel::INCLUSIVE, ID, weight, syst);
             return Channel::INCLUSIVE;
         } else { // doubleMu
             Particle ZCand = muons[0] + muons[1];
             bool isOnZ = (fabs(ZCand.M() - 91.2) < 15.);
             if (!isOnZ) return Channel::NONE;
+            fillCutflow(CutStage::ZMassWindow, Channel::ZENRICHED, ID, weight, syst);
             return Channel::ZENRICHED;
         }
     } else { // ELECTRON
-        bool singleEl = (electrons.size() == 1 && recoObjects.vetoElectrons.size() == 1 && 
-                        muons.size() == 0 && recoObjects.vetoMuons.size() == 0);
-        bool doubleEl = (electrons.size() == 2 && recoObjects.vetoElectrons.size() == 2 && 
-                        muons.size() == 0 && recoObjects.vetoMuons.size() == 0);
+        const bool sglEl = (electrons.size() == 1 && vetoElectrons.size() == 1 && 
+                        muons.size() == 0 && vetoMuons.size() == 0);
+        const bool dblEl = (electrons.size() == 2 && vetoElectrons.size() == 2 && 
+                        muons.size() == 0 && vetoMuons.size() == 0);
         
-        if (!singleEl && !doubleEl) return Channel::NONE;
-        if (electrons[0].Pt() <= trigSafePtCut) return Channel::NONE;
-        if (jets.size() == 0) return Channel::NONE;
+        if (! (sglEl || dblEl)) return Channel::NONE;
+        fillCutflow(CutStage::LeptonSelection, Channel::INCLUSIVE, ID, weight, syst);
         
-        // RequireHeavyTag selection variation
+        if (! (electrons[0].Pt() > trigSafePtCut)) return Channel::NONE;
+        if (! (jets.size() > 0)) return Channel::NONE;
         if (syst.Contains("RequireHeavyTag") && bjets.size() == 0) return Channel::NONE;
-        
-        if (singleEl) {
+        fillCutflow(CutStage::JetRequirements, Channel::INCLUSIVE, ID, weight, syst);
+
+        if (sglEl) {
             // Check for away jet
             bool existAwayJet = false;
             for (const auto& jet : jets) {
@@ -272,11 +302,13 @@ MeasFakeRate::Channel MeasFakeRate::selectEvent(Event& ev, const RecoObjects& re
                 }
             }
             if (!existAwayJet) return Channel::NONE;
+            fillCutflow(CutStage::AwayJetRequirements, Channel::INCLUSIVE, ID, weight, syst);
             return Channel::INCLUSIVE;
-        } else { // doubleEl
+        } else { // dblEl
             Particle ZCand = electrons[0] + electrons[1];
             bool isOnZ = (fabs(ZCand.M() - 91.2) < 15.);
             if (!isOnZ) return Channel::NONE;
+            fillCutflow(CutStage::ZMassWindow, Channel::ZENRICHED, ID, weight, syst);
             return Channel::ZENRICHED;
         }
     }
@@ -298,10 +330,10 @@ MeasFakeRate::WeightInfo MeasFakeRate::getWeights(const Channel& channel,
     weights.muonRecoSF = 1.0;
     weights.eleRecoSF = 1.0;
     weights.btagSF = 1.0;
+    weights.pileupIDSF = 1.0;
     
     if (!IsDATA) {
-        Event& ev = const_cast<Event&>(event);
-        weights.genWeight = MCweight() * ev.GetTriggerLumi("Full");
+        weights.genWeight = MCweight() * event.GetTriggerLumi("Full");
         
         // Determine systematic variation
         MyCorrection::variation var = MyCorrection::variation::nom;
@@ -338,18 +370,31 @@ MeasFakeRate::WeightInfo MeasFakeRate::getWeights(const Channel& channel,
         
         // B-tagging SF for RequireHeavyTag
         if (syst.Contains("RequireHeavyTag")) {
-            weights.btagSF = myCorr->GetBTaggingReweightMethod1a(recoObjects.tightJets_vetoLep, 
+            weights.btagSF = myCorr->GetBTaggingReweightMethod1a(recoObjects.tightJets, 
                                                                JetTagging::JetFlavTagger::DeepJet,
                                                                JetTagging::JetFlavTaggerWP::Medium,
                                                                JetTagging::JetTaggingSFMethod::mujets,
                                                                MyCorrection::variation::nom);
         }
+
+        // Jet PUID SF for Run2
+        if (Run == 2) {
+            const RVec<Jet>& jets = recoObjects.tightJets;
+            const RVec<GenJet>& genJets = recoObjects.genJets;
+
+            unordered_map<int, int> matched_idx = GenJetMatching(jets, genJets, fixedGridRhoFastjetAll, 0.4, 10.);
+            if (syst.Contains("PileupJetIDSF")) {
+                weights.pileupIDSF = myCorr->GetPileupJetIDSF(jets, matched_idx, "loose", var);
+            } else {
+                weights.pileupIDSF = myCorr->GetPileupJetIDSF(jets, matched_idx, "loose", MyCorrection::variation::nom);
+            }
+        }
         
         // Pileup reweighting
         if (syst.Contains("PileupReweight")) {
-            weights.pileupWeight = myCorr->GetPUWeight(ev.nTrueInt(), var);
+            weights.pileupWeight = myCorr->GetPUWeight(event.nTrueInt(), var);
         } else {
-            weights.pileupWeight = myCorr->GetPUWeight(ev.nTrueInt(), MyCorrection::variation::nom);
+            weights.pileupWeight = myCorr->GetPUWeight(event.nTrueInt(), MyCorrection::variation::nom);
         }
     }
     
@@ -361,75 +406,154 @@ void MeasFakeRate::fillObjects(const Channel& channel,
                                const RecoObjects& recoObjects, 
                                const WeightInfo& weights, 
                                const TString& syst) {
-    
-    float totalWeight = weights.genWeight * weights.prefireWeight * weights.pileupWeight * 
-                       weights.topPtWeight * weights.muonRecoSF * weights.eleRecoSF * 
-                       weights.btagSF;
+    float totalWeight = 1.;
+    if (!IsDATA) {
+        totalWeight = weights.genWeight;
+        totalWeight *= weights.prefireWeight;
+        totalWeight *= weights.pileupWeight;
+        totalWeight *= weights.topPtWeight;
+        totalWeight *= weights.muonRecoSF;
+        totalWeight *= weights.eleRecoSF;
+        if (syst == "RequireHevayTag") totalWeight *= weights.btagSF;
+        if (Run == 2) totalWeight *= weights.pileupIDSF;
+    }
     
     TString prefix = channelToString(channel) + "/" + ID + "/" + syst;
-    
-    // Fill lepton histograms
-    if (leptonType == LeptonType::MUON) {
-        const RVec<Muon>& muons = (ID == "loose") ? recoObjects.looseMuons : recoObjects.tightMuons;
-        for (const auto& mu : muons) {
-            TString binName = findBin(mu.Pt(), fabs(mu.Eta()));
-            FillHist(prefix + "/muons/" + binName + "/pt", mu.Pt(), totalWeight, 300, 0., 300.);
-            FillHist(prefix + "/muons/" + binName + "/eta", mu.Eta(), totalWeight, 50, -2.5, 2.5);
-            FillHist(prefix + "/muons/" + binName + "/phi", mu.Phi(), totalWeight, 64, -3.2, 3.2);
+    const RVec<Jet> &jets = recoObjects.tightJets;
+    const RVec<Jet> &bjets = recoObjects.bjets;
+    const Particle METv = recoObjects.METv;
+    // Fill histograms based on channel and lepton type
+    if (channel == Channel::INCLUSIVE) {
+        if (leptonType == LeptonType::MUON) {
+            const Muon& mu = (ID == "loose") ? recoObjects.looseMuons[0] : recoObjects.tightMuons[0];
+            float ptcorr = mu.Pt()*(1.+max(0., mu.MiniPFRelIso()-0.1));
+            float abseta = fabs(mu.Eta());
+            float mT = TMath::Sqrt(2.*mu.Pt()*METv.Pt()*(1.-TMath::Cos(mu.DeltaPhi(METv))));
+            float mTfix = TMath::Sqrt(2.*35.*METv.Pt()*(1.-TMath::Cos(mu.DeltaPhi(METv))));
+            TString binName = getBinPrefix(ptcorr, abseta);
+                
+            // Fill inclusive channel histograms
+            FillHist(prefix + "/muon/pt", mu.Pt(), totalWeight, 300, 0., 300.);
+            FillHist(prefix + "/muon/eta", mu.Eta(), totalWeight, 48, -2.4, 2.4);
+            FillHist(prefix + "/muon/phi", mu.Phi(), totalWeight, 64, -3.2, 3.2);
+            FillHist(prefix + "/muon/ptcorr", ptcorr, totalWeight, ptcorr_bins);
+            FillHist(prefix + "/muon/abseta", abseta, totalWeight, abseta_bins);
+            FillHist(prefix + "/MT", mT, totalWeight, 600, 0., 300.);
+            FillHist(prefix + "/MTfix", mTfix, totalWeight, 600, 0., 300.);
+            FillHist(prefix + "/MET", METv.Pt(), totalWeight, 500, 0., 500.);
+            FillHist(prefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
+            FillHist(prefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
+                
+            // Fill binned histograms
+            TString binnedPrefix = binName + "/" + channelToString(channel) + "/" + ID + "/" + syst;
+            FillHist(binnedPrefix + "/muon/ptcorr", ptcorr, totalWeight, 200, 0., 200.);
+            FillHist(binnedPrefix + "/muon/abseta", abseta, totalWeight, 24, 0., 2.4);
+            FillHist(binnedPrefix + "/MT", mT, totalWeight, 500, 0., 500.);
+            FillHist(binnedPrefix + "/MTfix", mTfix, totalWeight, 600, 0., 300.);
+            FillHist(binnedPrefix + "/MET", METv.Pt(), totalWeight, 600, 0., 300.);
+                
+            // Fill subchannel - determine QCDEnriched or WEnriched
+            TString subchannel = "";
+            if (mT < 25. && METv.Pt() < 25.) {
+                subchannel = "QCDEnriched";
+            } else if (mT > 60.) {
+                subchannel = "WEnriched";
+            } else {
+                return;
+            }
+                
+            TString subchannelPrefix = binName + "/" + subchannel + "/" + ID + "/" + syst;
+            FillHist(subchannelPrefix + "/muon/pt", mu.Pt(), totalWeight, 200, 0., 200.);
+            FillHist(subchannelPrefix + "/muon/eta", mu.Eta(), totalWeight, 48, -2.4, 2.4);
+            FillHist(subchannelPrefix + "/muon/ptcorr", ptcorr, totalWeight, 200, 0., 200.);
+            
+            FillHist(subchannelPrefix + "/muon/abseta", abseta, totalWeight, 24, 0., 2.4);
+            FillHist(subchannelPrefix + "/MT", mT, totalWeight, 300, 0., 300.);
+            FillHist(subchannelPrefix + "/MET", METv.Pt(), totalWeight, 300, 0., 300.);
+        } else { // ELECTRON
+            const Electron& el = (ID=="loose") ? recoObjects.looseElectrons[0]: recoObjects.tightElectrons[0];
+            float ptcorr = el.Pt()*(1.+max(0., el.MiniPFRelIso()-0.1));
+            float abseta = fabs(el.scEta());
+            float mT = TMath::Sqrt(2.*el.Pt()*METv.Pt()*(1.-TMath::Cos(el.DeltaPhi(METv))));
+            float mTfix = TMath::Sqrt(2.*35.*METv.Pt()*(1.-TMath::Cos(el.DeltaPhi(METv))));
+            TString binName = getBinPrefix(ptcorr, abseta);
+                
+            // Fill inclusive channel histograms
+            FillHist(prefix + "/electron/pt", el.Pt(), totalWeight, 300, 0., 300.);
+            FillHist(prefix + "/electron/scEta", el.scEta(), totalWeight, 50, -2.5, 2.5);
+            FillHist(prefix + "/electron/phi", el.Phi(), totalWeight, 64, -3.2, 3.2);
+            FillHist(prefix + "/electron/ptcorr", ptcorr, totalWeight, ptcorr_bins);
+            FillHist(prefix + "/electron/abseta", abseta, totalWeight, abseta_bins);
+            FillHist(prefix + "/MT", mT, totalWeight, 600, 0., 300.);
+            FillHist(prefix + "/MTfix", mTfix, totalWeight, 600, 0., 300.);
+            FillHist(prefix + "/MET", METv.Pt(), totalWeight, 500, 0., 500.);
+            FillHist(prefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
+            FillHist(prefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
+                
+            // Fill binned histograms
+            TString binnedPrefix = binName+"/"+channelToString(channel)+"/"+ID+"/"+syst;
+            FillHist(binnedPrefix + "/electron/ptcorr", ptcorr, totalWeight, ptcorr_bins);
+            FillHist(binnedPrefix + "/electron/abseta", abseta, totalWeight, abseta_bins);
+            FillHist(binnedPrefix + "/MT", mT, totalWeight, 600, 0., 300.);
+            FillHist(binnedPrefix + "/MTfix", mTfix, totalWeight, 600, 0., 300.);
+            FillHist(binnedPrefix + "/MET", METv.Pt(), totalWeight, 500, 0., 500.);
+                
+            // Fill subchannel - determine QCDEnriched or WEnriched  
+            TString subchannel = "";
+            if (mT < 25. && METv.Pt() < 25.) {
+                subchannel = "QCDEnriched";
+            } else if (mT > 60.) {
+                subchannel = "WEnriched";
+            } else {
+                return;
+            }
+                
+            TString subchannelPrefix = binName+"/"+subchannel+"/"+ID+"/"+syst;
+            FillHist(subchannelPrefix + "/electron/pt", el.Pt(), totalWeight, 300, 0., 300.);
+            FillHist(subchannelPrefix + "/electron/scEta", el.scEta(), totalWeight, 50, -2.5, 2.5);
+            FillHist(subchannelPrefix + "/electron/ptcorr", ptcorr, totalWeight, 300, 0., 300.);
+            FillHist(subchannelPrefix + "/electron/abseta", abseta, totalWeight, 25, 0., 2.5);
+            FillHist(subchannelPrefix + "/MT", mT, totalWeight, 300, 0., 300.);
+            FillHist(subchannelPrefix + "/MET", METv.Pt(), totalWeight, 300, 0., 300.);
         }
-    } else {
-        const RVec<Electron>& electrons = (ID == "loose") ? recoObjects.looseElectrons : recoObjects.tightElectrons;
-        for (const auto& ele : electrons) {
-            TString binName = findBin(ele.Pt(), fabs(ele.Eta()));
-            FillHist(prefix + "/electrons/" + binName + "/pt", ele.Pt(), totalWeight, 300, 0., 300.);
-            FillHist(prefix + "/electrons/" + binName + "/eta", ele.Eta(), totalWeight, 50, -2.5, 2.5);
-            FillHist(prefix + "/electrons/" + binName + "/phi", ele.Phi(), totalWeight, 64, -3.2, 3.2);
+    } else if (channel == Channel::ZENRICHED) {
+        if (leptonType == LeptonType::MUON) {
+            const RVec<Muon>& muons = (ID == "loose") ? recoObjects.looseMuons : recoObjects.tightMuons;
+            const Particle ZCand = muons[0] + muons[1];
+            FillHist(prefix + "/ZCand/mass", ZCand.M(), totalWeight, 40, 75., 115.);
+            FillHist(prefix + "/ZCand/pt", ZCand.Pt(), totalWeight, 300, 0., 300.);
+            FillHist(prefix + "/ZCand/eta", ZCand.Eta(), totalWeight, 100, -5., 5.);
+            FillHist(prefix + "/ZCand/phi", ZCand.Phi(), totalWeight, 64, -3.2, 3.2);
+            FillHist(prefix + "/muons/1/pt", muons[0].Pt(), totalWeight, 300, 0., 300.);
+            FillHist(prefix + "/muons/1/eta", muons[0].Eta(), totalWeight, 48, -2.4, 2.4);
+            FillHist(prefix + "/muons/1/phi", muons[0].Phi(), totalWeight, 64, -3.2, 3.2);
+            FillHist(prefix + "/muons/2/pt", muons[1].Pt(), totalWeight, 300, 0., 300.);
+            FillHist(prefix + "/muons/2/eta", muons[1].Eta(), totalWeight, 48, -2.4, 2.4);
+            FillHist(prefix + "/muons/2/phi", muons[1].Phi(), totalWeight, 64, -3.2, 3.2);
+            FillHist(prefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
+            FillHist(prefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
+        } else { // ELECTRON
+            const RVec<Electron>& electrons = (ID == "loose") ? recoObjects.looseElectrons : recoObjects.tightElectrons;
+            const Particle ZCand = electrons[0] + electrons[1];
+            FillHist(prefix + "/ZCand/mass", ZCand.M(), totalWeight, 40, 75., 115.);
+            FillHist(prefix + "/ZCand/pt", ZCand.Pt(), totalWeight, 300, 0., 300.);
+            FillHist(prefix + "/ZCand/eta", ZCand.Eta(), totalWeight, 100, -5., 5.);
+            FillHist(prefix + "/ZCand/phi", ZCand.Phi(), totalWeight, 64, -3.2, 3.2);
+            FillHist(prefix + "/electrons/1/pt", electrons[0].Pt(), totalWeight, 300, 0., 300.);
+            FillHist(prefix + "/electrons/1/scEta", electrons[0].scEta(), totalWeight, 50, -2.5, 2.5);
+            FillHist(prefix + "/electrons/1/phi", electrons[0].Phi(), totalWeight, 64, -3.2, 3.2);
+            FillHist(prefix + "/electrons/2/pt", electrons[1].Pt(), totalWeight, 300, 0., 300.);
+            FillHist(prefix + "/electrons/2/scEta", electrons[1].scEta(), totalWeight, 50, -2.5, 2.5);
+            FillHist(prefix + "/electrons/2/phi", electrons[1].Phi(), totalWeight, 64, -3.2, 3.2);
+            FillHist(prefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
+            FillHist(prefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
         }
     }
-    
-    // Fill jet histograms
-    FillHist(prefix + "/jets/n", recoObjects.tightJets_vetoLep.size(), totalWeight, 20, 0., 20.);
-    for (const auto& jet : recoObjects.tightJets_vetoLep) {
-        FillHist(prefix + "/jets/pt", jet.Pt(), totalWeight, 300, 0., 300.);
-        FillHist(prefix + "/jets/eta", jet.Eta(), totalWeight, 50, -2.5, 2.5);
-        FillHist(prefix + "/jets/phi", jet.Phi(), totalWeight, 64, -3.2, 3.2);
-    }
-    
-    // Fill b-jet histograms
-    FillHist(prefix + "/bjets/n", recoObjects.bjets.size(), totalWeight, 10, 0., 10.);
-    for (const auto& bjet : recoObjects.bjets) {
-        FillHist(prefix + "/bjets/pt", bjet.Pt(), totalWeight, 300, 0., 300.);
-        FillHist(prefix + "/bjets/eta", bjet.Eta(), totalWeight, 50, -2.5, 2.5);
-        FillHist(prefix + "/bjets/phi", bjet.Phi(), totalWeight, 64, -3.2, 3.2);
-    }
-    
-    // Fill MET histograms
-    FillHist(prefix + "/met/pt", recoObjects.METv.Pt(), totalWeight, 300, 0., 300.);
-    FillHist(prefix + "/met/phi", recoObjects.METv.Phi(), totalWeight, 64, -3.2, 3.2);
 }
 
-void MeasFakeRate::processWeightOnlySystematics(const Channel& channel, const TString& ID, const Event& event, const RecoObjects& recoObjects, const RVec<Gen>& genParts) {
-    // Get weight-only systematics from SystematicHelper
-    const std::vector<std::string>& allWeightOnlySystematics = systHelper->getWeightOnlySystematics();
-    
-    // Process each weight-only systematic (Up and Down variations)
-    for (const std::string& systName : allWeightOnlySystematics) {
-        // Up variation
-        TString systNameUp = systName + "_Up";
-        WeightInfo weightsUp = getWeights(channel, ID, event, recoObjects, genParts, systNameUp);
-        fillObjects(channel, ID, recoObjects, weightsUp, systNameUp);
-        
-        // Down variation
-        TString systNameDown = systName + "_Down";
-        WeightInfo weightsDown = getWeights(channel, ID, event, recoObjects, genParts, systNameDown);
-        fillObjects(channel, ID, recoObjects, weightsDown, systNameDown);
-    }
-}
-
-TString MeasFakeRate::findBin(const double ptcorr, const double abseta) {
+TString MeasFakeRate::getBinPrefix(const double ptcorr, const double abseta) {
     int ptcorr_idx = -1;
     int abseta_idx = -1;
-    
     for (int i = 0; i < ptcorr_bins.size()-1; i++) {
         if (ptcorr_bins[i] <= ptcorr && ptcorr < ptcorr_bins[i+1]) {
             ptcorr_idx = i;
@@ -457,9 +581,21 @@ TString MeasFakeRate::findBin(const double ptcorr, const double abseta) {
                           etaBin.Data());
 }
 
-double MeasFakeRate::getJetPtCut(const TString& selection) {
-    if (selection.Contains("MotherJetPtUp")) return 25.0;
-    if (selection.Contains("MotherJetPtDown")) return 15.0;
-    return 20.0; // default
+float MeasFakeRate::getJetPtCut(const TString& selection) {
+    if (selection.Contains("MotherJetPt_Up")) 
+        return 60.0;
+    else if (selection.Contains("MotherJetPt_Down")) 
+        return (leptonType == LeptonType::MUON) ? 20.0 : 30.0;
+    else 
+        return 40.0;
+}
+
+void MeasFakeRate::fillCutflow(CutStage stage, const Channel& channel, const TString& ID, float weight, const TString& syst) {
+    if (syst != "Central") return;
+    TString channelStr = channelToString(channel);
+    if (channelStr == "NONE") channelStr = "PreSel";
+    
+    int cutIndex = static_cast<int>(stage);
+    FillHist(Form("%s/%s/%s/cutflow", channelStr.Data(), ID.Data(), syst.Data()), cutIndex, weight, 9, 0., 9.);
 }
 

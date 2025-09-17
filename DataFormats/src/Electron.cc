@@ -167,13 +167,13 @@ bool Electron::Pass_HcToWALooseRun2() const {
     bool passMVAIDNoIsoCut = false;
     switch(etaRegion()) {
         case ETAREGION::IB:
-            if (! (MvaNoIso() > cutIB)) passMVAIDNoIsoCut = true;
+            if (MvaNoIso() > cutIB) passMVAIDNoIsoCut = true;
             break;
         case ETAREGION::OB:
-            if (! (MvaNoIso() > cutOB)) passMVAIDNoIsoCut = true;
+            if (MvaNoIso() > cutOB) passMVAIDNoIsoCut = true;
             break;
         case ETAREGION::EC:
-            if (! (MvaNoIso() > cutEC)) passMVAIDNoIsoCut = true;
+            if (MvaNoIso() > cutEC) passMVAIDNoIsoCut = true;
             break;
         default: break;
     }
@@ -183,19 +183,19 @@ bool Electron::Pass_HcToWALooseRun2() const {
 
 bool Electron::Pass_HcToWALooseRun3() const {
     if (! Pass_HcToWABaseline()) return false;
-    if (! (SIP3D() < 8.)) return false;
+    if (! (SIP3D() < 6.)) return false;
     if (! (MiniPFRelIso() < 0.4)) return false;
-    const float cutIB=0.5, cutOB=-0.8, cutEC=-0.5;
+    const float cutIB=0.8, cutOB=0.5, cutEC=-0.8;
     bool passMVAIDNoIsoCut = false;
     switch(etaRegion()) {
         case ETAREGION::IB:
-            if (! (MvaNoIso() > cutIB)) passMVAIDNoIsoCut = true;
+            if (MvaNoIso() > cutIB) passMVAIDNoIsoCut = true;
             break;
         case ETAREGION::OB:
-            if (! (MvaNoIso() > cutOB)) passMVAIDNoIsoCut = true;
+            if (MvaNoIso() > cutOB) passMVAIDNoIsoCut = true;
             break;
         case ETAREGION::EC:
-            if (! (MvaNoIso() > cutEC)) passMVAIDNoIsoCut = true;
+            if (MvaNoIso() > cutEC) passMVAIDNoIsoCut = true;
             break;
         default: break;
     }

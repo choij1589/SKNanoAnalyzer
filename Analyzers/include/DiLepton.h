@@ -27,9 +27,9 @@ public:
     }
 
     struct RecoObjects {
-        RVec<Muon> looseMuons;
+        RVec<Muon> vetoMuons;
         RVec<Muon> tightMuons;
-        RVec<Electron> looseElectrons;
+        RVec<Electron> vetoElectrons;
         RVec<Electron> tightElectrons;
         RVec<Jet> tightJets;
         RVec<Jet> tightJets_vetoLep;

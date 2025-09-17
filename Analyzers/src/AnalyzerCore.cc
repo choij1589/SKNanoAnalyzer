@@ -915,6 +915,7 @@ RVec<Tau> AnalyzerCore::SelectTaus(const RVec<Tau> &taus, const TString ID, cons
 
 RVec<Jet> AnalyzerCore::GetAllJets() {
     RVec<Jet> Jets;
+    
     for (int i = 0; i < nJet; i++) {
         Jet jet;
         const float rawPt = Jet_pt[i] * (1.-Jet_rawFactor[i]);
@@ -929,24 +930,50 @@ RVec<Jet> AnalyzerCore::GetAllJets() {
         jet.SetOriginalIndex(i);
         jet.SetEnergyFractions(Jet_chHEF[i], Jet_neHEF[i], Jet_neEmEF[i], Jet_chEmEF[i], Jet_muEF[i]);
         if(!IsDATA){
-            if(Run == 3)
-            jet.SetJetFlavours(Jet_partonFlavour[i] ,Jet_hadronFlavour[i]);
-            else if(Run == 2)
-            jet.SetJetFlavours(static_cast<short>(Jet_partonFlavour_RunII[i]) , static_cast<unsigned char>(Jet_hadronFlavour_RunII[i]));
+            if (Run == 3) {
+              jet.SetJetFlavours(Jet_partonFlavour[i] ,Jet_hadronFlavour[i]);
+            } else { // Run 2
+              jet.SetJetFlavours(static_cast<short>(Jet_partonFlavour_RunII[i]) , static_cast<unsigned char>(Jet_hadronFlavour_RunII[i]));
+            }
         }
         RVec<float> tvs;
         RVec<float> tvs2;
         if(Run == 3){
-            tvs = {Jet_btagDeepFlavB[i], Jet_btagDeepFlavCvB[i], Jet_btagDeepFlavCvL[i], Jet_btagDeepFlavQG[i],
-                           Jet_btagPNetB[i], Jet_btagPNetCvB[i], Jet_btagPNetCvL[i], Jet_btagPNetQvG[i],
-                           Jet_btagPNetTauVJet[i], Jet_btagRobustParTAK4B[i], Jet_btagRobustParTAK4CvB[i], Jet_btagRobustParTAK4CvL[i], Jet_btagRobustParTAK4QG[i]};
-            jet.SetMultiplicities(Jet_nConstituents[i], Jet_nElectrons[i], Jet_nMuons[i], Jet_nSVs[i]);
-            jet.SetHadronMultiplicities(Jet_chMultiplicity[i], Jet_neMultiplicity[i]);
+            tvs = {Jet_btagDeepFlavB[i], 
+                   Jet_btagDeepFlavCvB[i], 
+                   Jet_btagDeepFlavCvL[i], 
+                   Jet_btagDeepFlavQG[i],
+                   Jet_btagPNetB[i], 
+                   Jet_btagPNetCvB[i], 
+                   Jet_btagPNetCvL[i], 
+                   Jet_btagPNetQvG[i],
+                   Jet_btagPNetTauVJet[i], 
+                   Jet_btagRobustParTAK4B[i], 
+                   Jet_btagRobustParTAK4CvB[i], 
+                   Jet_btagRobustParTAK4CvL[i], 
+                   Jet_btagRobustParTAK4QG[i]};
+            jet.SetMultiplicities(Jet_nConstituents[i], 
+                                  Jet_nElectrons[i], 
+                                  Jet_nMuons[i], 
+                                  Jet_nSVs[i]);
+            jet.SetHadronMultiplicities(Jet_chMultiplicity[i], 
+                                        Jet_neMultiplicity[i]);
             if(!IsDATA){
-                jet.SetMatchingIndices(Jet_electronIdx1[i], Jet_electronIdx2[i], Jet_muonIdx1[i], Jet_muonIdx2[i], Jet_svIdx1[i], Jet_svIdx2[i], Jet_genJetIdx[i]);
+                jet.SetMatchingIndices(Jet_electronIdx1[i], 
+                                       Jet_electronIdx2[i], 
+                                       Jet_muonIdx1[i], 
+                                       Jet_muonIdx2[i], 
+                                       Jet_svIdx1[i], 
+                                       Jet_svIdx2[i], 
+                                       Jet_genJetIdx[i]);
             }
             else{
-                jet.SetMatchingIndices(Jet_electronIdx1[i], Jet_electronIdx2[i], Jet_muonIdx1[i], Jet_muonIdx2[i], Jet_svIdx1[i], Jet_svIdx2[i]);
+                jet.SetMatchingIndices(Jet_electronIdx1[i], 
+                                       Jet_electronIdx2[i], 
+                                       Jet_muonIdx1[i], 
+                                       Jet_muonIdx2[i], 
+                                       Jet_svIdx1[i], 
+                                       Jet_svIdx2[i]);
             }
             jet.SetJetID(Jet_jetId[i], 3);
             jet.SetJetPuID(0b111);
@@ -954,15 +981,32 @@ RVec<Jet> AnalyzerCore::GetAllJets() {
         }
         //for Run 2 DeepJet is only option
         else if(Run == 2){
-            tvs = {Jet_btagDeepFlavB[i], Jet_btagDeepFlavCvB[i], Jet_btagDeepFlavCvL[i], Jet_btagDeepFlavQG[i],
+            tvs = {Jet_btagDeepFlavB[i], 
+                   Jet_btagDeepFlavCvB[i], 
+                   Jet_btagDeepFlavCvL[i], 
+                   Jet_btagDeepFlavQG[i],
                    -999., -999., -999., -999.,
                    -999., -999., -999., -999., -999.};
-            jet.SetMultiplicities(Jet_nConstituents[i], Jet_nElectrons_RunII[i], Jet_nMuons_RunII[i], 0);
+            jet.SetMultiplicities(Jet_nConstituents[i], 
+                                  Jet_nElectrons_RunII[i], 
+                                  Jet_nMuons_RunII[i],
+                                  0);
             if(!IsDATA){
-                jet.SetMatchingIndices(Jet_electronIdx1_RunII[i], Jet_electronIdx2_RunII[i], Jet_muonIdx1_RunII[i], Jet_muonIdx2_RunII[i], -9, -9, Jet_genJetIdx_RunII[i]);
+                jet.SetMatchingIndices(Jet_electronIdx1_RunII[i], 
+                                       Jet_electronIdx2_RunII[i], 
+                                       Jet_muonIdx1_RunII[i], 
+                                       Jet_muonIdx2_RunII[i], 
+                                       -9, 
+                                       -9, 
+                                       Jet_genJetIdx_RunII[i]);
             }
             else{
-                jet.SetMatchingIndices(Jet_electronIdx1_RunII[i], Jet_electronIdx2_RunII[i], Jet_muonIdx1_RunII[i], Jet_muonIdx2_RunII[i], -9, -9);
+                jet.SetMatchingIndices(Jet_electronIdx1_RunII[i], 
+                                       Jet_electronIdx2_RunII[i], 
+                                       Jet_muonIdx1_RunII[i], 
+                                       Jet_muonIdx2_RunII[i], 
+                                       -9, 
+                                       -9);
             }
             jet.SetJetID(Jet_jetId_RunII[i], 2);
             if (DataYear == 2016) {
@@ -974,7 +1018,6 @@ RVec<Jet> AnalyzerCore::GetAllJets() {
                 jet.SetJetPuID(Jet_puId[i]);
             }
             tvs2 = {-999.0, -999.0, -999.0, -999.0, Jet_rawFactor[i], Jet_bRegCorr[i], Jet_bRegRes[i], Jet_cRegCorr[i], Jet_cRegRes[i]};
-
         }
         jet.SetTaggerResults(tvs);
         jet.SetCorrections(tvs2);
@@ -1303,9 +1346,13 @@ void AnalyzerCore::PrintGen(const RVec<Gen> &gens) {
         cout << i << "\t" 
              << gen.PID() << "\t" 
              << gen.Status() << "\t" 
-             << gen.MotherIndex() << "\t" 
-             << gens.at(gen.MotherIndex()).PID() << "\t" 
-             << history[0] << "\t" 
+             << gen.MotherIndex() << "\t";
+        if (gen.MotherIndex() >= 0 && gen.MotherIndex() < (int)gens.size()) {
+            cout << gens.at(gen.MotherIndex()).PID();
+        } else {
+            cout << "N/A";
+        }
+        cout << "\t" << history[0] << "\t" 
              << fixed << setprecision(2) 
              << gen.Pt() << "\t" 
              << gen.Eta() << "\t" 
@@ -1318,6 +1365,7 @@ RVec<int> AnalyzerCore::TrackGenSelfHistory(const Gen &me, const RVec<Gen> &gens
     //returns {index of the first history of the gen, 
     //         index of the last history of the gen's mother}
     int myindex = me.Index();
+    if (myindex < 0 || myindex >= (int)gens.size()) return {myindex, -1};  // Bounds check
     if (myindex < 2) return {myindex, -1};
 
     int mypid = gens.at(myindex).PID();
@@ -1325,7 +1373,7 @@ RVec<int> AnalyzerCore::TrackGenSelfHistory(const Gen &me, const RVec<Gen> &gens
     int motherindex = me.MotherIndex();
     if (motherindex < 0) return {myindex, -1};
     
-    while(gens.at(motherindex).PID() == mypid){
+    while(motherindex >= 0 && motherindex < (int)gens.size() && gens.at(motherindex).PID() == mypid){
         // Go one generation up
         currentidx = motherindex;
         motherindex = gens.at(motherindex).MotherIndex();
@@ -1445,6 +1493,7 @@ bool AnalyzerCore::IsFinalPhotonSt23_Public(const RVec<Gen>& gens){
         const Gen &gen = gens.at(i);
         int fpid  = fabs(gen.PID());
         int GenSt = gen.Status();
+        if (gen.MotherIndex() < 0 || gen.MotherIndex() >= (int)gens.size()) continue;
         int MPID_direct= gens.at(gen.MotherIndex()).PID();
         if( !((fpid!=22 && MPID_direct==22) || (fpid==22 && (GenSt==23||GenSt==1))) ) continue;
 
@@ -1486,6 +1535,8 @@ bool AnalyzerCore::IsFromHadron(const Gen& me, const RVec<Gen>& gens) {
     if(myindex<2) return true;
     RVec<int> my_history = TrackGenSelfHistory(me, gens);
     if (my_history[1] < 0) return true;
+    if (my_history[0] < 0 || my_history[0] >= (int)gens.size() ||
+        my_history[1] < 0 || my_history[1] >= (int)gens.size()) return true;
     Gen          Start = gens.at( my_history[0] );
     Gen MotherOf_Start = gens.at( my_history[1] );
 
@@ -1503,12 +1554,20 @@ bool AnalyzerCore::IsFromHadron(const Gen& me, const RVec<Gen>& gens) {
             break;
         }
         //==== Go one generation up
+        if (current_history[1] < 0 || current_history[1] >= (int)gens.size()) {
+            out = true;
+            break;
+        }
         current_me = gens.at(current_history[1]);
 
        //==== Now look at mother of previous "me"
         current_mother = gens.at(current_history[1]);
 
         RVec<int> current_mother_history = TrackGenSelfHistory(current_mother, gens);
+        if (current_mother_history[0] < 0 || current_mother_history[0] >= (int)gens.size()) {
+            out = true;
+            break;
+        }
         Gen StartOf_current_mother = gens.at(current_mother_history[0]);
         int current_mother_PID = current_mother.PID();
 
@@ -1622,6 +1681,7 @@ int AnalyzerCore::GetLeptonType_Public(const int& genIdx, const RVec<Gen>& gens)
     //Note: There is no physical distinction between type 4 vs. 5 and type -5 vs. -6. The distinction is only intended for straightforward debugging.
 
     //Only consider Status 1 lepton
+    if (genIdx < 0 || genIdx >= (int)gens.size()) return 0;  // Bounds check first
     if (genIdx<2) return 0;
     if (gens.at(genIdx).Status()!=1) return 0;
     if( !(fabs(gens.at(genIdx).PID())==11 || fabs(gens.at(genIdx).PID())==13) ) return 0;
@@ -1702,6 +1762,8 @@ int AnalyzerCore::GetGenPhotonType(const Gen& genph, const RVec<Gen>& gens) {
     }//From this pt, only St1 Photon is treated.
 
     RVec<int> phhist = TrackGenSelfHistory(genph, gens);
+    if (phhist[0] < 0 || phhist[0] >= (int)gens.size() || 
+        phhist[1] < 0 || phhist[1] >= (int)gens.size()) return 0;
     const Gen&          Start = gens.at(phhist[0]);
     const Gen& MotherOf_Start = gens.at(phhist[1]);
     const int& MotherOf_Start_PID = abs(MotherOf_Start.PID()); // |PID|

@@ -1,0 +1,8 @@
+systematics:
+  # Selection variations that require event re-processing
+  - syst: MotherJetPt
+    evtLoopAgain: true
+    
+  - syst: RequireHeavyTag
+    evtLoopAgain: true
+    oneSided: true

@@ -21,7 +21,7 @@
         ],
         "NEvents": [
             132689601.0,
-            429520810.0,
+            429584372.0,
             75466643.0
         ]
     },
@@ -34,7 +34,7 @@
         ],
         "NEvents": [
             139038940.0,
-            442819375.0,
+            442883094.0,
             75242130.0
         ]
     },
@@ -265,6 +265,15 @@
         "sumW": 4043040.0,
         "ref": "TOP-22-012"
     },
+    "WZTo3LNu_amcatnlo": {
+        "isMC": 1,
+        "PD": "WZto3LNu-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
+        "xsec": 5.315,
+        "nmc": 19150451.0,
+        "sumsign": 12121639.0,
+        "sumW": 155494524.74890518,
+        "ref": "XSDB"
+    },
     "WZTo3LNu_powheg": {
         "isMC": 1,
         "PD": "WZto3LNu_TuneCP5_13p6TeV_powheg-pythia8",
@@ -278,9 +287,9 @@
         "isMC": 1,
         "PD": "ZZto4L_TuneCP5_13p6TeV_powheg-pythia8",
         "xsec": 1.529,
-        "nmc": 61330176.0,
-        "sumsign": 60695686.0,
-        "sumW": 85279260.43686342,
+        "nmc": 61223976.0,
+        "sumsign": 60590584.0,
+        "sumW": 85131588.97252846,
         "ref": "HIG-24-013"
     },
     "WWW": {

@@ -23,7 +23,7 @@ public:
         UE_DOWN
     };
     
-    void SetRunLumiEvent(int run, int lumi, int event) { j_run = run; j_lumi = lumi; j_event = event; }
+    void SetRunLumiEvent(int run, int lumi, long event) { j_run = run; j_lumi = lumi; j_event = event; }
     inline int run() const { return j_run; }
     inline int lumi() const { return j_lumi; }
     inline int event() const { return j_event; }
@@ -43,7 +43,7 @@ public:
 
     bool PassTrigger(TString trig) const;
     bool PassTrigger(RVec<TString> trigs) const;
-    float GetTriggerLumi(TString trig);
+    float GetTriggerLumi(TString trig) const;
     bool IsPDForTrigger(TString trig, TString PD);
 
     void SetMETVector(float MET_pt, float MET_phi, MET_Type type, MET_Syst syst=MET_Syst::CENTRAL) { 
@@ -106,7 +106,8 @@ public:
     int GetYear() const { return j_DataYear; }
 
 private:
-    int j_run, j_lumi, j_event;
+    int j_run, j_lumi;
+    long j_event;
     const std::map<TString, pair<Bool_t*, float>>* j_HLT_TriggerMapPtr;
     int j_nPV;
     int j_nPVsGood;
