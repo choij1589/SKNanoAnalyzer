@@ -46,6 +46,12 @@ public:
 
 private:
     TTree *newtree;
+
+    // event weights
+    float genWeight;
+    float puWeight;
+    float prefireWeight;
+
     // muons
     unsigned int nMuons;
     float MuonPtColl[3];

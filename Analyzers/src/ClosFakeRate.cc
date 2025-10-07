@@ -81,7 +81,7 @@ ClosFakeRate::RecoObjects ClosFakeRate::defineObjects(const Event& ev,
             return j.PassID("loosePuId");
         });
         objects.jets = Filter(objects.jets, [&](const Jet& j) {
-            return PassVetoMap(j, objects.vetoMuons, "jetvetomap");
+            return PassVetoMap(j, allMuons, "jetvetomap");
         });
     }
     objects.jets = JetsVetoLeptonInside(objects.jets, objects.vetoElectrons, objects.vetoMuons, 0.4);
@@ -205,19 +205,23 @@ void ClosFakeRate::fillObjects(const Channel selectedChannel,
     // Fill muon histograms
     for (size_t idx = 0; idx < objects.looseMuons.size(); ++idx) {
         const Muon& mu = objects.looseMuons[idx];
+        float ptCorr = mu.Pt()*(1.+max(0., mu.MiniPFRelIso()-0.1));
         FillHist(Form("%s/%s/muons/%zu/pt", channelStr.Data(), syst.Data(), idx+1), mu.Pt(), weight, 300, 0., 300.);
         FillHist(Form("%s/%s/muons/%zu/eta", channelStr.Data(), syst.Data(), idx+1), mu.Eta(), weight, 48, -2.4, 2.4);
         FillHist(Form("%s/%s/muons/%zu/phi", channelStr.Data(), syst.Data(), idx+1), mu.Phi(), weight, 64, -3.2, 3.2);
         FillHist(Form("%s/%s/muons/%zu/mass", channelStr.Data(), syst.Data(), idx+1), mu.M(), weight, 10, 0., 1.);
+        FillHist(Form("%s/%s/muons/%zu/ptCorr", channelStr.Data(), syst.Data(), idx+1), ptCorr, weight, 300, 0., 300.);
     }
 
     // Fill electron histograms
     for (size_t idx = 0; idx < objects.looseElectrons.size(); ++idx) {
         const Electron& ele = objects.looseElectrons[idx];
+        float ptCorr = ele.Pt()*(1.+max(0., ele.MiniPFRelIso()-0.1));
         FillHist(Form("%s/%s/electrons/%zu/pt", channelStr.Data(), syst.Data(), idx+1), ele.Pt(), weight, 300, 0., 300.);
         FillHist(Form("%s/%s/electrons/%zu/scEta", channelStr.Data(), syst.Data(), idx+1), ele.scEta(), weight, 50, -2.5, 2.5);
         FillHist(Form("%s/%s/electrons/%zu/phi", channelStr.Data(), syst.Data(), idx+1), ele.Phi(), weight, 64, -3.2, 3.2);
         FillHist(Form("%s/%s/electrons/%zu/mass", channelStr.Data(), syst.Data(), idx+1), ele.M(), weight, 100, 0., 1.);
+        FillHist(Form("%s/%s/electrons/%zu/ptCorr", channelStr.Data(), syst.Data(), idx+1), ptCorr, weight, 300, 0., 300.);
     }
 
     // Fill jet histograms

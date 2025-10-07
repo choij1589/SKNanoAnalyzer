@@ -112,8 +112,10 @@ ClosDiLepTrigs::Channel ClosDiLepTrigs::selectEvent(Event& ev, const RecoObjects
         
         const Muon& mu1 = tightMuons[0];
         const Muon& mu2 = tightMuons[1];
-        if (mu1.Pt() <= 20.) return Channel::NONE;
-        if (mu2.Pt() <= 10.) return Channel::NONE;
+        if (! (mu1.Pt() > 20.)) return Channel::NONE;
+        if (! (mu2.Pt() > 10.)) return Channel::NONE;
+        Particle pair = mu1 + mu2;
+        if (! (pair.M() > 50.)) return Channel::NONE;
         return Channel::DIMU;
     }
     else if (channel == Channel::EMU) {
@@ -123,7 +125,11 @@ ClosDiLepTrigs::Channel ClosDiLepTrigs::selectEvent(Event& ev, const RecoObjects
         const Electron& ele = tightElectrons[0];
         bool leadMu = mu.Pt() > 25. && ele.Pt() > 15.;
         bool leadEle = ele.Pt() > 25. && mu.Pt() > 10.;
-        if (!(leadMu || leadEle)) return Channel::NONE;
+        if (! (leadMu || leadEle)) return Channel::NONE;
+        if (! (mu.DeltaR(ele) > 0.4)) return Channel::NONE;
+
+        if (!(jets.size() >= 2)) return Channel::NONE;
+        if (!(bjets.size() >= 1)) return Channel::NONE;
         return Channel::EMU;
     }
     else if (channel == Channel::EMUMU) {

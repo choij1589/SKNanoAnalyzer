@@ -21,7 +21,6 @@ void TriLeptonBase::initializeAnalyzer() {
         };
         EMuTriggers = {
             "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
-            //"HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL"
             "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL"
         };
     } else if (DataEra == "2016postVFP") {

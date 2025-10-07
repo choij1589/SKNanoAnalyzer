@@ -76,10 +76,11 @@ def _make_correction(name, desc, era, lepton_type, values, eta_edges, pt_edges):
     run3_eras = ['2022', '2022EE', '2023', '2023BPix']
     is_run3 = era in run3_eras
 
-    if is_run3:
-        axis0 = "scEta" if lepton_type == "electron" else "eta"
-    else:
-        axis0 = "absScEta" if lepton_type == "electron" else "absEta"
+    #if is_run3:
+    #    axis0 = "scEta" if lepton_type == "electron" else "eta"
+    #else:
+    #    axis0 = "absScEta" if lepton_type == "electron" else "absEta"
+    axis0 = "absScEta" if lepton_type == "electron" else "absEta"
     axis1 = "ptCorr"
     # Flatten in eta-major, then pt bins
     n_eta = len(eta_edges)-1
@@ -150,7 +151,7 @@ def convert_fakerate_to_json(era, lepton_type):
     import numpy as np
     if vals.shape[0] != len(eta_edges)-1 or vals.shape[1] != len(pt_edges)-1:
         vals = vals.T
-    pt_min, pt_max = (15.0, 50.0) if lepton_type == 'electron' else (10.0, 50.0)
+    pt_min, pt_max = (15.0, 100.0) if lepton_type == 'electron' else (10.0, 100.0)
     vals_r, pt_edges_r = _restrict_pt(vals, eta_edges, pt_edges, pt_min, pt_max)
     corr_central = _make_correction(
         name=f"fakerate_{lepton_type}_Central",
@@ -236,15 +237,15 @@ Examples:
         # Show what was converted
         run3_eras = ['2022', '2022EE', '2023', '2023BPix']
         is_run3 = args.era in run3_eras
-        if is_run3:
-            axis_name = "scEta" if args.lepton == "electron" else "eta"
-        else:
-            axis_name = "absScEta" if args.lepton == "electron" else "absEta"
+        #if is_run3:
+        #    axis_name = "scEta" if args.lepton == "electron" else "eta"
+        #else:
+        #    axis_name = "absScEta" if args.lepton == "electron" else "absEta"
+        axis_name = "absScEta" if args.lepton == "electron" else "absEta"
 
         print(f"\nFeatures applied:")
         print(f"  Era: {args.era} ({'Run3' if is_run3 else 'Run2'})")
         print(f"  Axis names: {axis_name} + ptCorr")
-        print(f"  pt range: [{15 if args.lepton == 'electron' else 10}, 50] GeV")
         print(f"  Flow: clamp for both axes (eta, pt)")
         print(f"  Integrated: Main + QCD systematic corrections")
         

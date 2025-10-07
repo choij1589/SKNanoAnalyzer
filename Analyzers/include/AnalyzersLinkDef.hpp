@@ -18,6 +18,8 @@
 #pragma link C++ class DiLeptonBase+;
 #pragma link C++ class TriLeptonBase+;
 #pragma link C++ class DiLepton+;
+#pragma link C++ class SimpleDiLepton+;
+#pragma link C++ class SignalKinematics+;
 #pragma link C++ class ParseEleIDVariables+;
 #pragma link C++ class ParseMuIDVariables+;
 #pragma link C++ class TestGetLeptonType+;
@@ -28,5 +30,6 @@
 #pragma link C++ class ClosDiLepTrigs+;
 #pragma link C++ class MeasFakeRate+;
 #pragma link C++ class MeasFakeRateV2+;
+#pragma link C++ class MeasFakeRateV3+;
 #pragma link C++ class ClosFakeRate+;
 #pragma link C++ class EvtTreeProducer+;

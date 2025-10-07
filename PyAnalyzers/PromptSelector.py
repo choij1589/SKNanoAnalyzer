@@ -186,7 +186,7 @@ class PromptSelector(TriLeptonBase):
             # Apply Run 2 specific filters
             if self.Run == 2:
                 if not j.PassID("loosePuId"): continue
-                if not (self.RunNoVetoMap or self.PassVetoMap(j, vetoMuons, "jetvetomap")): continue
+                if not (self.RunNoVetoMap or self.PassVetoMap(j, allMuons, "jetvetomap")): continue
             jets.emplace_back(j)
             
             # b-tagging
