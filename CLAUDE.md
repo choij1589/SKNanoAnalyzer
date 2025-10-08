@@ -7,11 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 SKNanoAnalyzer is a C++ physics analysis framework for CMS (Compact Muon Solenoid) experiment data analysis. It processes NanoAOD files for Run 2 (2016-2018) and Run 3 (2022-2023) data periods, providing tools for dilepton studies, ttbar reconstruction, and systematic uncertainty evaluations.
 
 ## Build Commands
+- **Critical** Always to `source setup.sh` first before running any bash command.
 
 ```bash
-# Initial setup (required once per session)
-source setup.sh
-
 # Build entire project
 ./scripts/build.sh
 

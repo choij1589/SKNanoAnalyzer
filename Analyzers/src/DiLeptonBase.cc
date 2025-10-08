@@ -46,9 +46,9 @@ void DiLeptonBase::initializeAnalyzer() {
         triggerSafePtCut = 27.;
     } else if (DataEra == "2017") {
         DblMuTriggers = {
-            //"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", // prescaled
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", // prescaled
             "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
-            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8" // Need to measure the filter eff.
+            //"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8" // Need to measure the filter eff.
         };
         EMuTriggers = {
             "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",

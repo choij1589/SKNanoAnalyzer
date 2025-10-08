@@ -20,6 +20,9 @@ void EvtTreeProducer::initializeAnalyzer() {
     newtree = new TTree("Events","Events");
 
     // muons
+    newtree->Branch("genWeight", &genWeight);
+    newtree->Branch("puWeight", &puWeight);
+    newtree->Branch("prefireWeight", &prefireWeight);
     newtree->Branch("nMuons", &nMuons);
     newtree->Branch("MuonPtColl", MuonPtColl, "MuonPtColl[nMuons]/F");
     newtree->Branch("MuonEtaColl", MuonEtaColl, "MuonEtaColl[nMuons]/F");
@@ -74,6 +77,10 @@ void EvtTreeProducer::executeEvent(){
     RecoObjects recoObjects = defineObjects(ev, rawMuons, rawElectrons, rawJets, genJets, "Central");
     Channel channel = selectEvent(ev, recoObjects, "Central");
     if (channel == Channel::NONE) return;
+
+    genWeight = MCweight() * ev.GetTriggerLumi("Full");
+    puWeight = myCorr->GetPUWeight(ev.nTrueInt());
+    prefireWeight = GetL1PrefireWeight();
 
     nMuons = recoObjects.vetoMuons.size();
     for (std::size_t i = 0; i < nMuons; i++) {

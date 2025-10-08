@@ -1,0 +1,45 @@
+
+============================================================
+Discrimination Power Analysis for SR3Mu
+File: SKNanoOutput/SignalKinematics/Run3Mu/2017/TTToHcToWAToMuMu-MHc70_MA15.root
+============================================================
+
+Variable             Correct      Total        Accuracy    
+------------------------------------------------------------
+acoplanarity         3.7          25.5         14.496%     
+scalarPtSum          17.4         25.5         67.989%     
+ptAsymmetry          13.9         25.5         54.478%     
+gammaFactor_smaller  2.0          25.5         7.982%      
+gammaFactor_larger   23.5         25.5         92.018%     
+gammaAcop_smaller    20.5         25.5         80.268%     
+gammaAcop_larger     5.0          25.5         19.732%     
+deltaR_pair_mu3rd_larger 21.5         25.5         84.175%     
+deltaR_pair_mu3rd_smaller 4.0          25.5         15.825%     
+deltaPhi_pair_mu3rd_larger 20.5         25.5         80.235%     
+ptRatio_mu3rd_smaller 10.5         25.5         41.156%     
+deltaR_nearestBjet_smaller 13.5         25.5         52.694%     
+deltaR_nearestBjet_larger 12.1         25.5         47.306%     
+deltaPhi_pair_MET_smaller 11.2         25.5         43.876%     
+deltaPhi_pair_MET_larger 14.3         25.5         56.124%     
+MT_pair_MET_smaller  10.6         25.5         41.520%     
+MT_pair_MET_larger   14.9         25.5         58.480%     
+deltaR_leadingNonBjet_smaller 15.1         25.5         59.300%     
+deltaR_leadingNonBjet_larger 11.3         25.5         44.336%     
+deltaPhi_muSS_MET_larger 14.5         25.5         56.898%     
+deltaPhi_muSS_MET_smaller 11.0         25.5         43.106%     
+MT_muSS_MET_larger   12.1         25.5         47.213%     
+MT_muSS_MET_smaller  13.5         25.5         52.787%     
+MT_asymmetry_smaller 16.3         25.5         63.744%     
+MT_asymmetry_larger  9.3          25.5         36.256%     
+
+------------------------------------------------------------
+
+Best discriminator:  gammaFactor_larger             (92.0%)
+Worst discriminator: gammaFactor_smaller            (8.0%)
+
+Interpretation:
+  - Pick pair with LARGER gammaFactor
+  - This correctly identifies signal pair 92.0% of the time
+
+============================================================
+

@@ -75,7 +75,7 @@ void MeasJetTagEff::executeEvent() {
     if (Run == 2) {
         RVec<Jet> tightJets_vetoMap;
         for (const auto &jet: tightJets) {
-            if (PassVetoMap(jet, looseMuons, "jetvetomap"))
+            if (PassVetoMap(jet, AllMuons, "jetvetomap"))
                 tightJets_vetoMap.emplace_back(jet);
         }
         tightJets = SelectJets(tightJets_vetoMap, "loosePuId", 20., JetEtaCut);

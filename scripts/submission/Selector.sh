@@ -23,7 +23,7 @@ elif [[ $RUN == "Run3" ]]; then
         echo "Unknown channel: $CHANNEL"
         exit 1
     fi
-    SKNano.py -a PromptSelector -i $DATASTREAM -n 10 -r ${RUN} --userflags ${CHANNEL} --python
+    #SKNano.py -a PromptSelector -i $DATASTREAM -n 10 -r ${RUN} --userflags ${CHANNEL} --python
     SKNano.py -a MatrixSelector -i $DATASTREAM -n 10 -r ${RUN} --userflags ${CHANNEL} --python
-    SKNano.py -a PromptSelector -i SampleLists/Run3NanoV13/TriLepton.txt -n 10 -r ${RUN} --userflags ${CHANNEL},RunSyst --python --memory 5000
+    #SKNano.py -a PromptSelector -i SampleLists/Run3NanoV13/TriLepton.txt -n 10 -r ${RUN} --userflags ${CHANNEL},RunSyst --python --memory 5000
 fi

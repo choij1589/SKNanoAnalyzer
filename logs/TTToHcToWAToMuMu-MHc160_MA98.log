@@ -1,0 +1,45 @@
+
+============================================================
+Discrimination Power Analysis for SR3Mu
+File: SKNanoOutput/SignalKinematics/Run3Mu/2017/TTToHcToWAToMuMu-MHc160_MA98.root
+============================================================
+
+Variable             Correct      Total        Accuracy    
+------------------------------------------------------------
+acoplanarity         27.0         46.2         58.465%     
+scalarPtSum          15.7         46.2         33.964%     
+ptAsymmetry          21.4         46.2         46.275%     
+gammaFactor_smaller  27.0         46.2         58.340%     
+gammaFactor_larger   19.3         46.2         41.660%     
+gammaAcop_smaller    21.3         46.2         46.175%     
+gammaAcop_larger     24.9         46.2         53.825%     
+deltaR_pair_mu3rd_larger 19.1         46.2         41.372%     
+deltaR_pair_mu3rd_smaller 27.1         46.2         58.628%     
+deltaPhi_pair_mu3rd_larger 18.9         46.2         40.838%     
+ptRatio_mu3rd_smaller 28.4         46.2         61.397%     
+deltaR_nearestBjet_smaller 21.4         46.2         46.305%     
+deltaR_nearestBjet_larger 24.8         46.2         53.695%     
+deltaPhi_pair_MET_smaller 21.2         46.2         45.958%     
+deltaPhi_pair_MET_larger 25.0         46.2         54.042%     
+MT_pair_MET_smaller  20.2         46.2         43.759%     
+MT_pair_MET_larger   26.0         46.2         56.241%     
+deltaR_leadingNonBjet_smaller 23.4         46.2         50.618%     
+deltaR_leadingNonBjet_larger 22.3         46.2         48.355%     
+deltaPhi_muSS_MET_larger 25.6         46.2         55.340%     
+deltaPhi_muSS_MET_smaller 20.6         46.2         44.664%     
+MT_muSS_MET_larger   28.9         46.2         62.483%     
+MT_muSS_MET_smaller  17.3         46.2         37.517%     
+MT_asymmetry_smaller 20.8         46.2         44.948%     
+MT_asymmetry_larger  25.4         46.2         55.052%     
+
+------------------------------------------------------------
+
+Best discriminator:  MT_muSS_MET_larger             (62.5%)
+Worst discriminator: scalarPtSum                    (34.0%)
+
+Interpretation:
+  - Pick pair with LARGER MT_muSS_MET
+  - This correctly identifies signal pair 62.5% of the time
+
+============================================================
+

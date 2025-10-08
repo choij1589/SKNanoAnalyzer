@@ -422,11 +422,13 @@ float MyCorrection::GetMuonIDSF(const TString &Muon_ID_SF_Key, const RVec<Muon> 
 
 float MyCorrection::GetFakeRate(const Muon muon, const TString &id_key, const TString &syst_key) const {
     if (id_key == "TopHNT") {
-        const float eta = (Run == 2) ? fabs(muon.Eta()) : muon.Eta();
-        const float ptCorr = muon.Pt()*(1.+max(0., muon.MiniPFRelIso()-0.1));
+        const float absEta = fabs(muon.Eta());
+        float ptCorr = muon.Pt()*(1.+max(0., muon.MiniPFRelIso()-0.1));
+        // For Run3, restrict the ptCorr < 50 GeV
+        ptCorr = ((Run == 3) ? (ptCorr > 50. ? 49 : ptCorr) : ptCorr);
         const string cset_name = "fakerate_muon_" + string(syst_key.Data());
         auto cset = cset_muon_TopHNT_fakerate->at(cset_name);
-        return safeEvaluate(cset, "GetFakeRate", {eta, ptCorr});
+        return safeEvaluate(cset, "GetFakeRate", {absEta, ptCorr});
     } else {
         // This is only a template
         auto cset = cset_muon->at(string(id_key));
@@ -541,8 +543,8 @@ float MyCorrection::GetElectronRECOSF(const RVec<Electron> &electrons, const var
 float MyCorrection::GetElectronIDSF(const TString &Electron_ID_SF_Key, const float eta, const float pt, const float phi, const variation syst) const {
     if (Electron_ID_SF_Key == "TopHNT") {
         auto cset = cset_electron_TopHNT_idsf->at("sf");
-        const bool isLowStat = (GetEra() == "2022" || GetEra() == "2023BPix");
-        const float maxPt = isLowStat ? 99. : 199.;
+        //const bool isLowStat = (GetEra() == "2022" || GetEra() == "2023BPix");
+        const float maxPt = (Run == 3) ? 99. : 199.;
         if (syst == variation::nom) {
             return safeEvaluate(cset, "GetElectronIDSF", {eta, min(pt, maxPt), "nom"});
         } else if (syst == variation::up) {
@@ -583,11 +585,12 @@ float MyCorrection::GetElectronIDSF(const TString &Electron_ID_SF_Key, const RVe
 
 float MyCorrection::GetFakeRate(const Electron &electron, const TString &id_key, const TString &syst_key) const {
     if (id_key == "TopHNT") {
-        const float scEta = (Run == 2) ? fabs(electron.scEta()): electron.scEta();
+        //const float scEta = (Run == 2) ? fabs(electron.scEta()): electron.scEta();
+        const float absScEta = fabs(electron.scEta());
         const float ptCorr = electron.Pt()*(1.+max(0., electron.MiniPFRelIso()-0.1));
         const string cset_name = "fakerate_electron_" + string(syst_key.Data());
         auto cset = cset_electron_TopHNT_fakerate->at(cset_name);
-        return safeEvaluate(cset, "GetFakeRate", {scEta, ptCorr});
+        return safeEvaluate(cset, "GetFakeRate", {absScEta, ptCorr});
     } else {
         // This is only a template
         auto cset = cset_electron->at(string(id_key));

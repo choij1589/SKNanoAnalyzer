@@ -1,3 +1,4 @@
+        print(diff_altmc)
 import os
 from ROOT import TString
 from ROOT.VecOps import RVec
@@ -56,17 +57,23 @@ class MatrixSelector(TriLeptonBase):
         tightElectrons = self.SelectElectrons(looseElectrons, self.ElectronIDs.GetID("tight"), 15., 2.5)
 
         max_jeteta = 2.4 if self.DataEra.Contains("2016") else 2.5
-        jets = self.SelectJets(allJets, "tight", 20., max_jeteta)
-        jets = self.JetsVetoLeptonInside(jets, vetoElectrons, vetoMuons, 0.4)
-        if self.Run == 2:
-            # Use Python's built-in filter instead of ROOT's Filter
-            jets = RVec(Jet)(list(filter(lambda j: j.PassID("loosePuId"), jets)))
-            if not self.RunNoVetoMap:
-                jets = RVec(Jet)(list(filter(lambda j: self.PassVetoMap(j, vetoMuons, "jetvetomap"), jets)))
+        jets_passtight = self.SelectJets(allJets, "tight", 20., max_jeteta)
+        jets_vetoLep = self.JetsVetoLeptonInside(jets_passtight, vetoElectrons, vetoMuons, 0.4)
 
+        jets = RVec(Jet)()
+        bjets = RVec(Jet)()
         tagger = JetTagging.JetFlavTagger.DeepJet
         wp = self.myCorr.GetBTaggingWP(tagger, JetTagging.JetFlavTaggerWP.Medium)
-        bjets = RVec(Jet)(list(filter(lambda j: j.GetBTaggerResult(tagger) > wp, jets)))
+
+        for j in jets_vetoLep:
+            if self.Run == 2:
+                if not j.PassID("loosePuId"): continue
+                if not (self.RunNoVetoMap or self.PassVetoMap(j, allMuons, "jetvetomap")): continue
+            jets.emplace_back(j)
+
+            if j.GetBTaggerResult(tagger) > wp:
+                bjets.emplace_back(j)
+
 
         return {"vetoMuons": vetoMuons,
                 "looseMuons": looseMuons,
@@ -104,7 +111,7 @@ class MatrixSelector(TriLeptonBase):
             if not is3Mu: return
             if tightMuons.size() == looseMuons.size(): return
 
-         ## 1E2Mu baseline
+        ## 1E2Mu baseline
         ## 1. pass EMuTriggers
         ## 2. Exact 2 tight muons and 1 tight electron, no additional lepton
         ## 3. Exists OS muon pair with mass > 12 GeV
