@@ -15,9 +15,7 @@ void MatrixTreeProducer::initializeAnalyzer() {
     TriLeptonBase::initializeAnalyzer();
 
     // Load ParticleNet models
-    if (!IsDATA) {
-        loadGraphNetModels();
-    }
+    loadGraphNetModels();
 
     // Determine channel
     if (Run1E2Mu) channel = Channel::SR1E2Mu;
@@ -219,7 +217,7 @@ MatrixTreeProducer::Channel MatrixTreeProducer::selectEvent(Event& ev,
         if (mu3.Pt() <= 10.) return Channel::NONE;
         if (abs(mu1.Charge() + mu2.Charge() + mu3.Charge()) != 1) return Channel::NONE;
 
-        auto [pair1, pair2] = makePairs(looseMuons);
+        auto [pair1, pair2, MT1_temp, MT2_temp] = makePairs(looseMuons, recoObjects.METv);
         if (pair1.M() <= 12.) return Channel::NONE;
         if (pair2.M() <= 12.) return Channel::NONE;
         if (jets.size() < 2) return Channel::NONE;
@@ -274,7 +272,7 @@ Particle MatrixTreeProducer::makePair(const RVec<Muon>& muons) {
     return muons.at(0) + muons.at(1);
 }
 
-std::pair<Particle, Particle> MatrixTreeProducer::makePairs(const RVec<Muon>& muons) {
+std::tuple<Particle, Particle, float, float> MatrixTreeProducer::makePairs(const RVec<Muon>& muons, const Particle& METv) {
     if (muons.size() != 3) {
         throw std::runtime_error("makePairs requires exactly 3 muons");
     }
@@ -330,16 +328,6 @@ void MatrixTreeProducer::evalScore(const RVec<Muon>& muons, const RVec<Electron>
                                     const Particle& METv) {
     const std::vector<TString> massPoints = {"MHc160_MA85", "MHc130_MA90", "MHc100_MA95"};
     const std::vector<TString> classNames = {"signal", "nonprompt", "diboson", "ttZ"};
-
-    // Skip for data
-    if (IsDATA) {
-        for (const auto& massPoint : massPoints) {
-            for (const auto& className : classNames) {
-                ParticleNetScores[massPoint][className] = -999.;
-            }
-        }
-        return;
-    }
 
     // Convert to pointer vectors for TriLeptonBase interface
     RVec<Muon*> muonPtrs;

@@ -57,7 +57,7 @@ private:
 
     // Helper methods
     Particle makePair(const RVec<Muon>& muons);
-    std::pair<Particle, Particle> makePairs(const RVec<Muon>& muons);
+    std::tuple<Particle, Particle, float, float> makePairs(const RVec<Muon>& muons, const Particle& METv);
     void initTreeContents();
     void evalScore(const RVec<Muon>& muons, const RVec<Electron>& electrons,
                    const RVec<Jet>& jets, const RVec<Jet>& bjets,
