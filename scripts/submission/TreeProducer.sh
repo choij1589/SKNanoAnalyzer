@@ -25,4 +25,4 @@ fi
 SKNano.py -a PromptTreeProducer -i $DATASTREAM -n 10 -e $ERA --userflags $CHANNEL
 SKNano.py -a PromptTreeProducer -i $SAMPLELIST/TriLepton.txt -n 10 -e $ERA --userflags $CHANNEL,RunSyst
 SKNano.py -a MatrixTreeProducer -i $DATASTREAM -n 10 -e $ERA --userflags $CHANNEL
-#SKNano.py -a PromptTreeProducer -i $SAMPLELIST/SignalSamples.txt -n 1 -r $RUN --userflags $CHANNEL,RunSyst
+SKNano.py -a PromptTreeProducer -i $SAMPLELIST/SignalSamples.txt -n 1 -e $ERA --userflags $CHANNEL,RunSyst
