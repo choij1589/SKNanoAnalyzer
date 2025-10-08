@@ -26,6 +26,11 @@ void PromptTreeProducer::initializeAnalyzer() {
         throw std::runtime_error("Run1E2Mu or Run3Mu must be set");
     }
 
+    // Load ParticleNet models
+    if (!IsDATA) {
+        loadGraphNetModels();
+    }
+
     // Initialize SystematicHelper
     string SKNANO_HOME = getenv("SKNANO_HOME");
     if (IsDATA) {
@@ -58,6 +63,9 @@ void PromptTreeProducer::initializeAnalyzer() {
     }
 
     // Create trees and branches for each systematic
+    const std::vector<TString> massPoints = {"MHc160_MA85", "MHc130_MA90", "MHc100_MA95"};
+    const std::vector<TString> classNames = {"signal", "nonprompt", "diboson", "ttZ"};
+
     for (const auto& systName : systNames) {
         TTree* tree = new TTree("Events_" + systName, "");
 
@@ -67,17 +75,24 @@ void PromptTreeProducer::initializeAnalyzer() {
 
         tree->Branch("mass1", &mass1[systName]);
         tree->Branch("mass2", &mass2[systName]);
+        tree->Branch("MT1", &MT1[systName]);
+        tree->Branch("MT2", &MT2[systName]);
 
-        // GraphNet score branches (placeholder - not functional yet)
-        tree->Branch("score_MHc160_MA85_vs_nonprompt", &score_MHc160_MA85_vs_nonprompt[systName]);
-        tree->Branch("score_MHc160_MA85_vs_diboson", &score_MHc160_MA85_vs_diboson[systName]);
-        tree->Branch("score_MHc160_MA85_vs_ttZ", &score_MHc160_MA85_vs_ttZ[systName]);
-        tree->Branch("score_MHc130_MA90_vs_nonprompt", &score_MHc130_MA90_vs_nonprompt[systName]);
-        tree->Branch("score_MHc130_MA90_vs_diboson", &score_MHc130_MA90_vs_diboson[systName]);
-        tree->Branch("score_MHc130_MA90_vs_ttZ", &score_MHc130_MA90_vs_ttZ[systName]);
-        tree->Branch("score_MHc100_MA95_vs_nonprompt", &score_MHc100_MA95_vs_nonprompt[systName]);
-        tree->Branch("score_MHc100_MA95_vs_diboson", &score_MHc100_MA95_vs_diboson[systName]);
-        tree->Branch("score_MHc100_MA95_vs_ttZ", &score_MHc100_MA95_vs_ttZ[systName]);
+        // Multi-class GraphNet score branches (dynamic creation per mass point and class)
+        for (const auto& massPoint : massPoints) {
+            for (size_t i = 0; i < classNames.size(); ++i) {
+                const TString& className = classNames[i];
+                TString branchName;
+                if (i == 0) {
+                    // First class (signal) uses masspoint name only
+                    branchName = "score_" + massPoint;
+                } else {
+                    // Other classes append class name
+                    branchName = "score_" + massPoint + "_" + className;
+                }
+                tree->Branch(branchName, &ParticleNetScores[systName][massPoint][className]);
+            }
+        }
 
         tree->Branch("fold", &fold[systName]);
         tree->Branch("weight", &weight[systName]);
@@ -523,14 +538,19 @@ void PromptTreeProducer::fillTree(Channel channel, const RecoObjects& recoObject
         Particle pair = makePair(muons);
         mass1[syst] = pair.M();
         mass2[syst] = -999.;
+        MT1[syst] = -999.;
+        MT2[syst] = -999.;
     } else if (channel == Channel::SR3Mu) {
-        auto [pair1, pair2] = makePairs(muons);
+        auto [pair1, pair2, this_MT1, this_MT2] = makePairs(muons, centralMETv);
         mass1[syst] = pair1.M();
         mass2[syst] = pair2.M();
+        MT1[syst] = this_MT1;
+        MT2[syst] = this_MT2;
     }
 
-    // Calculate fold using Central METv (same for all systematics)
-    fold[syst] = calculateFold(centralMETv);
+    // Calculate fold using Central METv and nJets (same for all systematics)
+    int nJets = jets.size() + bjets.size();
+    fold[syst] = calculateFold(centralMETv, nJets);
 
     // Evaluate GraphNet scores using the varied METv for this systematic
     const Particle& METv = recoObjects.METv;
@@ -547,7 +567,7 @@ Particle PromptTreeProducer::makePair(const RVec<Muon>& muons) {
     return muons.at(0) + muons.at(1);
 }
 
-std::pair<Particle, Particle> PromptTreeProducer::makePairs(const RVec<Muon>& muons) {
+std::pair<Particle, Particle> PromptTreeProducer::makePairs(const RVec<Muon>& muons, const Particle& METv) {
     if (muons.size() != 3) {
         throw std::runtime_error("makePairs requires exactly 3 muons");
     }
@@ -557,61 +577,83 @@ std::pair<Particle, Particle> PromptTreeProducer::makePairs(const RVec<Muon>& mu
     const Muon& mu3 = muons.at(2);
 
     Particle pair1, pair2;
+    float MT1, MT2;
     if (mu1.Charge() == mu2.Charge()) {
         pair1 = mu1 + mu3;
         pair2 = mu2 + mu3;
+        MT1 =  TMath::Sqrt(2 * mu1.Pt() * METv.Pt() * (1 - TMath::Cos(mu1.DeltaPhi(METv))));
+        MT2 =  TMath::Sqrt(2 * mu2.Pt() * METv.Pt() * (1 - TMath::Cos(mu2.DeltaPhi(METv))));
     } else if (mu1.Charge() == mu3.Charge()) {
         pair1 = mu1 + mu2;
         pair2 = mu3 + mu2;
+        MT1 =  TMath::Sqrt(2 * mu1.Pt() * METv.Pt() * (1 - TMath::Cos(mu1.DeltaPhi(METv))));
+        MT2 =  TMath::Sqrt(2 * mu3.Pt() * METv.Pt() * (1 - TMath::Cos(mu3.DeltaPhi(METv))));
     } else {  // mu2.Charge() == mu3.Charge()
         pair1 = mu1 + mu2;
         pair2 = mu1 + mu3;
+        MT1 =  TMath::Sqrt(2 * mu2.Pt() * METv.Pt() * (1 - TMath::Cos(mu2.DeltaPhi(METv))));
+        MT2 =  TMath::Sqrt(2 * mu3.Pt() * METv.Pt() * (1 - TMath::Cos(mu3.DeltaPhi(METv))));
     }
 
-    return {pair1, pair2};
+    return {pair1, pair2, MT1, MT2};
 }
 
 void PromptTreeProducer::initTreeContents() {
+    const std::vector<TString> massPoints = {"MHc160_MA85", "MHc130_MA90", "MHc100_MA95"};
+    const std::vector<TString> classNames = {"signal", "nonprompt", "diboson", "ttZ"};
+
     for (auto& [systName, tree] : trees) {
         mass1[systName] = -999.;
         mass2[systName] = -999.;
-        score_MHc160_MA85_vs_nonprompt[systName] = -999.;
-        score_MHc160_MA85_vs_diboson[systName] = -999.;
-        score_MHc160_MA85_vs_ttZ[systName] = -999.;
-        score_MHc130_MA90_vs_nonprompt[systName] = -999.;
-        score_MHc130_MA90_vs_diboson[systName] = -999.;
-        score_MHc130_MA90_vs_ttZ[systName] = -999.;
-        score_MHc100_MA95_vs_nonprompt[systName] = -999.;
-        score_MHc100_MA95_vs_diboson[systName] = -999.;
-        score_MHc100_MA95_vs_ttZ[systName] = -999.;
+        MT1[systName] = -999.;
+        MT2[systName] = -999.;
+        // Initialize all ParticleNet scores
+        for (const auto& massPoint : massPoints) {
+            for (const auto& className : classNames) {
+                ParticleNetScores[systName][massPoint][className] = -999.;
+            }
+        }
         fold[systName] = -999;
         weight[systName] = -999.;
     }
 }
 
-int PromptTreeProducer::calculateFold(const Particle& centralMETv) {
-    // Placeholder for fold calculation based on Central METv
-    // TODO: Implement when model is trained
-    // The fold should be calculated based on int(centralMETv.Pt()) + 1 or similar
-
-    // For now, return dummy value
-    return -999;
-}
-
 void PromptTreeProducer::evalScore(const RVec<Muon>& muons, const RVec<Electron>& electrons,
                                     const RVec<Jet>& jets, const RVec<Jet>& bjets,
                                     const Particle& METv, const TString& syst) {
-    // Placeholder for GraphNet score evaluation using varied METv
-    // TODO: Implement when model is trained
+    const std::vector<TString> massPoints = {"MHc160_MA85", "MHc130_MA90", "MHc100_MA95"};
+    const std::vector<TString> classNames = {"signal", "nonprompt", "diboson", "ttZ"};
 
-    // For now, set dummy values
-    score_MHc160_MA85_vs_nonprompt[syst] = -999.;
-    score_MHc160_MA85_vs_diboson[syst] = -999.;
-    score_MHc160_MA85_vs_ttZ[syst] = -999.;
-    score_MHc130_MA90_vs_nonprompt[syst] = -999.;
-    score_MHc130_MA90_vs_diboson[syst] = -999.;
-    score_MHc130_MA90_vs_ttZ[syst] = -999.;
-    score_MHc100_MA95_vs_nonprompt[syst] = -999.;
-    score_MHc100_MA95_vs_diboson[syst] = -999.;
-    score_MHc100_MA95_vs_ttZ[syst] = -999.;
+    // Skip for data
+    if (IsDATA) {
+        for (const auto& massPoint : massPoints) {
+            for (const auto& className : classNames) {
+                ParticleNetScores[syst][massPoint][className] = -999.;
+            }
+        }
+        return;
+    }
+
+    // Convert to pointer vectors for TriLeptonBase interface
+    RVec<Muon*> muonPtrs;
+    for (auto& mu : muons) muonPtrs.push_back(const_cast<Muon*>(&mu));
+
+    RVec<Electron*> elePtrs;
+    for (auto& ele : electrons) elePtrs.push_back(const_cast<Electron*>(&ele));
+
+    RVec<Jet*> jetPtrs;
+    for (auto& jet : jets) jetPtrs.push_back(const_cast<Jet*>(&jet));
+
+    RVec<Jet*> bjetPtrs;
+    for (auto& bjet : bjets) bjetPtrs.push_back(const_cast<Jet*>(&bjet));
+
+    // Evaluate GraphNet scores (returns map: massPoint -> [4 class probabilities])
+    auto scores = evalGraphNetScores(muonPtrs, elePtrs, jetPtrs, bjetPtrs, METv, DataEra);
+
+    // Store all class probabilities in nested map structure
+    for (const auto& massPoint : massPoints) {
+        for (size_t i = 0; i < classNames.size(); ++i) {
+            ParticleNetScores[syst][massPoint][classNames[i]] = scores[massPoint][i];
+        }
+    }
 }

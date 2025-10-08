@@ -2,6 +2,7 @@
 #define MatrixTreeProducer_h
 
 #include "TriLeptonBase.h"
+#include "SystematicHelper.h"
 
 class MatrixTreeProducer : public TriLeptonBase {
 public:
@@ -23,15 +24,12 @@ private:
     // Tree branches
     float mass1;
     float mass2;
-    float score_MHc160_MA85_vs_nonprompt;
-    float score_MHc160_MA85_vs_diboson;
-    float score_MHc160_MA85_vs_ttZ;
-    float score_MHc130_MA90_vs_nonprompt;
-    float score_MHc130_MA90_vs_diboson;
-    float score_MHc130_MA90_vs_ttZ;
-    float score_MHc100_MA95_vs_nonprompt;
-    float score_MHc100_MA95_vs_diboson;
-    float score_MHc100_MA95_vs_ttZ;
+    float MT1;
+    float MT2;
+    // Multi-class GraphNet scores: [masspoint][class] = score
+    // masspoints: MHc160_MA85, MHc130_MA90, MHc100_MA95
+    // classes: signal, nonprompt, diboson, ttZ
+    std::map<TString, std::map<TString, float>> ParticleNetScores;
     int fold;
     float weight;
 

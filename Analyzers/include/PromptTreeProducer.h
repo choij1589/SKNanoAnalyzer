@@ -2,6 +2,7 @@
 #define PromptTreeProducer_h
 
 #include "TriLeptonBase.h"
+#include "SystematicHelper.h"
 
 class PromptTreeProducer : public TriLeptonBase {
 public:
@@ -26,15 +27,12 @@ private:
     // Tree branches (one set per systematic)
     std::map<TString, float> mass1;
     std::map<TString, float> mass2;
-    std::map<TString, float> score_MHc160_MA85_vs_nonprompt;
-    std::map<TString, float> score_MHc160_MA85_vs_diboson;
-    std::map<TString, float> score_MHc160_MA85_vs_ttZ;
-    std::map<TString, float> score_MHc130_MA90_vs_nonprompt;
-    std::map<TString, float> score_MHc130_MA90_vs_diboson;
-    std::map<TString, float> score_MHc130_MA90_vs_ttZ;
-    std::map<TString, float> score_MHc100_MA95_vs_nonprompt;
-    std::map<TString, float> score_MHc100_MA95_vs_diboson;
-    std::map<TString, float> score_MHc100_MA95_vs_ttZ;
+    std::map<TString, float> MT1;
+    std::map<TString, float> MT2;
+    // Multi-class GraphNet scores: [systematic][masspoint][class] = score
+    // masspoints: MHc160_MA85, MHc130_MA90, MHc100_MA95
+    // classes: signal, nonprompt, diboson, ttZ
+    std::map<TString, std::map<TString, std::map<TString, float>>> ParticleNetScores;
     std::map<TString, int> fold;
     std::map<TString, float> weight;
 
@@ -91,7 +89,6 @@ private:
     Particle makePair(const RVec<Muon>& muons);
     std::pair<Particle, Particle> makePairs(const RVec<Muon>& muons);
     void initTreeContents();
-    int calculateFold(const Particle& centralMETv);
     void evalScore(const RVec<Muon>& muons, const RVec<Electron>& electrons,
                    const RVec<Jet>& jets, const RVec<Jet>& bjets,
                    const Particle& METv, const TString& syst);
