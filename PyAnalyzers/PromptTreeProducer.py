@@ -23,7 +23,7 @@ from ROOT import TTree
 from array import array
 from enum import IntEnum
 
-from MLTools.helpers import loadMultiClassParticleNet, getGraphInputWithBjets, getMultiClassScore
+from MLTools.helpers import loadMultiClassParticleNet, getGraphInput, getMultiClassScore
 
 
 class CutStage(IntEnum):
@@ -567,7 +567,7 @@ class PromptTreeProducer(TriLeptonBase):
         # ParticleNet inference (only for Central systematic to save time)
         if syst == "Central":
             # Construct graph input
-            data, fold = getGraphInputWithBjets(muons, electrons, jets, bjets, METv, str(self.DataEra))
+            data, fold = getGraphInput(muons, electrons, jets, bjets, METv, str(self.DataEra))
             self.fold[syst][0] = fold
 
             # Run inference for each signal mass point

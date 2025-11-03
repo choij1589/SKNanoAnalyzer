@@ -24,7 +24,7 @@ from ROOT import Event, Lepton, Muon, Electron, Jet
 from ROOT import TTree
 from array import array
 
-from MLTools.helpers import loadMultiClassParticleNet, getGraphInputWithBjets, getMultiClassScore
+from MLTools.helpers import loadMultiClassParticleNet, getGraphInput, getMultiClassScore
 
 
 class MatrixTreeProducer(TriLeptonBase):
@@ -316,7 +316,7 @@ class MatrixTreeProducer(TriLeptonBase):
             self.MT2[0] = MT2_val
 
         # ParticleNet inference using LOOSE leptons
-        data, fold = getGraphInputWithBjets(looseMuons, looseElectrons, jets, bjets, METv, str(self.DataEra))
+        data, fold = getGraphInput(looseMuons, looseElectrons, jets, bjets, METv, str(self.DataEra))
         self.fold[0] = fold
 
         # Run inference for each signal mass point

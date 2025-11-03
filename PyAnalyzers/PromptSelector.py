@@ -9,6 +9,8 @@ from ROOT import Event, Lepton, Muon, Electron, Jet
 from ROOT import Gen, GenJet
 from enum import IntEnum
 
+from MLTools.helpers import loadMultiClassParticleNet, getGraphInput, getMultiClassScore
+
 class CutStage(IntEnum):
     Initial = 0
     NoiseFilter = 1
@@ -42,6 +44,18 @@ class PromptSelector(TriLeptonBase):
         if self.Run1E2Mu and self.Run3Mu:
             raise ValueError("Run1E2Mu and Run3Mu cannot be set at the same time")
         
+        # Determine channel
+        self.channel = "Run1E2Mu" if self.Run1E2Mu else "Run3Mu"
+
+        # ParticleNet configuration
+        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
+        self.classNames = ["signal", "nonprompt", "diboson", "ttZ"]
+
+        # Load ParticleNet models
+        print(f"[PromptSelector] Loading ParticleNet models for {self.channel}")
+        self.models = loadMultiClassParticleNet(self.channel, self.signals, fold=3)
+        print(f"[PromptSelector] Loaded {len(self.models)} models")
+
         # Systematics
         if self.IsDATA:
             self.systHelper = SystematicHelper(f"{os.getenv('SKNANO_HOME')}/AnalyzerTools/noSyst.yaml", self.DataStream, self.DataEra)
@@ -76,6 +90,16 @@ class PromptSelector(TriLeptonBase):
             recoObjects = self.defineObjects(ev, rawMuons, rawElectrons, rawJets, genJets, syst)
             channel = self.selectEvent(ev, recoObjects, truth, syst, initialWeight if syst == "Central" else None)
             if channel is None: return
+
+            # Evaluate ParticleNet scores
+            data, scores, fold = self.evalScore(
+                recoObjects["tightMuons"],
+                recoObjects["tightElectrons"],
+                recoObjects["jets"],
+                recoObjects["bjets"],
+                recoObjects["METv"]
+            )
+            recoObjects["scores"] = scores
 
             if apply_weight_variation:
                 assert syst == "Central", "Only Central weight variation is allowed"
@@ -349,6 +373,30 @@ class PromptSelector(TriLeptonBase):
         else:
             raise EOFError(f"wrong charge configuration {mu1.Charge()} {mu2.Charge()} {mu3.Charge()}")
 
+    def evalScore(self, muons, electrons, jets, bjets, METv):
+        """Evaluate ParticleNet scores for all signal mass points."""
+        scores = {}
+        data, fold = getGraphInput(muons, electrons, jets, bjets, METv, str(self.DataEra))
+
+        for sig in self.signals:
+            model_key = f"{sig}_fold-3"
+            if model_key not in self.models:
+                print(f"[WARNING] Model {model_key} not found!")
+                for cls in self.classNames:
+                    scores[f"{sig}_{cls}"] = -999.
+                continue
+
+            model = self.models[model_key]
+            probs = getMultiClassScore(model, data)
+
+            # Store scores: [P(signal), P(nonprompt), P(diboson), P(ttZ)]
+            scores[f"{sig}_signal"] = probs[0]
+            scores[f"{sig}_nonprompt"] = probs[1]
+            scores[f"{sig}_diboson"] = probs[2]
+            scores[f"{sig}_ttZ"] = probs[3]
+
+        return data, scores, fold
+
     def getWeights(self, ev: Event,
                          recoObjects: dict,
                          genJets: RVec[GenJet],
@@ -514,6 +562,8 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/muons/{idx}/py", mu.Py(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/muons/{idx}/pz", mu.Pz(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/muons/{idx}/charge", mu.Charge(), totWeight, 3, -1, 2)
+            if bjets.size() > 0:
+                self.FillHist(f"{channel}/{syst}/muons/{idx}/min_dR_bjets", min([mu.DeltaR(bjet) for bjet in bjets]), totWeight, 100, 0., 10.)
         for idx, ele in enumerate(electrons, start=1):
             self.FillHist(f"{channel}/{syst}/electrons/{idx}/pt", ele.Pt(), totWeight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/electrons/{idx}/eta", ele.Eta(), totWeight, 50, -2.5, 2.5)
@@ -524,6 +574,8 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/electrons/{idx}/py", ele.Py(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/electrons/{idx}/pz", ele.Pz(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/electrons/{idx}/charge", ele.Charge(), totWeight, 3, -1, 2)
+            if bjets.size() > 0:
+                self.FillHist(f"{channel}/{syst}/electrons/{idx}/min_dR_bjets", min([ele.DeltaR(bjet) for bjet in bjets]), totWeight, 100, 0., 10.)
         for idx, jet in enumerate(jets, start=1):
             self.FillHist(f"{channel}/{syst}/jets/{idx}/pt", jet.Pt(), totWeight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/eta", jet.Eta(), totWeight, 48, -2.4, 2.4)
@@ -564,6 +616,14 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/pair/eta", pair.Eta(), totWeight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/pair/phi", pair.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/pair/mass", pair.M(), totWeight, 200, 0., 200.)
+            ## Delta R between leptons
+            dR_ele_mu1 = electrons.at(0).DeltaR(muons.at(0))
+            dR_ele_mu2 = electrons.at(0).DeltaR(muons.at(1))
+            dR_mu1_mu2 = muons.at(0).DeltaR(muons.at(1))
+            self.FillHist(f"{channel}/{syst}/dR_ele_mu1", dR_ele_mu1, totWeight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_ele_mu2", dR_ele_mu2, totWeight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_mu1_mu2", dR_mu1_mu2, totWeight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_min_ele_mu", min([dR_ele_mu1, dR_ele_mu2]), totWeight, 100, 0., 10.)
         elif "3Mu" in channel:
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
             pair1, pair2 = (mu_ss1+mu_os), (mu_ss2+mu_os)
@@ -575,6 +635,13 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/stack/eta", pair2.Eta(), totWeight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/stack/phi", pair2.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/stack/mass", pair2.M(), totWeight, 200, 0., 200.)
+            ## Delta R between leptons
+            dR_pair_ss1_os = mu_ss1.DeltaR(mu_os)
+            dR_pair_ss2_os = mu_ss2.DeltaR(mu_os)
+            dR_pair_ss1_ss2 = mu_ss1.DeltaR(mu_ss2)
+            self.FillHist(f"{channel}/{syst}/dR_pair_ss1_os", dR_pair_ss1_os, totWeight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_pair_ss2_os", dR_pair_ss2_os, totWeight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_pair_ss1_ss2",  dR_pair_ss1_ss2, totWeight, 100, 0., 10.)
         
         # Fill ZCands
         if "1E2Mu" in channel:
@@ -608,6 +675,20 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/nonprompt/pt", nonprompt.Pt(), totWeight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/nonprompt/eta", nonprompt.Eta(), totWeight, 48, -2.4, 2.4)
             self.FillHist(f"{channel}/{syst}/nonprompt/phi", nonprompt.Phi(), totWeight, 64, -3.2, 3.2)
+
+        # Fill ParticleNet scores
+        if "scores" in recoObjects:
+            scores = recoObjects["scores"]
+            for signal in self.signals:
+                # Fill multi-class ParticleNet scores
+                score_signal    = scores[f"{signal}_signal"]
+                score_nonprompt = scores[f"{signal}_nonprompt"]
+                score_diboson   = scores[f"{signal}_diboson"]
+                score_ttZ       = scores[f"{signal}_ttZ"]
+                self.FillHist(f"{channel}/{syst}/{signal}/score_signal", score_signal, totWeight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/score_nonprompt", score_nonprompt, totWeight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/score_diboson", score_diboson, totWeight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/score_ttZ", score_ttZ, totWeight, 100, 0., 1.)
 
 if __name__ == "__main__":
     module = PromptSelector()

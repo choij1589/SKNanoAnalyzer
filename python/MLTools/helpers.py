@@ -173,7 +173,7 @@ def calculateFold(METv, nJets, nFolds=5):
     return fold
 
 
-def getGraphInputWithBjets(muons, electrons, jets, bjets, METv, era, nFolds=5):
+def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5):
     """
     Construct graph input with b-jet separated node features (Mode 2: separate_bjets=True).
 

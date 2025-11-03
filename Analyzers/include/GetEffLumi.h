@@ -3,14 +3,11 @@
 
 #include "AnalyzerCore.h"
 
-
-
 class GetEffLumi : public AnalyzerCore {
 public:
     void executeEvent();
     GetEffLumi();
     ~GetEffLumi();
-    ;
     void initializeAnalyzer();
 };
 

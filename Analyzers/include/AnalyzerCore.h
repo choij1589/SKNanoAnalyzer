@@ -155,6 +155,10 @@ public:
     RVec<Jet> SmearJets(const RVec<Jet> &jets, const RVec<GenJet> &genjets, const TString &syst, const TString &source="total");
     RVec<Jet> ScaleJets(const RVec<Jet> &jets, const MyCorrection::variation &syst=MyCorrection::variation::nom, const TString &source = "total");
     RVec<Jet> ScaleJets(const RVec<Jet> &jets, const TString &syst, const TString &source="total");
+
+    bool PassVetoMap(const Jet &jet, const RVec<Muon> &AllMuons, const TString mapCategory="jetvetomap");
+    bool PassVetoMap(const RVec<Jet> &AllJets, const RVec<Muon> &AllMuons, const TString mapCategory="jetvetomap");
+    bool PassJetVetoMap(const RVec<Jet> &AllJet, const RVec<Muon> &AllMuon, const TString mapCategory="jetvetomap");
     
     // Type-I MET correction with correlated object variations
     Particle ApplyTypeICorrection(const Particle& MET,
@@ -164,12 +168,10 @@ public:
                                   const MyCorrection::variation& unclustered_syst=MyCorrection::variation::nom);
     
     // Histogram Handlers
+    bool useTH1F;
     TFile* GetOutfile() { return outfile; }
     inline void SetOutfilePath(const TString &outpath) { outfile = new TFile(outpath, "RECREATE"); }
     TH1D* GetHist1D(const string &histname);
-    bool PassVetoMap(const Jet &jet, const RVec<Muon> &AllMuons, const TString mapCategory="jetvetomap");
-    bool PassVetoMap(const RVec<Jet> &AllJets, const RVec<Muon> &AllMuons, const TString mapCategory="jetvetomap");
-    bool PassJetVetoMap(const RVec<Jet> &AllJet, const RVec<Muon> &AllMuon, const TString mapCategory="jetvetomap");
     inline void FillCutFlow(const int &val,const int &maxCutN=10){
         static int storedMaxCutN = maxCutN;
         FillHist("CutFlow", val, 1., storedMaxCutN, 0, storedMaxCutN);
@@ -209,7 +211,6 @@ public:
     virtual void WriteHist();
 
 private:
-    bool useTH1F = false;
     unordered_map<string, TH1*> histmap1d;
     unordered_map<string, TH2*> histmap2d;
     unordered_map<string, TH3*> histmap3d;

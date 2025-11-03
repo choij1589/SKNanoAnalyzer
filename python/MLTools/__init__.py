@@ -13,7 +13,7 @@ from MLTools.helpers import (
     evtToGraph,
     loadMultiClassParticleNet,
     calculateFold,
-    getGraphInputWithBjets,
+    getGraphInput,
     getMultiClassScore
 )
 
@@ -29,6 +29,6 @@ __all__ = [
     'evtToGraph',
     'loadMultiClassParticleNet',
     'calculateFold',
-    'getGraphInputWithBjets',
+    'getGraphInput',
     'getMultiClassScore',
 ]

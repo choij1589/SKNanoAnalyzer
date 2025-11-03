@@ -1,16 +1,6 @@
 #include "AnalyzerCore.h"
 
-AnalyzerCore::AnalyzerCore() {
-    myCorr = nullptr;
-    outfile = nullptr;
-    if(HasFlag("useTH1F")) {
-        cout << "[AnalyzerCore::AnalyzerCore] Using TH1F" << endl;
-        useTH1F = true;
-    }
-    else {
-        cout << "[AnalyzerCore::AnalyzerCore] Using TH1D" << endl;
-        useTH1F = false;
-    }
+AnalyzerCore::AnalyzerCore() : useTH1F(true), myCorr(nullptr), outfile(nullptr) {
     // pdfReweight = new PDFReweight();
 }
 

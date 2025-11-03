@@ -22,7 +22,6 @@
 #pragma link C++ class SignalKinematics+;
 #pragma link C++ class ParseEleIDVariables+;
 #pragma link C++ class ParseMuIDVariables+;
-#pragma link C++ class TestGetLeptonType+;
 #pragma link C++ class MeasJetTagEff+;
 #pragma link C++ class MuonTnPProducer+;
 #pragma link C++ class TriggerStudy+;

@@ -3,7 +3,11 @@
 //using correction::CorrectionSet;
 GetEffLumi::GetEffLumi(){};
 GetEffLumi::~GetEffLumi(){};
+
 void GetEffLumi::initializeAnalyzer(){
+  useTH1F = false;
+  cout << "[GetEffLumi] Using TH1D for histograms." << endl;
+  
   myCorr = new MyCorrection(DataEra, DataPeriod, IsDATA?DataStream:MCSample ,IsDATA);
   fChain->SetBranchStatus("*", 0);
   if(!IsDATA){
