@@ -27,7 +27,7 @@ void PromptTreeProducer::initializeAnalyzer() {
     }
 
     // Load ParticleNet models
-    loadGraphNetModels();
+    // loadGraphNetModels();  // Disabled: C++ libtorch removed, use Python ParticleNet (PyAnalyzers/PromptTreeProducer.py)
 
     // Initialize SystematicHelper
     string SKNANO_HOME = getenv("SKNANO_HOME");
@@ -622,26 +622,11 @@ void PromptTreeProducer::evalScore(const RVec<Muon>& muons, const RVec<Electron>
     const std::vector<TString> massPoints = {"MHc160_MA85", "MHc130_MA90", "MHc100_MA95"};
     const std::vector<TString> classNames = {"signal", "nonprompt", "diboson", "ttZ"};
 
-    // Convert to pointer vectors for TriLeptonBase interface
-    RVec<Muon*> muonPtrs;
-    for (auto& mu : muons) muonPtrs.push_back(const_cast<Muon*>(&mu));
-
-    RVec<Electron*> elePtrs;
-    for (auto& ele : electrons) elePtrs.push_back(const_cast<Electron*>(&ele));
-
-    RVec<Jet*> jetPtrs;
-    for (auto& jet : jets) jetPtrs.push_back(const_cast<Jet*>(&jet));
-
-    RVec<Jet*> bjetPtrs;
-    for (auto& bjet : bjets) bjetPtrs.push_back(const_cast<Jet*>(&bjet));
-
-    // Evaluate GraphNet scores (returns map: massPoint -> [4 class probabilities])
-    auto scores = evalGraphNetScores(muonPtrs, elePtrs, jetPtrs, bjetPtrs, METv, DataEra);
-
-    // Store all class probabilities in nested map structure
+    // C++ ParticleNet removed - use Python ParticleNet (PyAnalyzers/PromptTreeProducer.py)
+    // Initialize scores to -999 (dummy values)
     for (const auto& massPoint : massPoints) {
-        for (size_t i = 0; i < classNames.size(); ++i) {
-            ParticleNetScores[syst][massPoint][classNames[i]] = scores[massPoint][i];
+        for (const auto& className : classNames) {
+            ParticleNetScores[syst][massPoint][className] = -999.;
         }
     }
 }

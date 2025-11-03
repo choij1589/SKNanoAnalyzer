@@ -97,6 +97,7 @@ void EvtTreeProducer::executeEvent(){
         ElectronEtaColl[i] = recoObjects.vetoElectrons[i].Eta();
         ElectronPhiColl[i] = recoObjects.vetoElectrons[i].Phi();
         ElectronMassColl[i] = recoObjects.vetoElectrons[i].M();
+        ElectronChargeColl[i] = recoObjects.vetoElectrons[i].Charge();
     }
 
     nJets = recoObjects.jets.size();

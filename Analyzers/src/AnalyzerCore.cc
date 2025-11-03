@@ -924,6 +924,7 @@ RVec<Jet> AnalyzerCore::GetAllJets() {
         const float correctedPt = rawPt * JESSF;
         const float correctedMass = rawMass * JESSF;
         jet.SetPtEtaPhiM(correctedPt, Jet_eta[i], Jet_phi[i], correctedMass);
+        jet.SetCharge(0); // Jets have no charge information in NanoAOD
         jet.SetRawPt(rawPt);
         jet.SetOriginalPt(Jet_pt[i]);
         jet.SetArea(Jet_area[i]);

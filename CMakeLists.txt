@@ -13,7 +13,7 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 # find packages
 find_package(ROOT REQUIRED)
 find_package(Boost REQUIRED)
-find_package(Torch REQUIRED)
+# find_package(Torch REQUIRED)  # Removed: Using Python PyTorch instead of C++ libtorch
 find_package(correctionlib REQUIRED)
 
 include(${ROOT_USE_FILE})

@@ -17,7 +17,7 @@ target_include_directories(Analyzers PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../DataFormats/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../external/KinematicFitter/include>
     $<BUILD_INTERFACE:${ROOT_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${TORCH_INCLUDE_DIRS}>
+    # $<BUILD_INTERFACE:${TORCH_INCLUDE_DIRS}>  # Removed: Using Python PyTorch
     $<INSTALL_INTERFACE:include>
 )
 
@@ -44,7 +44,7 @@ target_link_libraries(Analyzers PUBLIC AnalyzerTools)
 target_link_libraries(Analyzers PUBLIC KinFitter)
 #target_link_libraries(Analyzers PUBLIC MLHelper)
 target_link_libraries(Analyzers PUBLIC nlohmann_json::nlohmann_json)
-target_link_libraries(Analyzers PUBLIC ${TORCH_LIBRARIES})
+# target_link_libraries(Analyzers PUBLIC ${TORCH_LIBRARIES})  # Removed: Using Python PyTorch
 
 # Specify where to install the library
 install(TARGETS Analyzers DESTINATION lib)
