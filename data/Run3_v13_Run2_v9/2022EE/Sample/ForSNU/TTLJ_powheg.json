@@ -2,7 +2,7 @@
     "name": "TTLJ_powheg",
     "isMC": 1,
     "PD": "TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8",
-    "xsec": 13.36,
+    "xsec": 405.69,
     "sumsign": 265795283.0,
     "sumW": 89585501970.60388,
     "nmc": 267960719.0,

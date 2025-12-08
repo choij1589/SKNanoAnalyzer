@@ -1,7 +1,6 @@
 # SKNanoAnalyzer
+v1.0.0
 ---
-
-## THIS IS DEVELOPMENT VERSION!!
 
 ## Introduction
 - If you want to engage in the development and commit to the repository, please read [Development Guide](docs/DevelopmentGuide.md) first.
@@ -13,10 +12,6 @@
 - [ ] SKNano.py skimming test **Yeonjoon**
 - [ ] Auto-Validation: Check the consistency of the output for a specific NanoAOD file: **Jin**
 
-For DY, check the before/after of correction
-- [ ] Leptons **Jihoon**
-- [ ] Jets(B-tagging) **Taehee**
-
 ## Make Tutorial
 - [ ] From make Training tree, Export ONNX, Use this model in the Analyzer : **Yeonjoon(Review: Youngwan)**
 - [ ] Simple DY tutorial : **Eunsu(Review: Jin)**
@@ -24,9 +19,6 @@ For DY, check the before/after of correction
 - [ ] tt reconstruction using KinFit Library : **Yeonjoon**
 - [ ] NLO vs LO comparison in MadGraph Tutorial: **Jin**
 - [ ] Tau+Fatjet Tutorial : **Youngwan**
-
-- [ ] At least try to install until next meeting : ***All***
-
 
 ## Useful links
 - [MiniAOD](https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD)

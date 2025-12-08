@@ -30,7 +30,7 @@ void SKNanoLoader::Loop() {
     if (MaxEvent > 0) nentries = std::min(nentries, MaxEvent);
     auto startTime = std::chrono::steady_clock::now();
     cout << "[SKNanoLoader::Loop] Event Loop Started" << endl;
-
+    
     for (long jentry = 0; jentry < nentries; jentry++) {
         if (jentry < NSkipEvent) continue;
 
@@ -49,7 +49,7 @@ void SKNanoLoader::Loop() {
             cerr << "[SKNanoLoader::Loop] Error reading event " << jentry << endl;
             exit(1);
         }
-
+        
         // make sure Run2 and Run3 variables are in sync
         if (Run == 2) {
             nLHEPart = static_cast<Int_t>(nLHEPart_RunII);
@@ -398,6 +398,8 @@ void SKNanoLoader::SetMaxLeafSize(){
         Jet_partonFlavour.resize(kMaxJet);
         Jet_svIdx1.resize(kMaxJet);
         Jet_svIdx2.resize(kMaxJet);
+        Jet_chMultiplicity.resize(kMaxJet);
+        Jet_neMultiplicity.resize(kMaxJet);
         Jet_bRegCorr.resize(0);
         Jet_bRegRes.resize(0);
         Jet_btagCSVV2.resize(0);
@@ -421,8 +423,6 @@ void SKNanoLoader::SetMaxLeafSize(){
         Jet_puId.resize(0);
         Jet_puIdDisc.resize(0);
         Jet_qgl.resize(0);
-        Jet_chMultiplicity.resize(0);
-        Jet_neMultiplicity.resize(0);
     }
     else if(Run == 2){
         Jet_PNetRegPtRawCorr.resize(0);
@@ -1164,7 +1164,7 @@ void SKNanoLoader::Init() {
     string json_path = string(getenv("SKNANO_DATA")) + "/" + DataEra.Data() + "/Trigger/HLT_Path.json";
     ifstream json_file(json_path);
     if (json_file.is_open()) {
-        cout << "[SKNanoLoader::Init] Loading HLT Paths in" << json_path << endl;
+        cout << "[SKNanoLoader::Init] Loading HLT Paths in " << json_path << endl;
         json j;
         json_file >> j;
         RVec<TString> not_in_tree;
@@ -1198,4 +1198,5 @@ void SKNanoLoader::Init() {
         }
     }
     else cerr << "[SKNanoLoader::Init] Cannot open " << json_path << endl;
+    
 }

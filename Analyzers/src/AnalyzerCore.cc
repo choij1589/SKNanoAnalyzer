@@ -915,6 +915,7 @@ RVec<Tau> AnalyzerCore::SelectTaus(const RVec<Tau> &taus, const TString ID, cons
 
 RVec<Jet> AnalyzerCore::GetAllJets() {
     RVec<Jet> Jets;
+    
     for (int i = 0; i < nJet; i++) {
         Jet jet;
         const float rawPt = Jet_pt[i] * (1.-Jet_rawFactor[i]);
@@ -937,16 +938,41 @@ RVec<Jet> AnalyzerCore::GetAllJets() {
         RVec<float> tvs;
         RVec<float> tvs2;
         if(Run == 3){
-            tvs = {Jet_btagDeepFlavB[i], Jet_btagDeepFlavCvB[i], Jet_btagDeepFlavCvL[i], Jet_btagDeepFlavQG[i],
-                           Jet_btagPNetB[i], Jet_btagPNetCvB[i], Jet_btagPNetCvL[i], Jet_btagPNetQvG[i],
-                           Jet_btagPNetTauVJet[i], Jet_btagRobustParTAK4B[i], Jet_btagRobustParTAK4CvB[i], Jet_btagRobustParTAK4CvL[i], Jet_btagRobustParTAK4QG[i]};
-            jet.SetMultiplicities(Jet_nConstituents[i], Jet_nElectrons[i], Jet_nMuons[i], Jet_nSVs[i]);
-            jet.SetHadronMultiplicities(Jet_chMultiplicity[i], Jet_neMultiplicity[i]);
+            tvs = {Jet_btagDeepFlavB[i], 
+                   Jet_btagDeepFlavCvB[i], 
+                   Jet_btagDeepFlavCvL[i], 
+                   Jet_btagDeepFlavQG[i],
+                   Jet_btagPNetB[i], 
+                   Jet_btagPNetCvB[i], 
+                   Jet_btagPNetCvL[i], 
+                   Jet_btagPNetQvG[i],
+                   Jet_btagPNetTauVJet[i], 
+                   Jet_btagRobustParTAK4B[i], 
+                   Jet_btagRobustParTAK4CvB[i], 
+                   Jet_btagRobustParTAK4CvL[i], 
+                   Jet_btagRobustParTAK4QG[i]};
+            jet.SetMultiplicities(Jet_nConstituents[i], 
+                                  Jet_nElectrons[i], 
+                                  Jet_nMuons[i], 
+                                  Jet_nSVs[i]);
+            jet.SetHadronMultiplicities(Jet_chMultiplicity[i], 
+                                        Jet_neMultiplicity[i]);
             if(!IsDATA){
-                jet.SetMatchingIndices(Jet_electronIdx1[i], Jet_electronIdx2[i], Jet_muonIdx1[i], Jet_muonIdx2[i], Jet_svIdx1[i], Jet_svIdx2[i], Jet_genJetIdx[i]);
+                jet.SetMatchingIndices(Jet_electronIdx1[i], 
+                                       Jet_electronIdx2[i], 
+                                       Jet_muonIdx1[i], 
+                                       Jet_muonIdx2[i], 
+                                       Jet_svIdx1[i], 
+                                       Jet_svIdx2[i], 
+                                       Jet_genJetIdx[i]);
             }
             else{
-                jet.SetMatchingIndices(Jet_electronIdx1[i], Jet_electronIdx2[i], Jet_muonIdx1[i], Jet_muonIdx2[i], Jet_svIdx1[i], Jet_svIdx2[i]);
+                jet.SetMatchingIndices(Jet_electronIdx1[i], 
+                                       Jet_electronIdx2[i], 
+                                       Jet_muonIdx1[i], 
+                                       Jet_muonIdx2[i], 
+                                       Jet_svIdx1[i], 
+                                       Jet_svIdx2[i]);
             }
             jet.SetJetID(Jet_jetId[i], 3);
             jet.SetJetPuID(0b111);
@@ -954,15 +980,32 @@ RVec<Jet> AnalyzerCore::GetAllJets() {
         }
         //for Run 2 DeepJet is only option
         else if(Run == 2){
-            tvs = {Jet_btagDeepFlavB[i], Jet_btagDeepFlavCvB[i], Jet_btagDeepFlavCvL[i], Jet_btagDeepFlavQG[i],
+            tvs = {Jet_btagDeepFlavB[i], 
+                   Jet_btagDeepFlavCvB[i], 
+                   Jet_btagDeepFlavCvL[i], 
+                   Jet_btagDeepFlavQG[i],
                    -999., -999., -999., -999.,
                    -999., -999., -999., -999., -999.};
-            jet.SetMultiplicities(Jet_nConstituents[i], Jet_nElectrons_RunII[i], Jet_nMuons_RunII[i], 0);
+            jet.SetMultiplicities(Jet_nConstituents[i], 
+                                  Jet_nElectrons_RunII[i], 
+                                  Jet_nMuons_RunII[i],
+                                  0);
             if(!IsDATA){
-                jet.SetMatchingIndices(Jet_electronIdx1_RunII[i], Jet_electronIdx2_RunII[i], Jet_muonIdx1_RunII[i], Jet_muonIdx2_RunII[i], -9, -9, Jet_genJetIdx_RunII[i]);
+                jet.SetMatchingIndices(Jet_electronIdx1_RunII[i], 
+                                       Jet_electronIdx2_RunII[i], 
+                                       Jet_muonIdx1_RunII[i], 
+                                       Jet_muonIdx2_RunII[i], 
+                                       -9, 
+                                       -9, 
+                                       Jet_genJetIdx_RunII[i]);
             }
             else{
-                jet.SetMatchingIndices(Jet_electronIdx1_RunII[i], Jet_electronIdx2_RunII[i], Jet_muonIdx1_RunII[i], Jet_muonIdx2_RunII[i], -9, -9);
+                jet.SetMatchingIndices(Jet_electronIdx1_RunII[i], 
+                                       Jet_electronIdx2_RunII[i], 
+                                       Jet_muonIdx1_RunII[i], 
+                                       Jet_muonIdx2_RunII[i], 
+                                       -9, 
+                                       -9);
             }
             jet.SetJetID(Jet_jetId_RunII[i], 2);
             if (DataYear == 2016) {
@@ -974,7 +1017,6 @@ RVec<Jet> AnalyzerCore::GetAllJets() {
                 jet.SetJetPuID(Jet_puId[i]);
             }
             tvs2 = {-999.0, -999.0, -999.0, -999.0, Jet_rawFactor[i], Jet_bRegCorr[i], Jet_bRegRes[i], Jet_cRegCorr[i], Jet_cRegRes[i]};
-
         }
         jet.SetTaggerResults(tvs);
         jet.SetCorrections(tvs2);
