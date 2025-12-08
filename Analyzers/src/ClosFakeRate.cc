@@ -50,8 +50,8 @@ ClosFakeRate::RecoObjects ClosFakeRate::defineObjects(const Event& ev,
     RecoObjects objects;
 
     // Copy raw objects
-    RVec<Muon> allMuons = rawMuons;
-    RVec<Electron> allElectrons = rawElectrons;
+    RVec<Muon> allMuons = GetPTCorrScaledMuons(rawMuons);
+    RVec<Electron> allElectrons = GetPTCorrScaledElectrons(rawElectrons);
     RVec<Jet> allJets = rawJets;
 
     // Get MET
@@ -279,16 +279,25 @@ void ClosFakeRate::fillObjects(const Channel selectedChannel,
             nZCand = pair1;
             nonprompt = mu_ss1;
         }
-        
-        // Fill both pairs as "stack"
-        FillHist(Form("%s/%s/stack/pt", channelStr.Data(), syst.Data()), pair1.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/stack/eta", channelStr.Data(), syst.Data()), pair1.Eta(), weight, 100, -5., 5.);
-        FillHist(Form("%s/%s/stack/phi", channelStr.Data(), syst.Data()), pair1.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/stack/mass", channelStr.Data(), syst.Data()), pair1.M(), weight, 200, 0., 200.);
-        FillHist(Form("%s/%s/stack/pt", channelStr.Data(), syst.Data()), pair2.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/stack/eta", channelStr.Data(), syst.Data()), pair2.Eta(), weight, 100, -5., 5.);
-        FillHist(Form("%s/%s/stack/phi", channelStr.Data(), syst.Data()), pair2.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/stack/mass", channelStr.Data(), syst.Data()), pair2.M(), weight, 200, 0., 200.);
+        Particle pair_lowM = (pair1.M() < pair2.M()) ? pair1 : pair2;
+        Particle pair_highM = (pair1.M() > pair2.M()) ? pair1 : pair2;
+
+        FillHist(Form("%s/%s/ZCand/pt", channelStr.Data(), syst.Data()), ZCand.Pt(), weight, 300, 0., 300.);
+        FillHist(Form("%s/%s/ZCand/eta", channelStr.Data(), syst.Data()), ZCand.Eta(), weight, 100, -5., 5.);
+        FillHist(Form("%s/%s/ZCand/phi", channelStr.Data(), syst.Data()), ZCand.Phi(), weight, 64, -3.2, 3.2);
+        FillHist(Form("%s/%s/ZCand/mass", channelStr.Data(), syst.Data()), ZCand.M(), weight, 200, 0., 200.);
+        FillHist(Form("%s/%s/nZCand/pt", channelStr.Data(), syst.Data()), nZCand.Pt(), weight, 300, 0., 300.);
+        FillHist(Form("%s/%s/nZCand/eta", channelStr.Data(), syst.Data()), nZCand.Eta(), weight, 100, -5., 5.);
+        FillHist(Form("%s/%s/nZCand/phi", channelStr.Data(), syst.Data()), nZCand.Phi(), weight, 64, -3.2, 3.2);
+        FillHist(Form("%s/%s/nZCand/mass", channelStr.Data(), syst.Data()), nZCand.M(), weight, 200, 0., 200.);
+        FillHist(Form("%s/%s/pair_lowM/pt", channelStr.Data(), syst.Data()), pair_lowM.Pt(), weight, 300, 0., 300.);
+        FillHist(Form("%s/%s/pair_lowM/eta", channelStr.Data(), syst.Data()), pair_lowM.Eta(), weight, 100, -5., 5.);
+        FillHist(Form("%s/%s/pair_lowM/phi", channelStr.Data(), syst.Data()), pair_lowM.Phi(), weight, 64, -3.2, 3.2);
+        FillHist(Form("%s/%s/pair_lowM/mass", channelStr.Data(), syst.Data()), pair_lowM.M(), weight, 200, 0., 200.);
+        FillHist(Form("%s/%s/pair_highM/pt", channelStr.Data(), syst.Data()), pair_highM.Pt(), weight, 300, 0., 300.);
+        FillHist(Form("%s/%s/pair_highM/eta", channelStr.Data(), syst.Data()), pair_highM.Eta(), weight, 100, -5., 5.);
+        FillHist(Form("%s/%s/pair_highM/phi", channelStr.Data(), syst.Data()), pair_highM.Phi(), weight, 64, -3.2, 3.2);
+        FillHist(Form("%s/%s/pair_highM/mass", channelStr.Data(), syst.Data()), pair_highM.M(), weight, 200, 0., 200.);
         FillHist(Form("%s/%s/nonprompt/pt", channelStr.Data(), syst.Data()), nonprompt.Pt(), weight, 300, 0., 300.);
         FillHist(Form("%s/%s/nonprompt/eta", channelStr.Data(), syst.Data()), nonprompt.Eta(), weight, 48, -2.4, 2.4);
         FillHist(Form("%s/%s/nonprompt/phi", channelStr.Data(), syst.Data()), nonprompt.Phi(), weight, 64, -3.2, 3.2);

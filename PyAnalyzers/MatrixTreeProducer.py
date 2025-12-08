@@ -66,13 +66,12 @@ class MatrixTreeProducer(TriLeptonBase):
         self.channel = "Run1E2Mu" if self.Run1E2Mu else "Run3Mu"
 
         # ParticleNet configuration
-        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
+        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc130_MA100", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
         self.classNames = ["signal", "nonprompt", "diboson", "ttZ"]
 
         # Load ParticleNet models (fold=3 for testing)
         print(f"\n[MatrixTreeProducer] Loading ParticleNet models for {self.channel}")
-        print(f"[MatrixTreeProducer] WARNING: Loading partial models for testing only! - fold=3")
-        self.models = loadMultiClassParticleNet(self.channel, self.signals, fold=3)
+        self.models = loadMultiClassParticleNet(self.signals)
         print(f"[MatrixTreeProducer] Loaded {len(self.models)} models")
 
         # Prepare output tree
@@ -321,15 +320,14 @@ class MatrixTreeProducer(TriLeptonBase):
 
         # Run inference for each signal mass point
         for signal in self.signals:
-            model_key = f"{signal}_fold-3"
-            if model_key not in self.models:
-                print(f"[WARNING] Model {model_key} not found!")
+            if signal not in self.models.keys():
+                print(f"[WARNING] Model {signal} not found!")
                 # Initialize scores to -999
                 for cls in self.classNames:
                     self.scores[signal][cls][0] = -999.
                 continue
 
-            model = self.models[model_key]
+            model = self.models[signal]
             probs = getMultiClassScore(model, data)
 
             # Store scores: [P(signal), P(nonprompt), P(diboson), P(ttZ)]

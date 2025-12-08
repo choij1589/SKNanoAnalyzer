@@ -59,6 +59,8 @@ class PromptTreeProducer(TriLeptonBase):
         self.scores = {}  # Nested dict: [syst][signal][class]
         self.fold = {}
         self.weight = {}
+        self.theorySystematics = []
+        self.hasTheoryWeights = False
 
     def initializePyAnalyzer(self):
         """Initialize analyzer: channel flags, systematics, models, and trees."""
@@ -74,13 +76,12 @@ class PromptTreeProducer(TriLeptonBase):
         self.channel = "Run1E2Mu" if self.Run1E2Mu else "Run3Mu"
 
         # ParticleNet configuration
-        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
+        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc130_MA100", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
         self.classNames = ["signal", "nonprompt", "diboson", "ttZ"]
 
         # Load ParticleNet models (all folds for cross-validation)
         print(f"\n[PromptTreeProducer] Loading ParticleNet models for {self.channel}")
-        print(f"[PromptTreeProducer] WARNING: Loading partial models for testing only! - fold=3")
-        self.models = loadMultiClassParticleNet(self.channel, self.signals, fold=3)
+        self.models = loadMultiClassParticleNet(self.signals)
         print(f"[PromptTreeProducer] Loaded {len(self.models)} models")
 
         # Systematics
@@ -102,6 +103,10 @@ class PromptTreeProducer(TriLeptonBase):
                 self.MCSample,
                 self.DataEra
             )
+
+        # Initialize theory systematics if enabled
+        if self.RunTheoryUnc and not self.IsDATA:
+            self.initializeTheorySystematics()
 
         # Prepare output trees
         self.__prepareTrees()
@@ -126,6 +131,9 @@ class PromptTreeProducer(TriLeptonBase):
         truth = self.GetAllGens()
         genJets = self.GetAllGenJets()
 
+        # Check for theory weights availability
+        self.hasTheoryWeights = self.HasTheoryWeights()
+
         # Cache base object copies once per event
         self._cached_objects = {}
 
@@ -134,7 +142,7 @@ class PromptTreeProducer(TriLeptonBase):
             recoObjects = self.defineObjects(ev, rawMuons, rawElectrons, rawJets, genJets, syst)
             channelResult = self.selectEvent(ev, recoObjects, truth, syst)
             if channelResult is None:
-                return
+                return None, None, None
 
             if apply_weight_variation:
                 assert syst == "Central", "Only Central weight variation is allowed"
@@ -154,12 +162,20 @@ class PromptTreeProducer(TriLeptonBase):
                     weights_down = self.getWeights(ev, recoObjects, genJets, f"{systName}_Down")
                     self.fillTree(channelResult, recoObjects, weights_up, f"{systName}_Up")
                     self.fillTree(channelResult, recoObjects, weights_down, f"{systName}_Down")
+
+                # Return objects and weights for theory systematics processing
+                return channelResult, recoObjects, weights
             else:
                 weights = self.getWeights(ev, recoObjects, genJets, syst)
                 self.fillTree(channelResult, recoObjects, weights, syst)
+                return channelResult, recoObjects, weights
 
         # Process Central with weight variations
-        processEvent("Central", apply_weight_variation=True)
+        channelResult, centralObjects, centralWeights = processEvent("Central", apply_weight_variation=True)
+
+        # Process theory systematics (if enabled and weights available)
+        if channelResult is not None and self.RunTheoryUnc and self.hasTheoryWeights:
+            self.processTheorySystematics(channelResult, centralObjects, centralWeights)
 
         # Process systematics requiring evtLoopAgain
         for syst in self.systHelper:
@@ -572,12 +588,11 @@ class PromptTreeProducer(TriLeptonBase):
 
             # Run inference for each signal mass point
             for signal in self.signals:
-                model_key = f"{signal}_fold-3"
-                if model_key not in self.models:
-                    print(f"[WARNING] Model {model_key} not found!")
+                if signal not in self.models.keys():
+                    print(f"[WARNING] Model {signal} not found!")
                     continue
 
-                model = self.models[model_key]
+                model = self.models[signal]
                 probs = getMultiClassScore(model, data)
 
                 # Store scores: [P(signal), P(nonprompt), P(diboson), P(ttZ)]
@@ -612,6 +627,10 @@ class PromptTreeProducer(TriLeptonBase):
             for syst in self.systHelper:
                 if syst.iter_name != "Central" and self.systHelper.findSystematic(syst.syst_name).evtLoopAgain:
                     systList.append(syst.iter_name)
+
+        # Add theory systematics if enabled
+        if self.RunTheoryUnc and not self.IsDATA:
+            systList.extend(self.theorySystematics)
 
         for syst in systList:
             # Create TTree
@@ -652,3 +671,103 @@ class PromptTreeProducer(TriLeptonBase):
         self.GetOutfile().cd()
         for syst, tree in self.trees.items():
             tree.Write()
+
+    # ===================================================================
+    # Theory Uncertainty Methods
+    # ===================================================================
+
+    def initializeTheorySystematics(self):
+        """Initialize list of theory systematic names."""
+        self.theorySystematics = []
+
+        # PDF variations (100): PDF_0 to PDF_99
+        for i in range(100):
+            self.theorySystematics.append(f"PDF_{i}")
+
+        # Scale variations (7): indices 0,1,2,3,4,6,8 (skip 5 and 7)
+        for i in [0, 1, 2, 3, 4, 6, 8]:
+            self.theorySystematics.append(f"Scale_{i}")
+
+        # PS variations (4)
+        self.theorySystematics.extend(["PS_ISRUp", "PS_FSRUp", "PS_ISRDown", "PS_FSRDown"])
+
+        # AlphaS variations (2)
+        self.theorySystematics.extend(["AlphaS_Up", "AlphaS_Down"])
+
+    def getTheoryWeight(self, systName: str) -> float:
+        """Get theory weight for a given systematic variation."""
+        # PDF variations: LHEPdfWeight[1-100] for PDF_0 to PDF_99
+        if systName.startswith("PDF_"):
+            idx = int(systName[4:])
+            return self.LHEPdfWeight[idx + 1] if (idx + 1) < self.nLHEPdfWeight else 1.0
+
+        # Scale variations: LHEScaleWeight[i]
+        if systName.startswith("Scale_"):
+            idx = int(systName[6:])
+            return self.LHEScaleWeight[idx] if idx < self.nLHEScaleWeight else 1.0
+
+        # PS variations: PSWeight[0-3]
+        if systName == "PS_ISRUp":
+            return self.PSWeight[0] if self.nPSWeight > 0 else 1.0
+        if systName == "PS_FSRUp":
+            return self.PSWeight[1] if self.nPSWeight > 1 else 1.0
+        if systName == "PS_ISRDown":
+            return self.PSWeight[2] if self.nPSWeight > 2 else 1.0
+        if systName == "PS_FSRDown":
+            return self.PSWeight[3] if self.nPSWeight > 3 else 1.0
+
+        # AlphaS variations: LHEPdfWeight[101-102]
+        if systName == "AlphaS_Up":
+            return self.LHEPdfWeight[102] if self.nLHEPdfWeight > 102 else 1.0
+        if systName == "AlphaS_Down":
+            return self.LHEPdfWeight[101] if self.nLHEPdfWeight > 101 else 1.0
+
+        return 1.0
+
+    def processTheorySystematics(self, channel: str, recoObjects: dict, weights: dict):
+        """Process theory systematic variations."""
+        muons = recoObjects["tightMuons"]
+        electrons = recoObjects["tightElectrons"]
+        jets = recoObjects["jets"]
+        bjets = recoObjects["bjets"]
+        METv = recoObjects["METv"]
+
+        # Calculate base weight (without theory variations)
+        baseWeight = (weights["genWeight"] * weights["prefireWeight"] * weights["pileupWeight"] *
+                      weights["muonRecoSF"] * weights["muonIDSF"] * weights["eleRecoSF"] *
+                      weights["eleIDSF"] * weights["trigSF"] * weights["pileupIDSF"] *
+                      weights["btagSF"] * weights["WZNjetsSF"])
+
+        for systName in self.theorySystematics:
+            theoryWeight = self.getTheoryWeight(systName)
+            finalWeight = baseWeight * theoryWeight
+
+            # Fill kinematic variables (same as Central)
+            if "1E2Mu" in channel:
+                mu1, mu2 = muons.at(0), muons.at(1)
+                pair = mu1 + mu2
+                self.mass1[systName][0] = pair.M()
+                self.mass2[systName][0] = -999.
+                ele = electrons.at(0)
+                self.MT1[systName][0] = (ele + METv).Mt()
+                self.MT2[systName][0] = -999.
+            elif "3Mu" in channel:
+                mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
+                pair1 = mu_ss1 + mu_os
+                pair2 = mu_ss2 + mu_os
+                self.mass1[systName][0] = pair1.M()
+                self.mass2[systName][0] = pair2.M()
+                self.MT1[systName][0] = (mu_ss1 + METv).Mt()
+                self.MT2[systName][0] = (mu_ss2 + METv).Mt()
+
+            # Copy fold and scores from Central (objects don't change for theory systematics)
+            self.fold[systName][0] = self.fold["Central"][0]
+            for signal in self.signals:
+                for cls in self.classNames:
+                    self.scores[systName][signal][cls][0] = self.scores["Central"][signal][cls][0]
+
+            # Set weight
+            self.weight[systName][0] = finalWeight
+
+            # Fill tree
+            self.trees[systName].Fill()

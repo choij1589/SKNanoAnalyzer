@@ -450,7 +450,7 @@ void DiLepton::fillObjects(const DiLepton::Channel& channel, const RecoObjects& 
         FillHist(Form("%s/%s/weights/eleIDSF", channelStr.Data(), syst.Data()), weights.eleIDSF, 1., 100, -5., 5.);
         FillHist(Form("%s/%s/weights/trigSF", channelStr.Data(), syst.Data()), weights.trigSF, 1., 100, -5., 5.);
         FillHist(Form("%s/%s/weights/pileupIDSF", channelStr.Data(), syst.Data()), weights.pileupIDSF, 1., 100, -5., 5.);
-        FillHist(Form("%s/%s/weights/btagSF", channelStr.Data(), syst.Data()), weights.btagSF, 1., 100, -5., 5.);
+        FillHist(Form("%s/%s/weights/btagSF", channelStr.Data(), syst.Data()), weights.btagSF, 1., 600, -3., 3.);
     }
 
     // Fill muon histograms

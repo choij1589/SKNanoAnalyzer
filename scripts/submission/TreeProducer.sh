@@ -22,7 +22,7 @@ else
     exit 1
 fi
 
-#SKNano.py -a PromptTreeProducer -i $DATASTREAM -n 10 -r $RUN --userflags $CHANNEL --python
-#SKNano.py -a PromptTreeProducer -i $SAMPLELIST/TriLepton.txt -n 10 -r $RUN --userflags $CHANNEL,RunSyst --python --memory 6000
+SKNano.py -a PromptTreeProducer -i $DATASTREAM -n 10 -r $RUN --userflags $CHANNEL --python
+SKNano.py -a PromptTreeProducer -i $SAMPLELIST/TriLepton.txt -n 10 -r $RUN --userflags $CHANNEL,RunSyst --python --memory 12000
 SKNano.py -a MatrixTreeProducer -i $DATASTREAM -n 10 -r $RUN --userflags $CHANNEL --python
-#SKNano.py -a PromptTreeProducer -i $SAMPLELIST/SignalSamples.txt -n 10 -r $RUN --userflags $CHANNEL,RunSyst --python --memory 6000
+SKNano.py -a PromptTreeProducer -i $SAMPLELIST/SignalSamples.txt -n 10 -r $RUN --userflags $CHANNEL,RunSyst,RunTheoryUnc --python --memory 12000

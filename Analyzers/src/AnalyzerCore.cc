@@ -89,6 +89,10 @@ float AnalyzerCore::GetPSWeight(const MyCorrection::variation &ISR_syst, const M
     }
 }
 
+bool AnalyzerCore::HasTheoryWeights() const {
+    return !IsDATA && nLHEPdfWeight > 0 && nLHEScaleWeight > 0 && nPSWeight > 1;
+}
+
 float AnalyzerCore::GetHT(const RVec<Jet> &jets){
     float HT = 0.;
     for(const auto &jet: jets){
@@ -351,15 +355,17 @@ Particle AnalyzerCore::ApplyTypeICorrection(const Particle& MET,
     // Sum of old corrected jets passing acceptance (pT > 15 GeV) - these were used in NanoAOD Type-I
     TLorentzVector sumOldCorrJets;
     for (const auto& jet : jets) {
+        // Skip jets with invalid pT (can occur in Run3 with JEC systematics)
+        if (jet.Pt() <= 0.0f) {
+            continue;
+        }
+
         if (jet.GetOriginalPt() > 15.0 && fabs(jet.Eta()) < 5.0) {
             TLorentzVector oldCorrJet;
             // Original mass: Jet_mass[i] from NanoAOD (before our re-correction)
-            float originalMass = jet.M();
-            if (jet.Pt() > 0.0f) {
-                // Reconstruct original mass: since both pt and mass scale by JESSF,
-                // originalMass = currentMass * (originalPt / currentPt)
-                originalMass = jet.M() * (jet.GetOriginalPt() / jet.Pt());
-            }
+            // Reconstruct original mass: since both pt and mass scale by JESSF,
+            // originalMass = currentMass * (originalPt / currentPt)
+            float originalMass = jet.M() * (jet.GetOriginalPt() / jet.Pt());
             oldCorrJet.SetPtEtaPhiM(jet.GetOriginalPt(), jet.Eta(), jet.Phi(), originalMass);
             sumOldCorrJets += oldCorrJet;
         }
@@ -372,6 +378,7 @@ Particle AnalyzerCore::ApplyTypeICorrection(const Particle& MET,
             sumCorrJets += jet;
         }
     }
+
     metVector -= (sumCorrJets - sumOldCorrJets);
 
     // Sum of raw muons passing acceptance (pT > 5 GeV, |eta| < 2.4)
@@ -475,8 +482,25 @@ Event AnalyzerCore::GetEvent() {
     ev.SetGenMET(GenMET_pt, GenMET_phi);
     ev.SetMETVector(MET_pt, MET_phi, Event::MET_Type::CHS);
     ev.SetMETVector(PuppiMET_pt, PuppiMET_phi, Event::MET_Type::PUPPI);
-    ev.SetMETVector(PuppiMET_ptUnclusteredUp, PuppiMET_phiUnclusteredUp, Event::MET_Type::PUPPI, Event::MET_Syst::UE_UP);
-    ev.SetMETVector(PuppiMET_ptUnclusteredDown, PuppiMET_phiUnclusteredDown, Event::MET_Type::PUPPI, Event::MET_Syst::UE_DOWN);
+
+    // Handle NaN in UE systematic MET branches (rare events in some Run3 samples)
+    // Use central PUPPI MET as fallback when systematic branches contain NaN
+    float ue_up_pt = PuppiMET_ptUnclusteredUp;
+    float ue_up_phi = PuppiMET_phiUnclusteredUp;
+    float ue_down_pt = PuppiMET_ptUnclusteredDown;
+    float ue_down_phi = PuppiMET_phiUnclusteredDown;
+
+    if (std::isnan(ue_up_pt) || std::isnan(ue_up_phi)) {
+        ue_up_pt = PuppiMET_pt;
+        ue_up_phi = PuppiMET_phi;
+    }
+    if (std::isnan(ue_down_pt) || std::isnan(ue_down_phi)) {
+        ue_down_pt = PuppiMET_pt;
+        ue_down_phi = PuppiMET_phi;
+    }
+
+    ev.SetMETVector(ue_up_pt, ue_up_phi, Event::MET_Type::PUPPI, Event::MET_Syst::UE_UP);
+    ev.SetMETVector(ue_down_pt, ue_down_phi, Event::MET_Type::PUPPI, Event::MET_Syst::UE_DOWN);
     ev.SetTrigger(TriggerMap);
     ev.SetEra(GetEra());
     ev.setRho(fixedGridRhoFastjetAll);

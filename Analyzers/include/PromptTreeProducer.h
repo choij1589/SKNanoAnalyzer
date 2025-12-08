@@ -21,6 +21,10 @@ private:
     // Systematic configuration
     std::unique_ptr<SystematicHelper> systHelper;
 
+    // Theory uncertainty configuration
+    RVec<TString> theorySystematics;
+    bool hasTheoryWeights;
+
     // Output trees (one per systematic)
     std::map<TString, TTree*> trees;
 
@@ -92,6 +96,12 @@ private:
     void evalScore(const RVec<Muon>& muons, const RVec<Electron>& electrons,
                    const RVec<Jet>& jets, const RVec<Jet>& bjets,
                    const Particle& METv, const TString& syst);
+
+    // Theory uncertainty methods
+    void initializeTheorySystematics();
+    void processTheorySystematics(Channel channel, const RecoObjects& recoObjects,
+                                  const WeightInfo& weights, const Particle& centralMETv);
+    float getTheoryWeight(const TString& systName);
 };
 
 #endif

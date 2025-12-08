@@ -48,12 +48,12 @@ class PromptSelector(TriLeptonBase):
         self.channel = "Run1E2Mu" if self.Run1E2Mu else "Run3Mu"
 
         # ParticleNet configuration
-        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
+        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc130_MA100", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
         self.classNames = ["signal", "nonprompt", "diboson", "ttZ"]
 
         # Load ParticleNet models
         print(f"[PromptSelector] Loading ParticleNet models for {self.channel}")
-        self.models = loadMultiClassParticleNet(self.channel, self.signals, fold=3)
+        self.models = loadMultiClassParticleNet(self.signals)
         print(f"[PromptSelector] Loaded {len(self.models)} models")
 
         # Systematics
@@ -379,14 +379,13 @@ class PromptSelector(TriLeptonBase):
         data, fold = getGraphInput(muons, electrons, jets, bjets, METv, str(self.DataEra))
 
         for sig in self.signals:
-            model_key = f"{sig}_fold-3"
-            if model_key not in self.models:
+            if sig not in self.models.keys():
                 print(f"[WARNING] Model {model_key} not found!")
                 for cls in self.classNames:
                     scores[f"{sig}_{cls}"] = -999.
                 continue
 
-            model = self.models[model_key]
+            model = self.models[sig]
             probs = getMultiClassScore(model, data)
 
             # Store scores: [P(signal), P(nonprompt), P(diboson), P(ttZ)]
@@ -585,8 +584,6 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/jets/{idx}/px", jet.Px(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/py", jet.Py(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/pz", jet.Pz(), totWeight, 500, -250., 250.)
-            self.FillHist(f"{channel}/{syst}/jets/{idx}/charge", jet.Charge(), totWeight, 200, -1, 1)
-            self.FillHist(f"{channel}/{syst}/jets/{idx}/btagScore", jet.GetBTaggerResult(JetTagging.JetFlavTagger.DeepJet), totWeight, 100, 0., 1.)
 
         for idx, bjet in enumerate(bjets, start=1):
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/pt", bjet.Pt(), totWeight, 300, 0., 300.)
@@ -597,8 +594,6 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/px", bjet.Px(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/py", bjet.Py(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/pz", bjet.Pz(), totWeight, 500, -250., 250.)
-            self.FillHist(f"{channel}/{syst}/bjets/{idx}/charge", bjet.Charge(), totWeight, 200, -1, 1)
-            self.FillHist(f"{channel}/{syst}/bjets/{idx}/btagScore", bjet.GetBTaggerResult(JetTagging.JetFlavTagger.DeepJet), totWeight, 100, 0., 1.)
         self.FillHist(f"{channel}/{syst}/muons/size", muons.size(), totWeight, 10, 0., 10.)
         self.FillHist(f"{channel}/{syst}/electrons/size", electrons.size(), totWeight, 10, 0., 10.)
         self.FillHist(f"{channel}/{syst}/jets/size", jets.size(), totWeight, 20, 0., 20.)
@@ -624,17 +619,32 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/dR_ele_mu2", dR_ele_mu2, totWeight, 100, 0., 10.)
             self.FillHist(f"{channel}/{syst}/dR_mu1_mu2", dR_mu1_mu2, totWeight, 100, 0., 10.)
             self.FillHist(f"{channel}/{syst}/dR_min_ele_mu", min([dR_ele_mu1, dR_ele_mu2]), totWeight, 100, 0., 10.)
+
+            # Within Z mass window?
+            if 60 < pair.M() and pair.M() < 120:
+                self.FillHist(f"{channel}/{syst}/pair_onZ/mass", pair.M(), totWeight, 60, 60., 120.);
+            else:
+                self.FillHist(f"{channel}/{syst}/pair_offZ/mass", pair.M(), totWeight, 200, 0., 200.);
         elif "3Mu" in channel:
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
             pair1, pair2 = (mu_ss1+mu_os), (mu_ss2+mu_os)
-            self.FillHist(f"{channel}/{syst}/stack/pt", pair1.Pt(), totWeight, 300, 0., 300.)
-            self.FillHist(f"{channel}/{syst}/stack/eta", pair1.Eta(), totWeight, 100, -5., 5.)
-            self.FillHist(f"{channel}/{syst}/stack/phi", pair1.Phi(), totWeight, 64, -3.2, 3.2)
-            self.FillHist(f"{channel}/{syst}/stack/mass", pair1.M(), totWeight, 200, 0., 200.)
-            self.FillHist(f"{channel}/{syst}/stack/pt", pair2.Pt(), totWeight, 300, 0., 300.)
-            self.FillHist(f"{channel}/{syst}/stack/eta", pair2.Eta(), totWeight, 100, -5., 5.)
-            self.FillHist(f"{channel}/{syst}/stack/phi", pair2.Phi(), totWeight, 64, -3.2, 3.2)
-            self.FillHist(f"{channel}/{syst}/stack/mass", pair2.M(), totWeight, 200, 0., 200.)
+            pair_lowM, pair_highM = (pair1, pair2) if pair1.M() < pair2.M() else (pair2, pair1)
+            self.FillHist(f"{channel}/{syst}/pair_lowM/pt", pair_lowM.Pt(), totWeight, 300, 0., 300.);
+            self.FillHist(f"{channel}/{syst}/pair_lowM/eta", pair_lowM.Eta(), totWeight, 100, -5., 5.);
+            self.FillHist(f"{channel}/{syst}/pair_lowM/phi", pair_lowM.Phi(), totWeight, 64, -3.2, 3.2);
+            self.FillHist(f"{channel}/{syst}/pair_lowM/mass", pair_lowM.M(), totWeight, 200, 0., 200.);
+            self.FillHist(f"{channel}/{syst}/pair_highM/pt", pair_highM.Pt(), totWeight, 300, 0., 300.);
+            self.FillHist(f"{channel}/{syst}/pair_highM/eta", pair_highM.Eta(), totWeight, 100, -5., 5.);
+            self.FillHist(f"{channel}/{syst}/pair_highM/phi", pair_highM.Phi(), totWeight, 64, -3.2, 3.2);
+            self.FillHist(f"{channel}/{syst}/pair_highM/mass", pair_highM.M(), totWeight, 200, 0., 200.);
+
+            if (60 < pair_lowM.M() and pair_lowM.M() < 120) or (60 < pair_highM.M() and pair_highM.M() < 120):
+                self.FillHist(f"{channel}/{syst}/pair_lowM_onZ/mass", pair_lowM.M(), totWeight, 200, 0., 200.);
+                self.FillHist(f"{channel}/{syst}/pair_highM_onZ/mass", pair_highM.M(), totWeight, 200, 0., 200.);
+            else:
+                self.FillHist(f"{channel}/{syst}/pair_lowM_offZ/mass", pair_lowM.M(), totWeight, 200, 0., 200.);
+                self.FillHist(f"{channel}/{syst}/pair_highM_offZ/mass", pair_highM.M(), totWeight, 200, 0., 200.);
+
             ## Delta R between leptons
             dR_pair_ss1_os = mu_ss1.DeltaR(mu_os)
             dR_pair_ss2_os = mu_ss2.DeltaR(mu_os)

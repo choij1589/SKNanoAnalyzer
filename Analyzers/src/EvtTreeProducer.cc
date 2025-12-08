@@ -181,7 +181,6 @@ EvtTreeProducer::RecoObjects EvtTreeProducer::defineObjects(const Event& ev,
     RVec<Jet> jets = SelectJets(allJets, "tight", 20., max_jeteta);
     if (Run == 2) {
         jets = SelectJets(jets, "loosePuId", 20., max_jeteta);
-
     }
     jets = JetsVetoLeptonInside(jets, vetoElectrons, vetoMuons, 0.4);
 

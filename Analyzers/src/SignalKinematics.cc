@@ -257,11 +257,13 @@ void SignalKinematics::fillObjects(Channel ch, const RecoObjects& recoObjects, c
 
         // Separation variables
         float deltaR = muA.DeltaR(muB);
-        float acoplanarity = TMath::Pi() - abs(muA.DeltaPhi(muB));
         float deltaEta = abs(muA.Eta() - muB.Eta());
+        float deltaPhi = abs(muA.DeltaPhi(muB));
+        float acoplanarity = TMath::Pi() - deltaPhi;
         FillHist(channelStr + "/" + prefix + "/deltaR", deltaR, w, 100, 0., 5.);
-        FillHist(channelStr + "/" + prefix + "/acoplanarity", acoplanarity, w, 100, 0., 3.15);
         FillHist(channelStr + "/" + prefix + "/deltaEta", deltaEta, w, 100, 0., 5.);
+        FillHist(channelStr + "/" + prefix + "/deltaPhi", deltaPhi, w, 100, 0., 5.);
+        FillHist(channelStr + "/" + prefix + "/acoplanarity", acoplanarity, w, 100, 0., 3.15);
 
         // pT asymmetry
         float ptAsymmetry = (muA.Pt() - muB.Pt()) / (muA.Pt() + muB.Pt());
@@ -274,10 +276,6 @@ void SignalKinematics::fillObjects(Channel ch, const RecoObjects& recoObjects, c
         // Gamma factor (boost)
         float gammaFactor = pair.Pt() / pair.M();
         FillHist(channelStr + "/" + prefix + "/gammaFactor", gammaFactor, w, 100, 0., 10.);
-
-        // Combined variable: gamma * acoplanarity
-        float gammaAcop = gammaFactor * acoplanarity;
-        FillHist(channelStr + "/" + prefix + "/gammaAcop", gammaAcop, w, 100, 0., 30.);
 
         // Variables with 3rd muon
         float deltaR_pair_mu3rd = pair.DeltaR(mu3rd);
@@ -337,10 +335,6 @@ void SignalKinematics::fillObjects(Channel ch, const RecoObjects& recoObjects, c
         FillHist(channelStr + "/" + prefix + "/mu1_iso", muA.MiniPFRelIso(), w, 100, 0., 1.);
         FillHist(channelStr + "/" + prefix + "/mu2_iso", muB.MiniPFRelIso(), w, 100, 0., 1.);
     };
-
-    // Fill stack histograms (both pairs combined)
-    fillPairHistograms("Stack", pair1, mu_ss1, mu_os, mu_ss2, bjets, jets, METv);  // 3rd muon for pair1 is mu_ss2
-    fillPairHistograms("Stack", pair2, mu_ss2, mu_os, mu_ss1, bjets, jets, METv);  // 3rd muon for pair2 is mu_ss1
 
     // Truth-matching for signal vs fake discrimination
     if (!IsDATA && truth.size() > 0) {
@@ -579,6 +573,20 @@ void SignalKinematics::fillObjects(Channel ch, const RecoObjects& recoObjects, c
             bool selected_pair1_MT_asym_larger = (MT_asymmetry1 > MT_asymmetry2);
             bool MT_asym_larger_correct = (selected_pair1_MT_asym_larger == isSignalPair1);
             FillHist(channelStr + "/Discrimination/MT_asymmetry_larger_correct", MT_asym_larger_correct ? 1.0 : 0.0, w, 2, 0., 2.);
+
+            // Invariant mass discrimination
+            float mass1 = pair1.M();
+            float mass2 = pair2.M();
+
+            // Test: pick pair with SMALLER mass
+            bool selected_pair1_mass_smaller = (mass1 < mass2);
+            bool mass_smaller_correct = (selected_pair1_mass_smaller == isSignalPair1);
+            FillHist(channelStr + "/Discrimination/mass_smaller_correct", mass_smaller_correct ? 1.0 : 0.0, w, 2, 0., 2.);
+
+            // Test: pick pair with LARGER mass
+            bool selected_pair1_mass_larger = (mass1 > mass2);
+            bool mass_larger_correct = (selected_pair1_mass_larger == isSignalPair1);
+            FillHist(channelStr + "/Discrimination/mass_larger_correct", mass_larger_correct ? 1.0 : 0.0, w, 2, 0., 2.);
         }
     }
 }

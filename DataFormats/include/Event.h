@@ -7,6 +7,8 @@
 #include "MyCorrection.h"
 using namespace std;
 #include <map>
+#include <iostream>
+#include <cmath>
 
 class Event: public TObject {
 public:

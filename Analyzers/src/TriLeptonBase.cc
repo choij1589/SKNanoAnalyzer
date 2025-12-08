@@ -1,6 +1,6 @@
 #include "TriLeptonBase.h"
 
-TriLeptonBase::TriLeptonBase() : ModelPerFoldWarningIssued(false) {}
+TriLeptonBase::TriLeptonBase() {}
 TriLeptonBase::~TriLeptonBase() {}
 
 void TriLeptonBase::initializeAnalyzer() {
@@ -10,6 +10,7 @@ void TriLeptonBase::initializeAnalyzer() {
     RunNoVetoMap = HasFlag("RunNoVetoMap");
     RunNoWZSF = HasFlag("RunNoWZSF");
     RunSyst = HasFlag("RunSyst");
+    RunTheoryUnc = HasFlag("RunTheoryUnc");
 
     // Lepton IDs and triggers
     MuonIDs = new IDContainer("HcToWATight", ((Run == 2) ? "HcToWALooseRun2" : "HcToWALooseRun3"));
@@ -85,12 +86,31 @@ float TriLeptonBase::GetFakeWeight(const RVec<Muon> &muons, const RVec<Electron>
     return weight;
 }
 
+RVec<Electron> TriLeptonBase::GetPTCorrScaledElectrons(const RVec<Electron> &electrons) {
+    RVec<Electron> scaledElectrons;
+    for (const auto &ele: electrons) {
+        Electron scaledEle = ele;
+        float ptCorr = ele.Pt()*(1.0+max(0., ele.MiniPFRelIso()-0.1));
+        scaledEle.SetPtEtaPhiM(ptCorr, ele.Eta(), ele.Phi(), 0);
+        scaledElectrons.emplace_back(scaledEle);
+    }
+    return scaledElectrons;
+}
+
+RVec<Muon> TriLeptonBase::GetPTCorrScaledMuons(const RVec<Muon> &muons) {
+    RVec<Muon> scaledMuons;
+    for (const auto &mu: muons) {
+        Muon scaledMu = mu;
+        float ptCorr = mu.Pt()*(1.0+max(0., mu.MiniPFRelIso()-0.1));
+        scaledMu.SetPtEtaPhiM(ptCorr, mu.Eta(), mu.Phi(), mu.M());
+        scaledMuons.emplace_back(scaledMu);
+    }
+    return scaledMuons;
+}
+
 // ===================================================================
 // ParticleNet Helper Functions
 // ===================================================================
-// NOTE: C++ libtorch ParticleNet implementation removed to avoid symbol conflicts
-//       with Python PyTorch. Use Python ParticleNet instead (PyAnalyzers/PromptTreeProducer.py)
-
 int TriLeptonBase::calculateFold(const Particle& centralMETv, int nJets) {
     // Match Python implementation exactly:
     // randGen = TRandom3()
@@ -111,6 +131,3 @@ int TriLeptonBase::calculateFold(const Particle& centralMETv, int nJets) {
 
     return fold;
 }
-
-// Torch-based ParticleNet functions removed (constructNodeFeatures, constructKNNGraph,
-// getGraphFeatures, evalGraphNetScores). Use Python ParticleNet instead.

@@ -13,8 +13,8 @@ if [[ $RUN == "Run2" ]]; then
     fi
     SKNano.py -a PromptSelector -i $DATASTREAM -n 10 -r ${RUN} --userflags ${CHANNEL} --python
     SKNano.py -a MatrixSelector -i $DATASTREAM -n 10 -r ${RUN} --userflags ${CHANNEL} --python
-    SKNano.py -a PromptSelector -i SampleLists/Run2NanoV9/TriLepton.txt -n 10 -r ${RUN} --userflags ${CHANNEL},RunSyst --python
-    SKNano.py -a PromptSelector -i SampleLists/Run2NanoV9/SignalSamples.txt -n 10 -r ${RUN} --userflags ${CHANNEL},RunSyst --python
+    SKNano.py -a PromptSelector -i SampleLists/Run2NanoV9/TriLepton.txt -n 10 -r ${RUN} --userflags ${CHANNEL},RunSyst --python --memory 12000
+    SKNano.py -a PromptSelector -i SampleLists/Run2NanoV9/SignalSamples.txt -n 10 -r ${RUN} --userflags ${CHANNEL},RunSyst,RunTheoryUnc --python --memory 12000
 elif [[ $RUN == "Run3" ]]; then
     if [[ $CHANNEL == "Run1E2Mu" ]]; then
         DATASTREAM="Skim_TriLep_MuonEG"
@@ -26,5 +26,5 @@ elif [[ $RUN == "Run3" ]]; then
     fi
     SKNano.py -a PromptSelector -i $DATASTREAM -n 10 -r ${RUN} --userflags ${CHANNEL} --python
     SKNano.py -a MatrixSelector -i $DATASTREAM -n 10 -r ${RUN} --userflags ${CHANNEL} --python
-    SKNano.py -a PromptSelector -i SampleLists/Run3NanoV13/TriLepton.txt -n 10 -r ${RUN} --userflags ${CHANNEL},RunSyst --python --memory 5000
+    SKNano.py -a PromptSelector -i SampleLists/Run3NanoV13/TriLepton.txt -n 10 -r ${RUN} --userflags ${CHANNEL},RunSyst --python --memory 12000
 fi

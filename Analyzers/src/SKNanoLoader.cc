@@ -14,6 +14,16 @@ SKNanoLoader::SKNanoLoader() {
     sumW = 1.;
     sumSign = 1.;
     Userflags.clear();
+
+    // Initialize MET variables to avoid NaN
+    MET_pt = 0;
+    MET_phi = 0;
+    PuppiMET_pt = 0;
+    PuppiMET_phi = 0;
+    PuppiMET_ptUnclusteredUp = 0;
+    PuppiMET_phiUnclusteredUp = 0;
+    PuppiMET_ptUnclusteredDown = 0;
+    PuppiMET_phiUnclusteredDown = 0;
 }
 
 SKNanoLoader::~SKNanoLoader() {

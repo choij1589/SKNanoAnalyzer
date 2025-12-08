@@ -15,6 +15,7 @@ public:
     // For tri-lepton regions
     bool Run1E2Mu, Run3Mu;
     bool RunSyst;
+    bool RunTheoryUnc;
     bool RunNoVetoMap;
     bool RunNoWZSF;
 
@@ -27,12 +28,9 @@ public:
     virtual void executeEvent();
 
     float GetFakeWeight(const RVec<Muon> &muons, const RVec<Electron> &electrons, const TString syst_key="Central");
-
+    RVec<Electron> GetPTCorrScaledElectrons(const RVec<Electron> &electros);
+    RVec<Muon> GetPTCorrScaledMuons(const RVec<Muon> &muons);
 protected:
-    // ParticleNet C++ implementation removed - use Python ParticleNet instead
-    // For Python ParticleNet: See PyAnalyzers/PromptTreeProducer.py
-    bool ModelPerFoldWarningIssued;
-
     // Fold calculation (still useful for validation)
     int calculateFold(const Particle& centralMETv, int nJets);
 };

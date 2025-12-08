@@ -1,4 +1,7 @@
 #include "PromptTreeProducer.h"
+#include <numeric>  // for std::iota
+
+using namespace ROOT::VecOps;
 
 PromptTreeProducer::PromptTreeProducer() : channel(Channel::NONE) {}
 
@@ -60,6 +63,14 @@ void PromptTreeProducer::initializeAnalyzer() {
         }
     }
 
+    // Initialize theory systematics if enabled
+    if (RunTheoryUnc && !IsDATA) {
+        initializeTheorySystematics();
+        for (const auto& theoryName : theorySystematics) {
+            systNames.push_back(theoryName);
+        }
+    }
+
     // Create trees and branches for each systematic
     const std::vector<TString> massPoints = {"MHc160_MA85", "MHc130_MA90", "MHc100_MA95"};
     const std::vector<TString> classNames = {"signal", "nonprompt", "diboson", "ttZ"};
@@ -116,6 +127,9 @@ void PromptTreeProducer::executeEvent() {
     // Initialize tree contents
     initTreeContents();
 
+    // Check for theory weights availability
+    hasTheoryWeights = HasTheoryWeights();
+
     // Process events with systematics
     if (!IsDATA && RunSyst && systHelper) {
         // Step 1: Process Central objects and weight-only systematics
@@ -129,6 +143,11 @@ void PromptTreeProducer::executeEvent() {
 
             // Process weight-only systematics using Central objects
             processWeightOnlySystematics(selectedChannel, ev, centralObjects, genJets, centralObjects.METv);
+
+            // Process theory systematics (if enabled and weights available)
+            if (RunTheoryUnc && hasTheoryWeights) {
+                processTheorySystematics(selectedChannel, centralObjects, centralWeights, centralObjects.METv);
+            }
         }
 
         // Process systematics requiring evtLoopAgain
@@ -156,6 +175,11 @@ void PromptTreeProducer::executeEvent() {
         if (selectedChannel != Channel::NONE) {
             WeightInfo weights = getWeights(selectedChannel, ev, recoObjects, genJets, "Central");
             fillTree(selectedChannel, recoObjects, weights, "Central", recoObjects.METv);
+
+            // Process theory systematics even when regular systematics are off
+            if (RunTheoryUnc && hasTheoryWeights) {
+                processTheorySystematics(selectedChannel, recoObjects, weights, recoObjects.METv);
+            }
         }
     }
 }
@@ -628,5 +652,104 @@ void PromptTreeProducer::evalScore(const RVec<Muon>& muons, const RVec<Electron>
         for (const auto& className : classNames) {
             ParticleNetScores[syst][massPoint][className] = -999.;
         }
+    }
+}
+
+// ===================================================================
+// Theory Uncertainty Methods
+// ===================================================================
+
+void PromptTreeProducer::initializeTheorySystematics() {
+    theorySystematics.clear();
+
+    // PDF variations (100) - use Map for functional style
+    RVec<int> pdfIndices(100);
+    std::iota(pdfIndices.begin(), pdfIndices.end(), 0);
+    auto pdfNames = Map(pdfIndices, [](int i) { return TString(Form("PDF_%d", i)); });
+    for (const auto& name : pdfNames) theorySystematics.push_back(name);
+
+    // Scale variations (7, skip 5 and 7)
+    for (int i : {0, 1, 2, 3, 4, 6, 8}) {
+        theorySystematics.push_back(Form("Scale_%d", i));
+    }
+
+    // PS variations (4)
+    for (const auto& name : {"PS_ISRUp", "PS_FSRUp", "PS_ISRDown", "PS_FSRDown"}) {
+        theorySystematics.push_back(name);
+    }
+
+    // AlphaS variations (2)
+    theorySystematics.push_back("AlphaS_Up");
+    theorySystematics.push_back("AlphaS_Down");
+}
+
+float PromptTreeProducer::getTheoryWeight(const TString& systName) {
+    // PDF variations: LHEPdfWeight[1-100] for PDF_0 to PDF_99
+    if (systName.BeginsWith("PDF_")) {
+        int idx = TString(systName(4, systName.Length())).Atoi();
+        return (idx + 1 < nLHEPdfWeight) ? LHEPdfWeight[idx + 1] : 1.0f;
+    }
+    // Scale variations: LHEScaleWeight[i]
+    else if (systName.BeginsWith("Scale_")) {
+        int idx = TString(systName(6, systName.Length())).Atoi();
+        return (idx < nLHEScaleWeight) ? LHEScaleWeight[idx] : 1.0f;
+    }
+    // PS variations: PSWeight[0-3]
+    else if (systName == "PS_ISRUp")   return (nPSWeight > 0) ? PSWeight[0] : 1.0f;
+    else if (systName == "PS_FSRUp")   return (nPSWeight > 1) ? PSWeight[1] : 1.0f;
+    else if (systName == "PS_ISRDown") return (nPSWeight > 2) ? PSWeight[2] : 1.0f;
+    else if (systName == "PS_FSRDown") return (nPSWeight > 3) ? PSWeight[3] : 1.0f;
+    // AlphaS variations: LHEPdfWeight[101-102]
+    else if (systName == "AlphaS_Up")   return (nLHEPdfWeight > 102) ? LHEPdfWeight[102] : 1.0f;
+    else if (systName == "AlphaS_Down") return (nLHEPdfWeight > 101) ? LHEPdfWeight[101] : 1.0f;
+
+    return 1.0f;
+}
+
+void PromptTreeProducer::processTheorySystematics(Channel channel,
+                                                   const RecoObjects& recoObjects,
+                                                   const WeightInfo& weights,
+                                                   const Particle& centralMETv) {
+    // Calculate base weight from WeightInfo (without theory variations)
+    float baseWeight = weights.genWeight * weights.prefireWeight * weights.pileupWeight *
+                       weights.muonRecoSF * weights.muonIDSF * weights.eleRecoSF * weights.eleIDSF *
+                       weights.trigSF * weights.pileupIDSF * weights.btagSF * weights.WZNjetsSF;
+
+    const RVec<Muon>& muons = recoObjects.tightMuons;
+    const RVec<Electron>& electrons = recoObjects.tightElectrons;
+    const RVec<Jet>& jets = recoObjects.jets;
+    const RVec<Jet>& bjets = recoObjects.bjets;
+
+    for (const auto& systName : theorySystematics) {
+        float theoryWeight = getTheoryWeight(systName);
+        float finalWeight = baseWeight * theoryWeight;
+
+        // Fill mass variables (same as Central)
+        if (channel == Channel::SR1E2Mu) {
+            Particle pair = makePair(muons);
+            mass1[systName] = pair.M();
+            mass2[systName] = -999.;
+            MT1[systName] = -999.;
+            MT2[systName] = -999.;
+        } else if (channel == Channel::SR3Mu) {
+            auto [pair1, pair2, this_MT1, this_MT2] = makePairs(muons, centralMETv);
+            mass1[systName] = pair1.M();
+            mass2[systName] = pair2.M();
+            MT1[systName] = this_MT1;
+            MT2[systName] = this_MT2;
+        }
+
+        // Calculate fold using Central METv (same for all systematics)
+        int nJets = jets.size() + bjets.size();
+        fold[systName] = calculateFold(centralMETv, nJets);
+
+        // Set weight
+        weight[systName] = finalWeight;
+
+        // Evaluate GraphNet scores (same as Central since objects don't change)
+        evalScore(muons, electrons, jets, bjets, recoObjects.METv, systName);
+
+        // Fill tree
+        trees[systName]->Fill();
     }
 }

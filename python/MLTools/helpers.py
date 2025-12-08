@@ -11,6 +11,7 @@ Provides utilities for:
 """
 
 import os
+import json
 import torch
 from torch_geometric.data import Data
 from ROOT import TLorentzVector, TRandom3
@@ -88,68 +89,38 @@ def evtToGraph(nodeList, y=None, k=4):
     )
     return graph
 
-
-def loadMultiClassParticleNet(channel, signals, fold=None):
+def loadMultiClassParticleNet(signals):
     """
-    Load multi-class ParticleNet models.
-
+    Load multi-class ParticleNets.
+    
     Model directory structure:
-    {DATA_DIR}/Run2/{channel}/Classifiers/ParticleNet/{signal}/fold-{fold}/models/ParticleNet.pt
-
+    {DATA_DIR}/Run2/Combined/Classifiers/ParticleNet/{signal}/best_model/model.pt
+    
     Args:
-        channel: "Run1E2Mu" or "Run3Mu"
         signals: List of signal mass points (e.g., ["MHc160_MA85", "MHc130_MA90", "MHc100_MA95"])
-        fold: Specific fold to load (0-4), or None to load all folds
-
     Returns:
-        Dictionary: {signal: model} if fold specified, or {signal_fold{i}: model} if fold=None
+        Dictionary: {signal: model}
     """
     models = {}
     data_dir = os.environ.get('DATA_DIR', os.path.join(os.environ['SKNANO_DATA'], 'Run2'))
 
-    if fold is not None:
-        # Load single fold for each signal
-        for sig in signals:
-            modelPath = f"{data_dir}/{channel}/Classifiers/ParticleNet/{sig}/fold-{fold}/models/ParticleNet.pt"
-            summaryPath = f"{data_dir}/{channel}/Classifiers/ParticleNet/{sig}/fold-{fold}/summary.txt"
-
-            # Get num_hidden from summary file
-            # with open(summaryPath, "r") as f:
-            #    # Expected format: "ParticleNet, nNodes128, ..."
-            #    first_line = f.readline().strip()
-            #    parts = first_line.split(", ")
-            #    num_hidden = int(parts[3].replace("nNodes", ""))
-            num_hidden = 128  # Use default value if summary file is not available
-            print(f"[WARNING] Using default num_hidden={num_hidden} for {sig} fold-{fold}")
-            print(f"[WARNING] Loading {sig} with fixed fold-{fold}: {modelPath}")
-            model = MultiClassParticleNet(9, 4, 4, num_hidden=num_hidden, dropout_p=0.25)
-            checkpoint = torch.load(modelPath, map_location=torch.device("cpu"), weights_only=False)
-            model.load_state_dict(checkpoint["model_state_dict"])
-            model.eval()
-            models[f"{sig}_fold-3"] = model
-    else:
-        # Load all folds (0-4) for each signal
-        for sig in signals:
-            for f in range(5):
-                modelPath = f"{data_dir}/{channel}/Classifiers/ParticleNet/{sig}/fold-{f}/models/ParticleNet.pt"
-                summaryPath = f"{data_dir}/{channel}/Classifiers/ParticleNet/{sig}/fold-{f}/summary.txt"
-
-                # Get num_hidden from summary file
-                with open(summaryPath, "r") as f:
-                    first_line = f.readline().strip()
-                    parts = first_line.split(", ")
-                    num_hidden = int(parts[3].replace("nNodes", ""))
-
-                print(f"Loading {sig} fold-{f}: {modelPath}")
-                model = MultiClassParticleNet(9, 4, 4, num_hidden=num_hidden, dropout_p=0.25)
-                checkpoint = torch.load(modelPath, map_location=torch.device("cpu"))
-                model.load_state_dict(checkpoint["model_state_dict"])
-                model.eval()
-                models[f"{sig}_fold-{f}"] = model
+    for sig in signals:
+        # read model_info.json to get num_hidden
+        model_info_path = f"{data_dir}/Combined/Classifiers/ParticleNet/{sig}/best_model/model_info.json"
+        with open(model_info_path, "r") as f:
+            model_info = json.load(f)
+            num_hidden = model_info["hyperparameters"]["num_hidden"]  # default to 128 if not found
+            print(f"[INFO] Loaded num_hidden={num_hidden} for {sig} from model_info.json")
+        modelPath = f"{data_dir}/Combined/Classifiers/ParticleNet/{sig}/best_model/model.pt"
+        print(f"Loading {sig}: {modelPath}")
+        model = MultiClassParticleNet(9, 4, 4, num_hidden=num_hidden, dropout_p=0.25)
+        checkpoint = torch.load(modelPath, map_location=torch.device("cpu"), weights_only=False)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        model.eval()
+        models[sig] = model
 
     return models
-
-
+    
 def calculateFold(METv, nJets, nFolds=5):
     """
     Calculate fold number for k-fold cross-validation.
@@ -257,17 +228,16 @@ def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5):
     data = evtToGraph(nodeList, y=None, k=4)
 
     # Era encoding for graph-level features
-    if era == "2016preVFP":
+    if era == "2016preVFP" or era == "2022":
         eraIdx = torch.tensor([[1, 0, 0, 0]], dtype=torch.float)
-    elif era == "2016postVFP":
+    elif era == "2016postVFP" or era == "2022EE":
         eraIdx = torch.tensor([[0, 1, 0, 0]], dtype=torch.float)
-    elif era == "2017":
+    elif era == "2017" or era == "2023":
         eraIdx = torch.tensor([[0, 0, 1, 0]], dtype=torch.float)
-    elif era == "2018":
+    elif era == "2018" or era == "2023BPix":
         eraIdx = torch.tensor([[0, 0, 0, 1]], dtype=torch.float)
     else:
-        raise ValueError(f"Unsupported era for ParticleNet: {era}")
-
+        raise ValueError(f"Unsupported era {era} for PaticleNet Input")
     # Use consistent naming with training (graphInput, not graph_input)
     data.graphInput = eraIdx
 

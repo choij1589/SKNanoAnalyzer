@@ -57,88 +57,38 @@ This document tracks the differences between the old Python-based SKFlatAnalyzer
 - [x] Branches: run, event, lumi, mass1, mass2, fold, weight
 - [x] GraphNet score branches (12 branches: 3 signals × 4 classes)
 
-## Missing Features ❌
+## Theory Uncertainties ✅ COMPLETED
 
-### 1. Theory Uncertainties (HIGH PRIORITY)
+### Implementation Summary
 
-Theory uncertainties are completely missing from the C++ implementation. The old Python version had full support.
+Theory uncertainties are now implemented in `PromptTreeProducer` using pre-computed NanoAOD weights directly (no LHAPDF recalculation required).
 
-#### PDF Uncertainties
-- [ ] PDF reweighting with 100 member variations
-- [ ] Create TTrees: `Events_PDFReweight_0` through `Events_PDFReweight_99`
-- [ ] Integration with LHAPDF
-- [ ] Use `pdfReweight` object from AnalyzerCore
+**Enabled via:** `--userflags RunTheoryUnc`
 
-**Old Python implementation:**
-```python
-self.NPDF = 100
-for pdf_idx in range(self.NPDF):
-    pdf_syst = f"PDFReweight_{pdf_idx}"
-    self.weight[pdf_syst][0] = w_norm * ... * self.weight_PDF.at(pdf_idx)
-    self.tree[pdf_syst].Fill()
-```
+#### PDF Uncertainties (100 variations) ✅
+- [x] Create TTrees: `Events_PDF_0` through `Events_PDF_99`
+- [x] Use NanoAOD `LHEPdfWeight[1-100]` directly
 
-**Required for C++:**
-- Access PDF weights via `pdfReweight->GetPDFWeight(pdf_idx)`
-- Create 100 additional TTrees
-- Apply PDF weights to Central event (no object variation)
+#### AlphaS Uncertainties (2 variations) ✅
+- [x] Create TTrees: `Events_AlphaS_Up`, `Events_AlphaS_Down`
+- [x] Use NanoAOD `LHEPdfWeight[101-102]` directly
+- [ ] AlphaS factorization (requires LHAPDF) - placeholder for future
 
-#### AlphaS Uncertainties
-- [ ] AlphaS variations (2 members: down, up)
-- [ ] AlphaS factorization variations (2 members: down, up)
-- [ ] Create TTrees: `Events_AlpS_down`, `Events_AlpS_up`, `Events_AlpSfact_down`, `Events_AlpSfact_up`
+#### Scale Uncertainties (7 variations) ✅
+- [x] Create TTrees: `Events_Scale_0,1,2,3,4,6,8` (skip 5,7)
+- [x] Use NanoAOD `LHEScaleWeight[i]` directly
 
-**Old Python implementation:**
-```python
-self.alphas_variations = ["AlpS_down", "AlpS_up", "AlpSfact_down", "AlpSfact_up"]
-self.weight["AlpS_down"][0] = w_norm * ... * self.weight_AlphaS.at(0)
-```
+#### Parton Shower Uncertainties (4 variations) ✅
+- [x] Create TTrees: `Events_PS_ISRUp`, `Events_PS_FSRUp`, `Events_PS_ISRDown`, `Events_PS_FSRDown`
+- [x] Use NanoAOD `PSWeight[0-3]` directly
 
-**Required for C++:**
-- Access AlphaS weights from LHE information
-- Create 4 additional TTrees
-- Apply weights to Central event
+#### Implementation Details
+- All theory uncertainties only run when `RunTheoryUnc` flag is set
+- All use Central objects (weight-only variations)
+- Skip theory trees for samples without weights (`HasTheoryWeights()` check)
+- Total: 113 additional trees (100 PDF + 7 Scale + 4 PS + 2 AlphaS)
 
-#### Scale Uncertainties
-- [ ] Renormalization and factorization scale variations (9 variations, skip indices 5 and 7)
-- [ ] Create TTrees: `Events_ScaleVar_0` through `Events_ScaleVar_8` (excluding 5 and 7)
-
-**Old Python implementation:**
-```python
-self.NSCALE = 9
-for scale_idx in range(self.NSCALE):
-    if scale_idx == 5 or scale_idx == 7: continue
-    scale_syst = f"ScaleVar_{scale_idx}"
-    self.weight[scale_syst][0] = w_norm * ... * self.weight_Scale.at(scale_idx)
-```
-
-**Required for C++:**
-- Access scale weights via `GetScaleVariation(muF_syst, muR_syst)`
-- Create 7 additional TTrees (9 - 2 skipped)
-- Apply weights to Central event
-
-#### Parton Shower Uncertainties
-- [ ] PS ISR/FSR variations (4 variations)
-- [ ] Create TTrees: `Events_PSVar_0` through `Events_PSVar_3`
-
-**Old Python implementation:**
-```python
-self.NPSSYST = 4
-for ps_idx in range(self.NPSSYST):
-    ps_syst = f"PSVar_{ps_idx}"
-    self.weight[ps_syst][0] = w_norm * ... * self.weight_PSSyst.at(ps_idx)
-```
-
-**Required for C++:**
-- Access PS weights via `GetPSWeight(ISR_syst, FSR_syst)`
-- Create 4 additional TTrees
-- Apply weights to Central event
-
-#### Implementation Notes
-- All theory uncertainties should only run when `RunTheoryUnc` flag is set
-- All use Central objects (no object variations)
-- All modify weights only
-- Need to check if theory weights are available in the sample
+---
 
 ### 2. GraphNet Score Evaluation ✅ COMPLETED
 
@@ -213,11 +163,3 @@ When implementing missing features, verify:
 
 - Both analyzers inherit from `TriLeptonBase`
 - Systematics are managed by `SystematicHelper` reading from `TriLeptonSystematics.yaml`
-
-## Missing filter efficiencies for signal samples
-/TTToHcToWAToMuMu_MHc-70_MA-65_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/RunIISummer20UL16MiniAODAPVv2-106X_mcRun2_asymptotic_preVFP_v11-v2/MINIAODSIM
-/TTToHcToWAToMuMu_MHc-160_MA-50_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v3/MINIAODSIM
-/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v3/MINIAODSIM
-/TTToHcToWAToMuMu_MHc-100_MA-95_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2/MINIAODSIM
-/TTToHcToWAToMuMu_MHc-115_MA-87_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v3/MINIAODSIM
-/TTToHcToWAToMuMu_MHc-85_MA-15_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v3/MINIAODSIM

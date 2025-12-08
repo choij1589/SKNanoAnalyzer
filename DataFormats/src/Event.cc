@@ -8,6 +8,14 @@ Event::Event() {
     j_nPVsGood = -999;
     j_DataYear = -999;
     j_DataEra = "";
+
+    // Initialize MET vectors to avoid uninitialized values (NaN)
+    // These will be properly set when SetMETVector is called
+    j_METVector_CHS.SetPtEtaPhiM(0, 0, 0, 0);
+    j_METVector_PUPPI.SetPtEtaPhiM(0, 0, 0, 0);
+    j_METVector_PUPPI_UE_UP.SetPtEtaPhiM(0, 0, 0, 0);
+    j_METVector_PUPPI_UE_DOWN.SetPtEtaPhiM(0, 0, 0, 0);
+    j_GenMETVector.SetPtEtaPhiM(0, 0, 0, 0);
 }
 
 Event::~Event() {}
