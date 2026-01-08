@@ -1,13 +1,7 @@
 {
     "name": "SingleElectron",
     "isMC": 0,
-    "NEvents": [
-        56595110.0,
-        126584724.0,
-        50610320.0,
-        100205122.0,
-        126059593.0
-    ],
+    "NEvents": [],
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/SingleElectron/Run2017B/250411_094639/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/SingleElectron/Run2017B/250411_094639/0000/NANOAOD_2.root",

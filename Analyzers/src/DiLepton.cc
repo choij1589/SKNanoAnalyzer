@@ -53,7 +53,7 @@ void DiLepton::executeEvent() {
             fillCutflow(CutStage::Final, selectedChannel, initialWeight, "Central");
             // Fill Central with nominal weights
             WeightInfo centralWeights = getWeights(selectedChannel, ev, centralObjects, genParts, "Central");
-            fillObjects(selectedChannel, centralObjects, centralWeights, "Central");
+            fillObjects(selectedChannel, ev, centralObjects, centralWeights, "Central");
 
             // Process weight-only systematics using Central objects
             processWeightOnlySystematics(selectedChannel, ev, centralObjects, genParts);
@@ -72,7 +72,7 @@ void DiLepton::executeEvent() {
                 
             if (systChannel != Channel::NONE) {
                 WeightInfo weights = getWeights(systChannel, ev, recoObjects, genParts, systName);
-                fillObjects(systChannel, recoObjects, weights, systName);
+                fillObjects(systChannel, ev, recoObjects, weights, systName);
             }
         }
     } else {
@@ -85,7 +85,7 @@ void DiLepton::executeEvent() {
         if (selectedChannel != Channel::NONE) {
             fillCutflow(CutStage::Final, selectedChannel, initialWeight, "Central");
             WeightInfo weights = getWeights(selectedChannel, ev, recoObjects, genParts, "Central");
-            fillObjects(selectedChannel, recoObjects, weights, "Central");
+            fillObjects(selectedChannel, ev, recoObjects, weights, "Central");
         }
     }
 }
@@ -278,17 +278,17 @@ void DiLepton::processWeightOnlySystematics(const DiLepton::Channel& channel,
         // Up variation
         TString systNameUp = systName + "_Up";
         WeightInfo weightsUp = getWeights(channel, event, recoObjects, genParts, systNameUp);
-        fillObjects(channel, recoObjects, weightsUp, systNameUp);
+        fillObjects(channel, event, recoObjects, weightsUp, systNameUp);
         
         // Down variation
         TString systNameDown = systName + "_Down";
         WeightInfo weightsDown = getWeights(channel, event, recoObjects, genParts, systNameDown);
-        fillObjects(channel, recoObjects, weightsDown, systNameDown);
+        fillObjects(channel, event, recoObjects, weightsDown, systNameDown);
 
         // Check not implemented case
         TString systNameNotImplemented = systName + "_NotImplemented";
         WeightInfo centralWeights = getWeights(channel, event, recoObjects, genParts, "Central");
-        fillObjects(channel, recoObjects, centralWeights, systNameNotImplemented);
+        fillObjects(channel, event, recoObjects, centralWeights, systNameNotImplemented);
     }
 }
 
@@ -408,7 +408,7 @@ DiLepton::WeightInfo DiLepton::getWeights(const DiLepton::Channel& channel,
     return weights;
 }
 
-void DiLepton::fillObjects(const DiLepton::Channel& channel, const RecoObjects& recoObjects, 
+void DiLepton::fillObjects(const DiLepton::Channel& channel, const Event& ev, const RecoObjects& recoObjects, 
                           const WeightInfo& weights, const TString& syst) {
     const RVec<Muon>& muons = recoObjects.tightMuons;
     const RVec<Electron>& electrons = recoObjects.tightElectrons;
@@ -503,6 +503,11 @@ void DiLepton::fillObjects(const DiLepton::Channel& channel, const RecoObjects& 
     FillHist(Form("%s/%s/METv/phi", channelStr.Data(), syst.Data()), METv.Phi(), weight, 64, -3.2, 3.2);
     FillHist(Form("%s/%s/METv_default/pt", channelStr.Data(), syst.Data()), METv_default.Pt(), weight, 300, 0., 300.);
     FillHist(Form("%s/%s/METv_default/phi", channelStr.Data(), syst.Data()), METv_default.Phi(), weight, 64, -3.2, 3.2);
+    FillHist(Form("%s/%s/nPV", channelStr.Data(), syst.Data()), ev.nPV(), weight, 200, 0., 200.);
+    FillHist(Form("%s/%s/nPVsGood", channelStr.Data(), syst.Data()), ev.nPVsGood(), weight, 200, 0., 200.);
+    FillHist(Form("%s/%s/nTrueInt", channelStr.Data(), syst.Data()), ev.nTrueInt(), weight, 200, 0., 200.);
+    FillHist(Form("%s/%s/nPileUp", channelStr.Data(), syst.Data()), ev.nPileUp(), weight, 200, 0., 200.);
+    FillHist(Form("%s/%s/rho", channelStr.Data(), syst.Data()), ev.GetRho(), weight, 200, -100., 100.);
 
     if (channel == Channel::DIMU) {
         Particle pair = muons.at(0) + muons.at(1);
@@ -510,117 +515,6 @@ void DiLepton::fillObjects(const DiLepton::Channel& channel, const RecoObjects& 
         FillHist(Form("%s/%s/pair/eta", channelStr.Data(), syst.Data()), pair.Eta(), weight, 100, -5., 5.);
         FillHist(Form("%s/%s/pair/phi", channelStr.Data(), syst.Data()), pair.Phi(), weight, 64, -3.2, 3.2);
         FillHist(Form("%s/%s/pair/mass", channelStr.Data(), syst.Data()), pair.M(), weight, 300, 0., 300.);
-    }
-
-    if (! (jets.size() > 2)) return;
-    TString subChannelStr = channelStr+"_2j";
-    // Fill muon histograms
-    for (size_t idx = 0; idx < muons.size(); ++idx) {
-        const Muon& mu = muons.at(idx);
-        FillHist(Form("%s/%s/muons/%zu/pt", subChannelStr.Data(), syst.Data(), idx+1), mu.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/muons/%zu/eta", subChannelStr.Data(), syst.Data(), idx+1), mu.Eta(), weight, 48, -2.4, 2.4);
-        FillHist(Form("%s/%s/muons/%zu/phi", subChannelStr.Data(), syst.Data(), idx+1), mu.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/muons/%zu/mass", subChannelStr.Data(), syst.Data(), idx+1), mu.M(), weight, 10, 0., 1.);
-    }
-
-    // Fill electron histograms
-    for (size_t idx = 0; idx < electrons.size(); ++idx) {
-        const Electron& ele = electrons.at(idx);
-        FillHist(Form("%s/%s/electrons/%zu/pt", subChannelStr.Data(), syst.Data(), idx+1), ele.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/electrons/%zu/eta", subChannelStr.Data(), syst.Data(), idx+1), ele.Eta(), weight, 50, -2.5, 2.5);
-        FillHist(Form("%s/%s/electrons/%zu/phi", subChannelStr.Data(), syst.Data(), idx+1), ele.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/electrons/%zu/mass", subChannelStr.Data(), syst.Data(), idx+1), ele.M(), weight, 100, 0., 1.);
-    }
-
-    // Fill jet histograms
-    for (size_t idx = 0; idx < jets.size(); ++idx) {
-        const Jet& jet = jets.at(idx);
-        FillHist(Form("%s/%s/jets/%zu/pt", subChannelStr.Data(), syst.Data(), idx+1), jet.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/jets/%zu/rawPt", subChannelStr.Data(), syst.Data(), idx+1), jet.GetRawPt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/jets/%zu/originalPt", subChannelStr.Data(), syst.Data(), idx+1), jet.GetOriginalPt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/jets/%zu/eta", subChannelStr.Data(), syst.Data(), idx+1), jet.Eta(), weight, 48, -2.4, 2.4);
-        FillHist(Form("%s/%s/jets/%zu/phi", subChannelStr.Data(), syst.Data(), idx+1), jet.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/jets/%zu/mass", subChannelStr.Data(), syst.Data(), idx+1), jet.M(), weight, 100, 0., 100.);
-    }
-
-    // Fill bjet histograms
-    for (size_t idx = 0; idx < bjets.size(); ++idx) {
-        const Jet& bjet = bjets.at(idx);
-        FillHist(Form("%s/%s/bjets/%zu/pt", subChannelStr.Data(), syst.Data(), idx+1), bjet.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/bjets/%zu/eta", subChannelStr.Data(), syst.Data(), idx+1), bjet.Eta(), weight, 48, -2.4, 2.4);
-        FillHist(Form("%s/%s/bjets/%zu/phi", subChannelStr.Data(), syst.Data(), idx+1), bjet.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/bjets/%zu/mass", subChannelStr.Data(), syst.Data(), idx+1), bjet.M(), weight, 100, 0., 100.);
-    }
-
-    FillHist(Form("%s/%s/jets/size", subChannelStr.Data(), syst.Data()), jets.size(), weight, 20, 0., 20.);
-    FillHist(Form("%s/%s/bjets/size", subChannelStr.Data(), syst.Data()), bjets.size(), weight, 15, 0., 15.);
-    FillHist(Form("%s/%s/METv/pt", subChannelStr.Data(), syst.Data()), METv.Pt(), weight, 300, 0., 300.);
-    FillHist(Form("%s/%s/METv/phi", subChannelStr.Data(), syst.Data()), METv.Phi(), weight, 64, -3.2, 3.2);
-    FillHist(Form("%s/%s/METv_default/pt", subChannelStr.Data(), syst.Data()), METv_default.Pt(), weight, 300, 0., 300.);
-    FillHist(Form("%s/%s/METv_default/phi", subChannelStr.Data(), syst.Data()), METv_default.Phi(), weight, 64, -3.2, 3.2);
-
-    if (channel == Channel::DIMU) {
-        Particle pair = muons.at(0) + muons.at(1);
-        FillHist(Form("%s/%s/pair/pt", subChannelStr.Data(), syst.Data()), pair.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/pair/eta", subChannelStr.Data(), syst.Data()), pair.Eta(), weight, 100, -5., 5.);
-        FillHist(Form("%s/%s/pair/phi", subChannelStr.Data(), syst.Data()), pair.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/pair/mass", subChannelStr.Data(), syst.Data()), pair.M(), weight, 300, 0., 300.);
-    }
-
-    if (! (bjets.size() == 0)) return;
-    subChannelStr = channelStr+"_2j0b";
-    if (!IsDATA && (channel == Channel::DIMU)) weight *= weights.btagSF;
-    // Fill muon histograms
-    for (size_t idx = 0; idx < muons.size(); ++idx) {
-        const Muon& mu = muons.at(idx);
-        FillHist(Form("%s/%s/muons/%zu/pt", subChannelStr.Data(), syst.Data(), idx+1), mu.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/muons/%zu/eta", subChannelStr.Data(), syst.Data(), idx+1), mu.Eta(), weight, 48, -2.4, 2.4);
-        FillHist(Form("%s/%s/muons/%zu/phi", subChannelStr.Data(), syst.Data(), idx+1), mu.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/muons/%zu/mass", subChannelStr.Data(), syst.Data(), idx+1), mu.M(), weight, 10, 0., 1.);
-    }
-
-    // Fill electron histograms
-    for (size_t idx = 0; idx < electrons.size(); ++idx) {
-        const Electron& ele = electrons.at(idx);
-        FillHist(Form("%s/%s/electrons/%zu/pt", subChannelStr.Data(), syst.Data(), idx+1), ele.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/electrons/%zu/eta", subChannelStr.Data(), syst.Data(), idx+1), ele.Eta(), weight, 50, -2.5, 2.5);
-        FillHist(Form("%s/%s/electrons/%zu/phi", subChannelStr.Data(), syst.Data(), idx+1), ele.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/electrons/%zu/mass", subChannelStr.Data(), syst.Data(), idx+1), ele.M(), weight, 100, 0., 1.);
-    }
-
-    // Fill jet histograms
-    for (size_t idx = 0; idx < jets.size(); ++idx) {
-        const Jet& jet = jets.at(idx);
-        FillHist(Form("%s/%s/jets/%zu/pt", subChannelStr.Data(), syst.Data(), idx+1), jet.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/jets/%zu/rawPt", subChannelStr.Data(), syst.Data(), idx+1), jet.GetRawPt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/jets/%zu/originalPt", subChannelStr.Data(), syst.Data(), idx+1), jet.GetOriginalPt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/jets/%zu/eta", subChannelStr.Data(), syst.Data(), idx+1), jet.Eta(), weight, 48, -2.4, 2.4);
-        FillHist(Form("%s/%s/jets/%zu/phi", subChannelStr.Data(), syst.Data(), idx+1), jet.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/jets/%zu/mass", subChannelStr.Data(), syst.Data(), idx+1), jet.M(), weight, 100, 0., 100.);
-    }
-
-    // Fill bjet histograms
-    for (size_t idx = 0; idx < bjets.size(); ++idx) {
-        const Jet& bjet = bjets.at(idx);
-        FillHist(Form("%s/%s/bjets/%zu/pt", subChannelStr.Data(), syst.Data(), idx+1), bjet.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/bjets/%zu/eta", subChannelStr.Data(), syst.Data(), idx+1), bjet.Eta(), weight, 48, -2.4, 2.4);
-        FillHist(Form("%s/%s/bjets/%zu/phi", subChannelStr.Data(), syst.Data(), idx+1), bjet.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/bjets/%zu/mass", subChannelStr.Data(), syst.Data(), idx+1), bjet.M(), weight, 100, 0., 100.);
-    }
-
-    FillHist(Form("%s/%s/jets/size", subChannelStr.Data(), syst.Data()), jets.size(), weight, 20, 0., 20.);
-    FillHist(Form("%s/%s/bjets/size", subChannelStr.Data(), syst.Data()), bjets.size(), weight, 15, 0., 15.);
-    FillHist(Form("%s/%s/METv/pt", subChannelStr.Data(), syst.Data()), METv.Pt(), weight, 300, 0., 300.);
-    FillHist(Form("%s/%s/METv/phi", subChannelStr.Data(), syst.Data()), METv.Phi(), weight, 64, -3.2, 3.2);
-    FillHist(Form("%s/%s/METv_default/pt", subChannelStr.Data(), syst.Data()), METv_default.Pt(), weight, 300, 0., 300.);
-    FillHist(Form("%s/%s/METv_default/phi", subChannelStr.Data(), syst.Data()), METv_default.Phi(), weight, 64, -3.2, 3.2);
-
-    if (channel == Channel::DIMU) {
-        Particle pair = muons.at(0) + muons.at(1);
-        FillHist(Form("%s/%s/pair/pt", subChannelStr.Data(), syst.Data()), pair.Pt(), weight, 300, 0., 300.);
-        FillHist(Form("%s/%s/pair/eta", subChannelStr.Data(), syst.Data()), pair.Eta(), weight, 100, -5., 5.);
-        FillHist(Form("%s/%s/pair/phi", subChannelStr.Data(), syst.Data()), pair.Phi(), weight, 64, -3.2, 3.2);
-        FillHist(Form("%s/%s/pair/mass", subChannelStr.Data(), syst.Data()), pair.M(), weight, 300, 0., 300.);
     }
 }
 

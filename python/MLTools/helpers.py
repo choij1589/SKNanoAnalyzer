@@ -174,10 +174,14 @@ def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5):
     """
     particles = []
 
+    swapLepton = (len(electrons) == 2 and len(muons) == 1)
     # Muons
     for muon in muons:
         node = NodeParticle()
-        node.isMuon = True
+        if swapLepton:
+            node.isElectron = True
+        else:
+            node.isMuon = True 
         node.SetPtEtaPhiM(muon.Pt(), muon.Eta(), muon.Phi(), muon.M())
         node.charge = muon.Charge()
         particles.append(node)
@@ -185,7 +189,10 @@ def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5):
     # Electrons
     for ele in electrons:
         node = NodeParticle()
-        node.isElectron = True
+        if swapLepton:
+            node.isMuon = True
+        else:
+            node.isElectron = True
         node.SetPtEtaPhiM(ele.Pt(), ele.Eta(), ele.Phi(), ele.M())
         node.charge = ele.Charge()
         particles.append(node)

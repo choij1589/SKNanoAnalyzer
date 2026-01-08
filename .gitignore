@@ -6,7 +6,10 @@ LocalRuns/**
 config/config.*
 !config/config.default
 **/Skim*.json
-external/** 
+external/RoccoR/**
+external/KinematicFitter/**
+external/lhapdf/**
+external/libtorch/**
 *.onnx
 **/__pycache__/**
 .DS_Store

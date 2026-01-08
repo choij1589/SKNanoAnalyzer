@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "QCD_Pt_20to30_bcToE_TuneCP5_13TeV_pythia8",
     "xsec": 328999.93,
-    "sumsign": 14171260.0,
-    "sumW": 14171713.724056005,
-    "nmc": 14171260.0,
+    "sumsign": -1,
+    "sumW": -1,
+    "nmc": -1,
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/QCD_Pt_20to30_bcToE_TuneCP5_13TeV_pythia8/250411_112955/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/QCD_Pt_20to30_bcToE_TuneCP5_13TeV_pythia8/250411_112955/0000/NANOAOD_2.root",

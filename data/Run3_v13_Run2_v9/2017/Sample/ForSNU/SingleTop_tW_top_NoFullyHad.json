@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "xsec": 19.56,
-    "sumsign": 8506765.0,
-    "sumW": 276021555.6210518,
-    "nmc": 8507203.0,
+    "sumsign": -1,
+    "sumW": -1,
+    "nmc": -1,
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/250411_111436/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/250411_111436/0000/NANOAOD_2.root",

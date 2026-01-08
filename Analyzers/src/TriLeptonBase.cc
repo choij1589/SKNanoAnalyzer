@@ -7,6 +7,7 @@ void TriLeptonBase::initializeAnalyzer() {
     // Flags
     Run1E2Mu = HasFlag("Run1E2Mu");
     Run3Mu = HasFlag("Run3Mu");
+    Run2E1Mu = HasFlag("Run2E1Mu");
     RunNoVetoMap = HasFlag("RunNoVetoMap");
     RunNoWZSF = HasFlag("RunNoWZSF");
     RunSyst = HasFlag("RunSyst");

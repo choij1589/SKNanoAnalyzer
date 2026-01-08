@@ -144,6 +144,134 @@
         "sumsign": 43277246.0,
         "sumW": 3146182352.3494873
     },
+    "TTLL_hdamp_down_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_hdampDOWN_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18100999.0,
+        "sumsign": 17802041.0,
+        "sumW": 1305254604.7276688
+    },
+    "TTLL_hdamp_up_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_hdampUP_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18874000.0,
+        "sumsign": 18788570.0,
+        "sumW": 1361059107.938919
+    },
+    "TTLL_TuneCP5_erdOn_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5_erdON_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 17506000.0,
+        "sumsign": 17364880.0,
+        "sumW": 1262397311.665039
+    },
+    "TTLL_TuneCP5_RTT_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5_RTT_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 48870220.0,
+        "sumsign": 48474702.0,
+        "sumW": 3524028584.6239014
+    },
+    "TTLL_TuneCP5CR1_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5CR1_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18159000.0,
+        "sumsign": 18012678.0,
+        "sumW": 1309491127.0960693
+    },
+    "TTLL_TuneCP5CR2_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5CR2_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18015000.0,
+        "sumsign": 17870006.0,
+        "sumW": 1299119114.7786865
+    },
+    "TTLL_TuneCP5up_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5up_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18066000.0,
+        "sumsign": 17919868.0,
+        "sumW": 1302743997.5739746
+    },
+    "TTLL_TuneCP5down_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5down_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18389000.0,
+        "sumsign": 18240552.0,
+        "sumW": 1326057180.244629
+    },
+    "TTLL_mtop169p5_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_mtop169p5_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 17011000.0,
+        "sumsign": 16871228.0,
+        "sumW": 1332228090.6141663
+    },
+    "TTLL_mtop171p5_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_mtop171p5_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 17209000.0,
+        "sumsign": 17069750.0,
+        "sumW": 1275439759.5062256
+    },
+    "TTLL_mtop173p5_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_mtop173p5_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18685000.0,
+        "sumsign": 18535338.0,
+        "sumW": 1311210134.0547638
+    },
+    "TTLL_mtop175p5_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_mtop175p5_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 17737000.0,
+        "sumsign": 17594874.0,
+        "sumW": 1179037779.6178894
+    },
+    "TTLL_widthx0p7_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_widthx0p7_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18998000.0,
+        "sumsign": 18844266.0,
+        "sumW": 1369946163.6763916
+    },
+    "TTLL_widthx0p85_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_widthx0p85_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18847000.0,
+        "sumsign": 18693070.0,
+        "sumW": 1358954471.0223389
+    },
+    "TTLL_widthx1p15_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_widthx1p15_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 17756000.0,
+        "sumsign": 17612470.0,
+        "sumW": 1280396684.5599365
+    },
+    "TTLL_widthx1p3_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_widthx1p3_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 18240000.0,
+        "sumsign": 18093238.0,
+        "sumW": 1315347702.4036865
+    },
     "TTWToLNu": {
         "isMC": 1,
         "PD": "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",

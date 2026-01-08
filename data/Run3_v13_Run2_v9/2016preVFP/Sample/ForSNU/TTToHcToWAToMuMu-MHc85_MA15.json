@@ -2,7 +2,7 @@
     "name": "TTToHcToWAToMuMu-MHc85_MA15",
     "isMC": 1,
     "PD": "TTToHcToWAToMuMu_MHc-85_MA-15_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8",
-    "xsec": 0.015,
+    "xsec": 0.009322500000000001,
     "sumsign": 109156.0,
     "sumW": 2084.4072989560664,
     "nmc": 109156.0,

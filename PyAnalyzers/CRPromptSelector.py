@@ -38,42 +38,20 @@ class CRPromptSelector(PromptSelector):
             self.fillCutflow(CutStage.LeptonSelection, "3Mu", weight, "Central")
 
         # for conversion samples
-        if self.MCSample.Contains("DYJets") or self.MCSample.Contains("ZGToLLG") or self.MCSample.Contains("DYGTo2LG"):
+        if self.MCSample.Contains("DYJets") or self.MCSample.Contains("TTG"):
             # at least one conversion lepton should exist
             # internal conversion: 4, 5
             # external conversion: -5, -6
             convMuons = RVec(Muon)()
-            fakeMuons = RVec(Muon)()
             convElectrons = RVec(Electron)()
             for mu in tightMuons:
                 if self.GetLeptonType(mu, truth) in [4, 5, -5, -6]: convMuons.emplace_back(mu)
-                if self.GetLeptonType(mu, truth) in [-1, -2, -3, -4]: fakeMuons.emplace_back(mu)
             for ele in tightElectrons:
                 if self.GetLeptonType(ele, truth) in [4, 5, -5, -6]: convElectrons.emplace_back(ele)
-            # remove hadronic contribution
-            if self.Run1E2Mu:
-                if not fakeMuons.size() == 0: return
-                if not convElectrons.size() == 1: return
-                self.fillCutflow(CutStage.ConversionFilter, "1E2Mu", weight, "Central")
-            if self.Run3Mu:
-                if not fakeMuons.size() == 0: return
-                if not convMuons.size() == 1: return
-                self.fillCutflow(CutStage.ConversionFilter, "3Mu", weight, "Central")
-        # Patching sample
-        leptons = RVec(Lepton)()
-        for mu in tightMuons: leptons.emplace_back(mu)
-        for ele in tightElectrons: leptons.emplace_back(ele)
-        region = "LowPT" if any(l.Pt() < 15. for l in leptons) else "HighPT"
-        if self.MCSample.Contains("DYJets") and not region == "LowPT": return
-        if (self.MCSample.Contains("ZGToLLG") or self.MCSample.Contains("DYGTo2LG")) and not region == "HighPT": return
+            if not (convMuons.size()+convElectrons.size()) > 0: return
+            self.fillCutflow(CutStage.ConversionFilter, "1E2Mu", weight, "Central")
+            self.fillCutflow(CutStage.ConversionFilter, "3Mu", weight, "Central")
         
-        # Sample patching cutflow
-        if syst == "Central" and weight is not None:
-            if self.Run1E2Mu:
-                self.fillCutflow(CutStage.SamplePatching, "1E2Mu", weight, "Central")
-            elif self.Run3Mu:
-                self.fillCutflow(CutStage.SamplePatching, "3Mu", weight, "Central")
-
         # 1E2Mu ZGamma
         ## 1. pass EMuTriggers
         ## 2. Exact 2 tight muons and 1 tight electron, no additional lepton

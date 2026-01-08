@@ -1,13 +1,7 @@
 {
     "name": "DoubleMuon",
     "isMC": 0,
-    "NEvents": [
-        13598353.0,
-        46007861.0,
-        22646081.0,
-        50538352.0,
-        75300854.0
-    ],
+    "NEvents": [],
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/DoubleMuon/Run2017D/250411_094400/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/DoubleMuon/Run2017D/250411_094400/0000/NANOAOD_2.root",

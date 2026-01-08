@@ -14,14 +14,15 @@ class MatrixSelector(TriLeptonBase):
     def initializePyAnalyzer(self):
         self.initializeAnalyzer()
 
-        # Flags
-        if not (self.Run1E2Mu or self.Run3Mu):
-            raise ValueError("Run1E2Mu or Run3Mu must be set")
-        if self.Run1E2Mu and self.Run3Mu:
-            raise ValueError("Run1E2Mu and Run3Mu cannot be set at the same time")
-
         # Determine channel
-        self.channel = "Run1E2Mu" if self.Run1E2Mu else "Run3Mu"
+        if self.Run1E2Mu:
+            self.channel = "Run1E2Mu"
+        elif self.Run3Mu:
+            self.channel = "Run3Mu"
+        elif self.Run2E1Mu:
+            self.channel = "Run2E1Mu"
+        else:
+            raise ValueError("Run1E2Mu or Run3Mu or Run2E1Mu must be set")
 
         # ParticleNet configuration
         self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc130_MA100", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
@@ -124,6 +125,8 @@ class MatrixSelector(TriLeptonBase):
                    looseMuons.size() == 2 and vetoMuons.size() == 2)
         is3Mu = (looseMuons.size() == 3 and vetoMuons.size() == 3 and \
                  looseElectrons.size() == 0 and vetoElectrons.size() == 0)
+        is2E1Mu = (looseElectrons.size() == 2 and vetoElectrons.size() == 2 and \
+                   looseMuons.size() == 1 and vetoMuons.size() == 1)
         
         #### Not all leptons tight
         if self.Run1E2Mu:
@@ -179,11 +182,37 @@ class MatrixSelector(TriLeptonBase):
             if not jets.size() >= 2: return
             if bjets.size() == 0:
                 isOnZ = abs(pair1.M() - 91.2) < 10. or abs(pair2.M() - 91.2) < 10.
-                if isOnZ: 
+                if isOnZ:
                     return "ZFake3Mu"
                 return
             else:
                 return "SR3Mu"
+
+        ## 2E1Mu sideband (TTZ control region)
+        ## 1. pass EMuTriggers
+        ## 2. Exact 2 loose electrons and 1 loose muon, no additional leptons
+        ## 3. NOT all leptons tight (matrix method requirement)
+        ## 4. Exist OS electron pair, 60 < M(ee) < 120 GeV
+        ## 5. At least two jets, at least one bjet
+        if self.Run2E1Mu:
+            if not is2E1Mu: return
+            if (tightMuons.size() == looseMuons.size()) and (tightElectrons.size() == looseElectrons.size()): return
+
+            if not ev.PassTrigger(self.EMuTriggers): return
+            el1, el2 = looseElectrons.at(0), looseElectrons.at(1)
+            mu = looseMuons.at(0)
+            passLeadMu = mu.Pt() > 25. and el1.Pt() > 15. and el2.Pt() > 15.
+            passLeadEl = (el1.Pt() > 25. or el2.Pt() > 25.) and mu.Pt() > 10.
+            passSafeCut = passLeadMu or passLeadEl
+            if not passSafeCut: return
+
+            if not (el1.Charge() + el2.Charge() == 0): return
+            pair = el1 + el2
+            if not 60. < pair.M() < 120.: return
+
+            if not jets.size() >= 2: return
+            if not bjets.size() >= 1: return
+            return "TTZ2E1Mu"
         return
     
     def configureChargeOf(self, muons: RVec[Muon]) -> tuple[Muon, Muon, Muon]:
@@ -307,7 +336,21 @@ class MatrixSelector(TriLeptonBase):
                 self.FillHist(f"{channel}/{syst}/pair_onZ/mass", pair.M(), weight, 60, 60., 120.)
             else:
                 self.FillHist(f"{channel}/{syst}/pair_offZ/mass", pair.M(), weight, 200, 0., 200.)
-        else:
+        elif "2E1Mu" in channel:
+            pair = electrons.at(0) + electrons.at(1)
+            self.FillHist(f"{channel}/{syst}/pair/pt", pair.Pt(), weight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/pair/eta", pair.Eta(), weight, 100, -5., 5.)
+            self.FillHist(f"{channel}/{syst}/pair/phi", pair.Phi(), weight, 64, -3.2, 3.2)
+            self.FillHist(f"{channel}/{syst}/pair/mass", pair.M(), weight, 200, 0., 200.)
+            ## Delta R between leptons
+            dR_ele1_mu = electrons.at(0).DeltaR(muons.at(0))
+            dR_ele2_mu = electrons.at(1).DeltaR(muons.at(0))
+            dR_ele1_ele2 = electrons.at(0).DeltaR(electrons.at(1))
+            self.FillHist(f"{channel}/{syst}/dR_ele1_mu", dR_ele1_mu, weight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_ele2_mu", dR_ele2_mu, weight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_ele1_ele2", dR_ele1_ele2, weight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_min_ele_mu", min([dR_ele1_mu, dR_ele2_mu]), weight, 100, 0., 10.)
+        elif "3Mu" in channel:
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
             pair1, pair2 = (mu_ss1+mu_os), (mu_ss2+mu_os)
             pair_lowM, pair_highM = (pair1, pair2) if pair1.M() < pair2.M() else (pair2, pair1)
@@ -345,14 +388,24 @@ class MatrixSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/nonprompt/pt", nonprompt.Pt(), weight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/nonprompt/eta", nonprompt.Eta(), weight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/nonprompt/phi", nonprompt.Phi(), weight, 64, -3.2, 3.2)
-        else:
+        elif "2E1Mu" in channel:
+            ZCand = electrons.at(0) + electrons.at(1)
+            nonprompt = muons.at(0)
+            self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), weight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/ZCand/eta", ZCand.Eta(), weight, 100, -5., 5.)
+            self.FillHist(f"{channel}/{syst}/ZCand/phi", ZCand.Phi(), weight, 64, -3.2, 3.2)
+            self.FillHist(f"{channel}/{syst}/ZCand/mass", ZCand.M(), weight, 200, 0., 200.)
+            self.FillHist(f"{channel}/{syst}/nonprompt/pt", nonprompt.Pt(), weight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/nonprompt/eta", nonprompt.Eta(), weight, 48, -2.4, 2.4)
+            self.FillHist(f"{channel}/{syst}/nonprompt/phi", nonprompt.Phi(), weight, 64, -3.2, 3.2)
+        elif "3Mu" in channel:
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
             pair1, pair2 = (mu_ss1+mu_os), (mu_ss2+mu_os)
             mZ = 91.2
-            if abs(pair1.M() - mZ) < abs(pair2.M() - mZ): 
+            if abs(pair1.M() - mZ) < abs(pair2.M() - mZ):
                 ZCand, nZCand = pair1, pair2
                 nonprompt = mu_ss2
-            else:                                         
+            else:
                 ZCand, nZCand = pair2, pair1
                 nonprompt = mu_ss1
             self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), weight, 300, 0., 300.)
@@ -380,6 +433,10 @@ class MatrixSelector(TriLeptonBase):
                 self.FillHist(f"{channel}/{syst}/{signal}/score_nonprompt", score_nonprompt, weight, 100, 0., 1.)
                 self.FillHist(f"{channel}/{syst}/{signal}/score_diboson", score_diboson, weight, 100, 0., 1.)
                 self.FillHist(f"{channel}/{syst}/{signal}/score_ttZ", score_ttZ, weight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/LR_nonprompt", score_signal/(score_signal+score_nonprompt), weight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/LR_diboson", score_signal/(score_signal+score_diboson), weight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/LR_ttZ", score_signal/(score_signal+score_ttZ), weight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/LR_totalBkg", score_signal/(score_signal+score_nonprompt+score_diboson+score_ttZ), weight, 100, 0., 1.)
 
 if __name__ == "__main__":
     module = MatrixSelector()

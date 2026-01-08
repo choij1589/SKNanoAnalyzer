@@ -139,6 +139,134 @@
         "sumsign": 144783410.0,
         "sumW": 10525508241.790161
     },
+    "TTLL_hdamp_down_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_hdampDOWN_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59958000.0,
+        "sumsign": 58968886.0,
+        "sumW": 4323628396.719284
+    },
+    "TTLL_hdamp_up_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_hdampUP_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 54510000.0,
+        "sumsign": 54263314.0,
+        "sumW": 3930878068.2430573
+    },
+    "TTLL_TuneCP5_erdOn_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5_erdON_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59973000.0,
+        "sumsign": 59490036.0,
+        "sumW": 4324824675.854736
+    },
+    "TTLL_TuneCP5_RTT_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5_RTT_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 149731000.0,
+        "sumsign": 148522028.0,
+        "sumW": 10797299426.787842
+    },
+    "TTLL_TuneCP5CR1_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5CR1_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59620000.0,
+        "sumsign": 59138128.0,
+        "sumW": 4299241561.364258
+    },
+    "TTLL_TuneCP5CR2_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5CR2_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 57321000.0,
+        "sumsign": 56858360.0,
+        "sumW": 4133506296.022949
+    },
+    "TTLL_TuneCP5up_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5up_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 57772000.0,
+        "sumsign": 57305372.0,
+        "sumW": 4166003309.943115
+    },
+    "TTLL_TuneCP5down_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_TuneCP5down_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59919000.0,
+        "sumsign": 59434852.0,
+        "sumW": 4320812892.689697
+    },
+    "TTLL_mtop169p5_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_mtop169p5_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59838000.0,
+        "sumsign": 59347010.0,
+        "sumW": 4686306996.500778
+    },
+    "TTLL_mtop171p5_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_mtop171p5_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59846000.0,
+        "sumsign": 59361082.0,
+        "sumW": 4435418453.703735
+    },
+    "TTLL_mtop173p5_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_mtop173p5_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59992000.0,
+        "sumsign": 59509778.0,
+        "sumW": 4209786947.9881744
+    },
+    "TTLL_mtop175p5_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_mtop175p5_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59856000.0,
+        "sumsign": 59379650.0,
+        "sumW": 3979048141.5489197
+    },
+    "TTLL_widthx0p7_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_widthx0p7_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59834000.0,
+        "sumsign": 59349616.0,
+        "sumW": 4314616380.116211
+    },
+    "TTLL_widthx0p85_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_widthx0p85_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 58570000.0,
+        "sumsign": 58096136.0,
+        "sumW": 4223490510.992676
+    },
+    "TTLL_widthx1p15_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_widthx1p15_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 58542000.0,
+        "sumsign": 58069378.0,
+        "sumW": 4221545249.795044
+    },
+    "TTLL_widthx1p3_powheg": {
+        "isMC": 1,
+        "PD": "TTTo2L2Nu_widthx1p3_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 88.29,
+        "nmc": 59570000.0,
+        "sumsign": 59090232.0,
+        "sumW": 4295759603.433105
+    },
     "TTWToLNu": {
         "isMC": 1,
         "PD": "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",

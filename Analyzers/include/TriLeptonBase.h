@@ -13,7 +13,7 @@ public:
     ~TriLeptonBase();
 
     // For tri-lepton regions
-    bool Run1E2Mu, Run3Mu;
+    bool Run1E2Mu, Run3Mu, Run2E1Mu;
     bool RunSyst;
     bool RunTheoryUnc;
     bool RunNoVetoMap;

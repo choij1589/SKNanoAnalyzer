@@ -29,6 +29,7 @@ void EvtTreeProducer::initializeAnalyzer() {
     newtree->Branch("MuonPhiColl", MuonPhiColl, "MuonPhiColl[nMuons]/F");
     newtree->Branch("MuonMassColl", MuonMassColl, "MuonMassColl[nMuons]/F");
     newtree->Branch("MuonChargeColl", MuonChargeColl, "MuonChargeColl[nMuons]/I");
+    newtree->Branch("MuonIsTightColl", MuonIsTightColl, "MuonIsTightColl[nMuons]/O");
     newtree->Branch("MuonLabelColl", MuonLabelColl, "MuonLabelColl[nMuons]/O");
 
     // electrons
@@ -38,6 +39,7 @@ void EvtTreeProducer::initializeAnalyzer() {
     newtree->Branch("ElectronPhiColl", ElectronPhiColl, "ElectronPhiColl[nElectrons]/F");
     newtree->Branch("ElectronMassColl", ElectronMassColl, "ElectronMassColl[nElectrons]/F");
     newtree->Branch("ElectronChargeColl", ElectronChargeColl, "ElectronChargeColl[nElectrons]/I");
+    newtree->Branch("ElectronIsTightColl", ElectronIsTightColl, "ElectronIsTightColl[nElectrons]/O");
     newtree->Branch("ElectronLabelColl", ElectronLabelColl, "ElectronLabelColl[nElectrons]/O");
 
     // jets
@@ -89,6 +91,7 @@ void EvtTreeProducer::executeEvent(){
         MuonPhiColl[i] = recoObjects.vetoMuons[i].Phi();
         MuonMassColl[i] = recoObjects.vetoMuons[i].M();
         MuonChargeColl[i] = recoObjects.vetoMuons[i].Charge();
+        MuonIsTightColl[i] = recoObjects.vetoMuons[i].PassID(MuonIDs->GetID("tight"));
     }
 
     nElectrons = recoObjects.vetoElectrons.size();
@@ -98,10 +101,10 @@ void EvtTreeProducer::executeEvent(){
         ElectronPhiColl[i] = recoObjects.vetoElectrons[i].Phi();
         ElectronMassColl[i] = recoObjects.vetoElectrons[i].M();
         ElectronChargeColl[i] = recoObjects.vetoElectrons[i].Charge();
+        ElectronIsTightColl[i] = recoObjects.vetoElectrons[i].PassID(ElectronIDs->GetID("tight"));
     }
 
     nJets = recoObjects.jets.size();
-    nBJets = recoObjects.bjets.size();
     float wp = myCorr->GetBTaggingWP(JetTagging::JetFlavTagger::DeepJet, JetTagging::JetFlavTaggerWP::Medium);
     for (std::size_t i = 0; i < nJets; i++) {
         JetPtColl[i] = recoObjects.jets[i].Pt();

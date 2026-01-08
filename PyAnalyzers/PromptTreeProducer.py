@@ -312,98 +312,54 @@ class PromptTreeProducer(TriLeptonBase):
         is3Mu = (tightMuons.size() == 3 and vetoMuons.size() == 3 and
                  tightElectrons.size() == 0 and vetoElectrons.size() == 0)
 
-        if self.Run1E2Mu and not is1E2Mu:
-            return None
-        if self.Run3Mu and not is3Mu:
-            return None
+        if self.Run1E2Mu and not is1E2Mu: return
+        if self.Run3Mu and not is3Mu: return
 
         # Conversion sample filtering
-        if self.MCSample.Contains("DYJets") or self.MCSample.Contains("ZGToLLG") or self.MCSample.Contains("DYGTo2LG"):
+        if self.MCSample.Contains("DYJets") or self.MCSample.Contains("TTG"):
             convMuons = RVec(Muon)()
-            fakeMuons = RVec(Muon)()
             convElectrons = RVec(Electron)()
             for mu in tightMuons:
-                if self.GetLeptonType(mu, truth) in [4, 5, -5, -6]:
-                    convMuons.emplace_back(mu)
-                if self.GetLeptonType(mu, truth) in [-1, -2, -3, -4]:
-                    fakeMuons.emplace_back(mu)
+                if self.GetLeptonType(mu, truth) in [4, 5, -5, -6]: convMuons.emplace_back(mu)
             for ele in tightElectrons:
-                if self.GetLeptonType(ele, truth) in [4, 5, -5, -6]:
-                    convElectrons.emplace_back(ele)
-
-            if self.Run1E2Mu:
-                if not fakeMuons.size() == 0:
-                    return None
-                if not (convElectrons.size() + convMuons.size()) > 0:
-                    return None
-            if self.Run3Mu:
-                if not fakeMuons.size() == 0:
-                    return None
-                if not convMuons.size() > 0:
-                    return None
-
-        # Sample patching
-        leptons = RVec(Lepton)()
-        for mu in tightMuons:
-            leptons.emplace_back(mu)
-        for ele in tightElectrons:
-            leptons.emplace_back(ele)
-        region = "LowPT" if any(l.Pt() < 15. for l in leptons) else "HighPT"
-        if self.MCSample.Contains("DYJets") and not region == "LowPT":
-            return None
-        if (self.MCSample.Contains("ZGToLLG") or self.MCSample.Contains("DYGTo2LG")) and not region == "HighPT":
-            return None
+                if self.GetLeptonType(ele, truth) in [4, 5, -5, -6]: convElectrons.emplace_back(ele)
+            if not (convMuons.size() + convElectrons.size()) > 0: return
 
         # 1E2Mu baseline
         if self.Run1E2Mu:
-            if not ev.PassTrigger(self.EMuTriggers):
-                return None
+            if not ev.PassTrigger(self.EMuTriggers): return
 
             mu1, mu2 = tightMuons.at(0), tightMuons.at(1)
             ele = tightElectrons.at(0)
             passLeadMu = mu1.Pt() > 25. and ele.Pt() > 15.
             passLeadEle = mu1.Pt() > 10. and ele.Pt() > 25.
             passSafeCut = passLeadMu or passLeadEle
-            if not passSafeCut:
-                return None
-            if not mu1.Charge() + mu2.Charge() == 0:
-                return None
+            if not passSafeCut: return
+            if not mu1.Charge() + mu2.Charge() == 0: return
             pair = mu1 + mu2
-            if not pair.M() > 12.:
-                return None
-            if not (jets.size() >= 2):
-                return None
-            if not (bjets.size() >= 1):
-                return None
+            if not pair.M() > 12.: return
+            if not (jets.size() >= 2): return
+            if not (bjets.size() >= 1): return
             return "SR1E2Mu"
 
         # 3Mu baseline
         if self.Run3Mu:
-            if not ev.PassTrigger(self.DblMuTriggers):
-                return None
+            if not ev.PassTrigger(self.DblMuTriggers): return
 
             mu1, mu2, mu3 = tuple(tightMuons)
-            if not mu1.Pt() > 20.:
-                return None
-            if not mu2.Pt() > 10.:
-                return None
-            if not mu3.Pt() > 10.:
-                return None
-            if not abs(mu1.Charge() + mu2.Charge() + mu3.Charge()) == 1:
-                return None
+            if not mu1.Pt() > 20.: return
+            if not mu2.Pt() > 10.: return
+            if not mu3.Pt() > 10.: return
+            if not abs(mu1.Charge() + mu2.Charge() + mu3.Charge()) == 1: return
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(tightMuons)
             pair1, pair2 = (mu_ss1 + mu_os), (mu_ss2 + mu_os)
-            if not pair1.M() > 12.:
-                return None
-            if not pair2.M() > 12.:
-                return None
+            if not pair1.M() > 12.: return
+            if not pair2.M() > 12.: return
 
-            if not (jets.size() >= 2):
-                return None
-            if not (bjets.size() >= 1):
-                return None
+            if not (jets.size() >= 2): return
+            if not (bjets.size() >= 1): return 
             return "SR3Mu"
-        return None
+        return
 
     def configureChargeOf(self, muons: RVec[Muon]) -> tuple:
         """Configure muon charges for 3Mu channel."""

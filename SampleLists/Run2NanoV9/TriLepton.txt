@@ -1,7 +1,7 @@
 # Conv
 Skim_TriLep_DYJets
 Skim_TriLep_DYJets10to50
-Skim_TriLep_ZGToLLG
+#Skim_TriLep_ZGToLLG
 Skim_TriLep_TTG
 Skim_TriLep_WWG
 # VV

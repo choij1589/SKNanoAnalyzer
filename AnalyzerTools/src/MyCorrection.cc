@@ -769,10 +769,24 @@ float MyCorrection::GetEMuTriggerEff(const RVec<Electron> &electrons, const RVec
         float case2 = mu2.Pt() > 25. ? GetTriggerEff(mu1, "EMu_Mu23Leg", isData, syst)
                                         + (1.-GetTriggerEff(mu1, "EMu_Mu23Leg", isData, syst))*GetTriggerEff(mu2, "EMu_Mu23Leg", isData, syst)*filter_eff
                                     : GetTriggerEff(mu1, "EMu_Mu23Leg", isData, syst);
-        float eff_el = (mu1.Pt() > 25. || mu2.Pt() > 25.) ? GetTriggerEff(el, "EMu_El12Leg", isData, syst) : GetTriggerEff(el, "EMu_El23Leg", isData, syst);
+        float eff_el = mu1.Pt() > 25. ? GetTriggerEff(el, "EMu_El12Leg", isData, syst) : GetTriggerEff(el, "EMu_El23Leg", isData, syst);
         float eff_mu = el.Pt() > 25. ? case1 : case2;
-        return eff_el * eff_mu * filter_eff;
-    } else {
+        return eff_el*eff_mu*filter_eff;
+    } else if (electrons.size() == 2 && muons.size() == 1) {
+        const auto &el1 = electrons.at(0);
+        const auto &el2 = electrons.at(1);
+        const auto &mu = muons.at(0);
+
+        float case1 = GetTriggerEff(el1, "EMu_El12Leg", isData, syst) + (1.-GetTriggerEff(el1, "EMu_El12Leg", isData, syst))*GetTriggerEff(el2, "EMu_El12Leg", isData, syst)*filter_eff;
+        float case2 = el2.Pt() > 25. ? GetTriggerEff(el1, "EMu_El23Leg", isData, syst) + (1.-GetTriggerEff(el1, "EMu_El23Leg", isData, syst))*GetTriggerEff(el2, "EMu_El23Leg", isData, syst)*filter_eff
+                                    : GetTriggerEff(el1, "EMu_El23Leg", isData, syst);
+        float eff_mu = el1.Pt() > 25. ? GetTriggerEff(mu, "EMu_Mu8Leg", isData, syst)
+                                    : GetTriggerEff(mu, "EMu_Mu23Leg", isData, syst);
+        float eff_el = mu.Pt() > 25. ? case1 : case2;
+        return eff_mu*eff_el*filter_eff;
+    } 
+    
+    else {
         throw runtime_error("[MyCorrection::GetEMuTriggerEff] Invalid electron and muon size configuration");
     }
 }

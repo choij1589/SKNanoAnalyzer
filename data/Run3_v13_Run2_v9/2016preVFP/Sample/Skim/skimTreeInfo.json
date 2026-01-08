@@ -217,5 +217,85 @@
         "suffix": "TriLep",
         "PD": "WJets",
         "isMC": 1
+    },
+    "Skim_TriLep_TTLL_widthx1p3_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_widthx1p3_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_widthx1p15_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_widthx1p15_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_widthx0p85_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_widthx0p85_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_widthx0p7_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_widthx0p7_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop175p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop175p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop173p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop173p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop171p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop171p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop169p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop169p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5down_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5down_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5up_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5up_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5CR2_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5CR2_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5CR1_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5CR1_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5_RTT_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5_RTT_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5_erdOn_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5_erdOn_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_hdamp_up_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_hdamp_up_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_hdamp_down_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_hdamp_down_powheg",
+        "isMC": 1
     }
 }

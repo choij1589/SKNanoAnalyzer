@@ -77,6 +77,7 @@ private:
                           const TString& syst = "Central");
     
     void fillObjects(const Channel& channel,
+                     const Event& ev,
                      const RecoObjects& recoObjects, 
                      const WeightInfo& weights, 
                      const TString& syst = "Central");

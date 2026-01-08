@@ -2,7 +2,7 @@
     "name": "TTToHcToWAToMuMu-MHc70_MA55",
     "isMC": 1,
     "PD": "TTToHcToWAToMuMu_MHc-70_MA-55_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8",
-    "xsec": 0.015,
+    "xsec": 0.009858,
     "sumsign": 91988.0,
     "sumW": 8.782850122814125,
     "nmc": 91988.0,

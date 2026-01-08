@@ -59,6 +59,7 @@ private:
     float MuonPhiColl[3];
     float MuonMassColl[3];
     int MuonChargeColl[3];
+    bool MuonIsTightColl[3];
     bool MuonLabelColl[3];
 
     // electrons
@@ -68,6 +69,7 @@ private:
     float ElectronPhiColl[1];
     float ElectronMassColl[1];
     int ElectronChargeColl[1];
+    bool ElectronIsTightColl[1];
     bool ElectronLabelColl[1];
 
     // jets

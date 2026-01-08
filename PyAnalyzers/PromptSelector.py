@@ -37,15 +37,16 @@ class PromptSelector(TriLeptonBase):
         
     def initializePyAnalyzer(self):
         self.initializeAnalyzer()
-        
-        # Link flags
-        if not (self.Run1E2Mu or self.Run3Mu):
-            raise ValueError("Run1E2Mu or Run3Mu must be set")
-        if self.Run1E2Mu and self.Run3Mu:
-            raise ValueError("Run1E2Mu and Run3Mu cannot be set at the same time")
-        
+
         # Determine channel
-        self.channel = "Run1E2Mu" if self.Run1E2Mu else "Run3Mu"
+        if self.Run1E2Mu:
+            self.channel = "Run1E2Mu"
+        elif self.Run3Mu:
+            self.channel = "Run3Mu"
+        elif self.Run2E1Mu:
+            self.channel = "Run2E1Mu"
+        else:
+            raise ValueError("Run1E2Mu or Run3Mu or Run2E1Mu must be set")
 
         # ParticleNet configuration
         self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc130_MA100", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
@@ -243,52 +244,36 @@ class PromptSelector(TriLeptonBase):
                    tightMuons.size() == 2 and vetoMuons.size() == 2)
         is3Mu = (tightMuons.size() == 3 and vetoMuons.size() == 3 and \
                  tightElectrons.size() == 0 and vetoElectrons.size() == 0)
+        is2E1Mu = (tightElectrons.size() == 2 and vetoElectrons.size() == 2 and \
+                   tightMuons.size() == 1 and vetoMuons.size() == 1)
         
         if self.Run1E2Mu and not is1E2Mu: return
         if self.Run3Mu and not is3Mu: return
+        if self.Run2E1Mu and not is2E1Mu: return
 
         # Record lepton selection cutflow 
         if is1E2Mu:
             self.fillCutflow(CutStage.LeptonSelection, "1E2Mu", weight, "Central")
         elif is3Mu:
             self.fillCutflow(CutStage.LeptonSelection, "3Mu", weight, "Central")
+        elif is2E1Mu:
+            self.fillCutflow(CutStage.LeptonSelection, "2E1Mu", weight, "Central")
 
         # for conversion samples
-        if self.MCSample.Contains("DYJets") or self.MCSample.Contains("ZGToLLG") or self.MCSample.Contains("DYGTo2LG"):
+        if self.MCSample.Contains("DYJets") or self.MCSample.Contains("TTG"):
             # at least one conversion lepton should exist
             # internal conversion: 4, 5
             # external conversion: -5, -6
             convMuons = RVec(Muon)()
-            fakeMuons = RVec(Muon)()
             convElectrons = RVec(Electron)()
             for mu in tightMuons:
                 if self.GetLeptonType(mu, truth) in [4, 5, -5, -6]: convMuons.emplace_back(mu)
-                if self.GetLeptonType(mu, truth) in [-1, -2, -3, -4]: fakeMuons.emplace_back(mu)
             for ele in tightElectrons:
                 if self.GetLeptonType(ele, truth) in [4, 5, -5, -6]: convElectrons.emplace_back(ele)
-            # remove hadronic contribution
-            if self.Run1E2Mu:
-                if not fakeMuons.size() == 0: return
-                if not (convElectrons.size()+convMuons.size()) > 0: return
-                self.fillCutflow(CutStage.ConversionFilter, "1E2Mu", weight, "Central")
-            if self.Run3Mu:
-                if not fakeMuons.size() == 0: return
-                if not convMuons.size() > 0: return
-                self.fillCutflow(CutStage.ConversionFilter, "3Mu", weight, "Central")
-        # Patching sample
-        leptons = RVec(Lepton)()
-        for mu in tightMuons: leptons.emplace_back(mu)
-        for ele in tightElectrons: leptons.emplace_back(ele)
-        region = "LowPT" if any(l.Pt() < 15. for l in leptons) else "HighPT"
-        if self.MCSample.Contains("DYJets") and not region == "LowPT": return
-        if (self.MCSample.Contains("ZGToLLG") or self.MCSample.Contains("DYGTo2LG")) and not region == "HighPT": return
-        
-        # Sample patching cutflow
-        if syst == "Central" and weight is not None:
-            if self.Run1E2Mu:
-                self.fillCutflow(CutStage.SamplePatching, "1E2Mu", weight, "Central")
-            elif self.Run3Mu:
-                self.fillCutflow(CutStage.SamplePatching, "3Mu", weight, "Central")
+            if not (convMuons.size()+convElectrons.size()) > 0: return
+            self.fillCutflow(CutStage.ConversionFilter, "1E2Mu", weight, "Central")
+            self.fillCutflow(CutStage.ConversionFilter, "3Mu", weight, "Central")
+            self.fillCutflow(CutStage.ConversionFilter, "2E1Mu", weight, "Central")
 
         ## 1E2Mu baseline
         ## 1. pass EMuTriggers
@@ -357,6 +342,32 @@ class PromptSelector(TriLeptonBase):
             else:
                 self.fillCutflow(CutStage.Final, "SR3Mu", weight, "Central")
                 return "SR3Mu"
+        
+        ## 2E1Mu sideband
+        ## 1. pass EMuTriggers
+        ## 2. Exact 2 tight electrons and 1 tight muon, no additional lepton
+        ## 3. Exist OS electron pair, 60 < M(ee) < 120 GeV
+        ## 4. At least two jets, at least one bjet
+        if self.Run2E1Mu:
+            if not ev.PassTrigger(self.EMuTriggers): return
+            self.fillCutflow(CutStage.Trigger, "2E1Mu", weight, "Central")
+            
+            el1, el2 = tuple(tightElectrons)
+            mu = tightMuons.at(0)
+            passLeadMu = mu.Pt() > 25. and el1.Pt() > 15. and el2.Pt() > 15.
+            passLeadEl = (el1.Pt() > 25. or el2.Pt() > 25.) and mu.Pt() > 10.
+            passSafeCut = passLeadMu or passLeadEl
+            if not passSafeCut: return
+            self.fillCutflow(CutStage.KinematicCuts, "2E1Mu", weight, "Central")
+            
+            if not (el1.Charge() + el2.Charge() == 0): return
+            pair = el1 + el2
+            if not 60. < pair.M() < 120.: return
+
+            if not jets.size() >= 2: return
+            if not bjets.size() >= 1: return
+            self.fillCutflow(CutStage.Final, "2E1Mu", weight, "Central")
+            return "TTZ2E1Mu"
         return 
 
     def configureChargeOf(self, muons: RVec[Muon]) -> tuple[Muon, Muon, Muon]:
@@ -445,7 +456,7 @@ class PromptSelector(TriLeptonBase):
             eleIDSF = self.myCorr.GetElectronIDSF("TopHNT", recoObjects["tightElectrons"])
 
         trigSF = 1.
-        if self.Run1E2Mu:
+        if self.Run1E2Mu or self.Run2E1Mu:
             if "EMuTrigSF" in syst:
                 trigSF = self.myCorr.GetEMuTriggerSF(recoObjects["tightElectrons"], recoObjects["tightMuons"], var)
             else:
@@ -481,7 +492,7 @@ class PromptSelector(TriLeptonBase):
         btagSF = self.myCorr.GetBTaggingReweightMethod1a(recoObjects["jets"], tagger, wp, method, var, source)
         
         WZNjetsSF = 1.
-        if (self.Run == 3 and (self.MCSample.Contains("WZTo3LNu") or self.MCSample.Contains("ZZTo4L"))) and (not self.RunNoWZSF):
+        if (self.Run == 3 and self.MCSample.Contains("WZTo3LNu") and (not self.RunNoWZSF)):
             njets = float(recoObjects["jets"].size())
             WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "Central")
             if "WZNjetsSF_prompt" in syst:
@@ -625,6 +636,20 @@ class PromptSelector(TriLeptonBase):
                 self.FillHist(f"{channel}/{syst}/pair_onZ/mass", pair.M(), totWeight, 60, 60., 120.);
             else:
                 self.FillHist(f"{channel}/{syst}/pair_offZ/mass", pair.M(), totWeight, 200, 0., 200.);
+        elif "2E1Mu" in channel:
+            pair = electrons.at(0) + electrons.at(1)
+            self.FillHist(f"{channel}/{syst}/pair/pt", pair.Pt(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/pair/eta", pair.Eta(), totWeight, 100, -5., 5.)
+            self.FillHist(f"{channel}/{syst}/pair/phi", pair.Phi(), totWeight, 64, -3.2, 3.2)
+            self.FillHist(f"{channel}/{syst}/pair/mass", pair.M(), totWeight, 200, 0., 200.)
+            ## Delta R between leptons
+            dR_ele1_mu = electrons.at(0).DeltaR(muons.at(0))
+            dR_ele2_mu = electrons.at(1).DeltaR(muons.at(0))
+            dR_ele1_ele2 = electrons.at(0).DeltaR(electrons.at(1))
+            self.FillHist(f"{channel}/{syst}/dR_ele1_mu", dR_ele1_mu, totWeight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_ele2_mu", dR_ele2_mu, totWeight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_ele1_ele2", dR_ele1_ele2, totWeight, 100, 0., 10.)
+            self.FillHist(f"{channel}/{syst}/dR_min_ele_mu", min([dR_ele1_mu, dR_ele2_mu]), totWeight, 100, 0., 10.)
         elif "3Mu" in channel:
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
             pair1, pair2 = (mu_ss1+mu_os), (mu_ss2+mu_os)
@@ -657,6 +682,16 @@ class PromptSelector(TriLeptonBase):
         if "1E2Mu" in channel:
             ZCand = muons.at(0) + muons.at(1)
             nonprompt = electrons.at(0)
+            self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/ZCand/eta", ZCand.Eta(), totWeight, 100, -5., 5.)
+            self.FillHist(f"{channel}/{syst}/ZCand/phi", ZCand.Phi(), totWeight, 64, -3.2, 3.2)
+            self.FillHist(f"{channel}/{syst}/ZCand/mass", ZCand.M(), totWeight, 200, 0., 200.)
+            self.FillHist(f"{channel}/{syst}/nonprompt/pt", nonprompt.Pt(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/nonprompt/eta", nonprompt.Eta(), totWeight, 50, -2.5, 2.5)
+            self.FillHist(f"{channel}/{syst}/nonprompt/phi", nonprompt.Phi(), totWeight, 64, -3.2, 3.2)
+        if "2E1Mu" in channel:
+            ZCand = electrons.at(0) + electrons.at(1)
+            nonprompt = muons.at(0)
             self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), totWeight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/ZCand/eta", ZCand.Eta(), totWeight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/ZCand/phi", ZCand.Phi(), totWeight, 64, -3.2, 3.2)
@@ -699,6 +734,10 @@ class PromptSelector(TriLeptonBase):
                 self.FillHist(f"{channel}/{syst}/{signal}/score_nonprompt", score_nonprompt, totWeight, 100, 0., 1.)
                 self.FillHist(f"{channel}/{syst}/{signal}/score_diboson", score_diboson, totWeight, 100, 0., 1.)
                 self.FillHist(f"{channel}/{syst}/{signal}/score_ttZ", score_ttZ, totWeight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/LR_nonprompt", score_signal/(score_signal+score_nonprompt), totWeight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/LR_diboson", score_signal/(score_signal+score_diboson), totWeight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/LR_ttZ", score_signal/(score_signal+score_ttZ), totWeight, 100, 0., 1.)
+                self.FillHist(f"{channel}/{syst}/{signal}/LR_totalBkg", score_signal/(score_signal+score_nonprompt+score_diboson+score_ttZ), totWeight, 100, 0., 1.)
 
 if __name__ == "__main__":
     module = PromptSelector()
