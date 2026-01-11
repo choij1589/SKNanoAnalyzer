@@ -1,114 +1,176 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-SKNanoAnalyzer is a C++ physics analysis framework for CMS (Compact Muon Solenoid) experiment data analysis. It processes NanoAOD files for Run 2 (2016-2018) and Run 3 (2022-2023) data periods, providing tools for dilepton studies, ttbar reconstruction, and systematic uncertainty evaluations.
+SKNanoAnalyzer is a C++ physics analysis framework for CMS experiment NanoAOD data. Supports Run 2 (2016-2018) and Run 3 (2022-2023) periods for dilepton studies, ttbar reconstruction, and systematic uncertainty evaluations.
 
-## Build Commands
-
-```bash
-# Initial setup (required once per session)
-source setup.sh
-
-# Build entire project
-./scripts/build.sh
-
-# Incremental rebuild
-./scripts/rebuild.sh
-```
-
-## Running Analysis
+## Quick Reference
 
 ```bash
-# Submit analysis jobs
-SKNano.py -a AnalyzerName -i 'SamplePattern*' -e 2022 -n 10
+source setup.sh              # Required once per session
+./scripts/build.sh           # Full clean build
+./scripts/rebuild.sh         # Incremental rebuild
 
-# Example: Run DiLepton analyzer on DYJets samples
-SKNano.py -a DiLepton -i 'DYJets*' -e 2022 -n 50 --reduction 10
-
-# Skimming mode for data reduction
-SKNano.py -a Skim_AnalyzerName -i SampleName -e 2022 --skimming_mode
+# Job submission
+SKNano.py -a AnalyzerName -i 'Sample*' -e 2022 -n 10
+SKNano.py -a Skim_DiLepton -i DYJets -e 2022 --skimming_mode
 ```
 
-## Architecture Overview
+## Directory Structure
 
-### Core Components
-- **DataFormats/**: Physics object classes (Electron, Muon, Jet, etc.) with analysis methods
-- **AnalyzerTools/**: Analysis utilities, corrections, systematic helpers, ML integration  
-- **Analyzers/**: Specific analysis implementations inheriting from AnalyzerCore
-- **External dependencies**: KinematicFitter, RoccoR, jsonpog-integration, LHAPDF, libtorch
+```
+SKNanoAnalyzer/
+├── Analyzers/           # Analysis implementations (inherit AnalyzerCore)
+├── AnalyzerTools/       # Utilities, corrections, systematic handling
+├── DataFormats/         # Physics object classes
+├── PyAnalyzers/         # Python postprocessing tools
+├── python/              # Job submission (SKNano.py, sampleManager.py)
+├── scripts/             # Build and utility scripts
+├── external/            # Git submodules (RoccoR)
+├── data/                # Era-specific corrections, efficiencies, samples
+├── config/              # User config files (config.$USER)
+├── SampleLists/         # Sample lists per era/analysis
+├── templates/           # HTCondor job templates
+└── CMakeLists.txt       # Root build configuration
+```
 
-### Key Classes
-- **AnalyzerCore**: Base class providing common functionality for all analyzers
-- **SKNanoLoader**: Handles NanoAOD file loading and branch management
-- **SystematicHelper**: Manages systematic uncertainty variations
-- **MyCorrection**: Centralized correction and scale factor application
+## Class Hierarchy
 
-### Data Organization
-- Era-based structure: `data/{era}/` contains corrections, efficiencies, and sample metadata
-- Sample information in `data/{era}/Sample/CommonSampleInfo.json`
-- Systematic configurations in YAML files (DiLeptonSystematic.yaml, VcbSystematic.yaml)
+**Physics Objects:**
+```
+Particle (base)
+├── Lepton → Muon, Electron
+├── Jet, FatJet
+├── Tau, Photon
+└── Gen*, LHE (generator-level)
+```
 
-## Development Patterns
+**Analyzer Chain:**
+```
+SKNanoLoader → AnalyzerCore → [DiLeptonBase, VcbBase] → User Analyzers
+```
 
-### Creating New Analyzers
-1. Create header in `Analyzers/include/` inheriting from `AnalyzerCore`
-2. Implement in `Analyzers/src/` with required methods:
-   - `initializeAnalyzer()`
-   - `executeEvent()`
-   - Virtual destructor
+## Creating Analyzers
+
+1. Create `Analyzers/include/MyAnalyzer.h` inheriting from `AnalyzerCore`
+2. Implement in `Analyzers/src/MyAnalyzer.cc`:
+   ```cpp
+   void MyAnalyzer::initializeAnalyzer() { /* setup */ }
+   void MyAnalyzer::executeEvent() { /* per-event logic */ }
+   ```
 3. Add to `Analyzers/include/AnalyzersLinkDef.hpp`
-4. Use enum classes for constants instead of magic numbers/strings
+4. Rebuild with `./scripts/rebuild.sh`
 
-### Systematic Uncertainties
-- Use `SystematicHelper` class for systematic variations
-- Implement variations using `variation` enum (nom, up, down)
-- Apply corrections through `MyCorrection` class methods
+## Code Patterns
 
-### Physics Object Usage
+**Enum Classes (always prefer over strings/magic numbers):**
 ```cpp
-// Example pattern for lepton selection
-RVec<Lepton *> leptons;
-TString MuonID = "Tight"; // Example ID
-for (auto &mu : *muons) {
-    if (mu.Pass(MuonID)) {
+enum class Muon::BooleanID { NONE, LOOSE, MEDIUM, TIGHT };
+enum class Jet::JetID { TIGHT, LOOSE };
+enum class MyCorrection::variation { nom, up, down };
+```
+
+**Object Selection:**
+```cpp
+RVec<Lepton*> leptons;
+for (auto& mu : *muons) {
+    if (mu.PassID(Muon::BooleanID::TIGHT) && mu.Pt() > 20.)
         leptons.push_back(&mu);
-    }
 }
 ```
 
-## Dependencies and Environment
+**Corrections:**
+```cpp
+MyCorrection::variation syst = variation::nom;  // or up/down
+float sf = corrections.GetMuonIDSF(key, muon, syst);
+```
 
-### Required Packages (managed via conda/mamba)
-- ROOT 6.32+
-- correctionlib (CMS corrections)
-- onnxruntime-cpp (ML inference)
-- PyTorch/libtorch (deep learning)
-- LHAPDF (auto-installed via scripts/install\_lhapdf.sh)
+## Systematic Uncertainties
 
-### Configuration
-- Personal config: `config/config.$USER` (system type, package manager, notifications)
-- Sample lists: `SampleLists/{era}/` for different analysis categories
+Configured via YAML files in `AnalyzerTools/`:
+- `DiLeptonSystematic.yaml`: Full systematic list
+- `noSyst.yaml`: Nominal only (quick tests)
 
-## Job Management
+**Types:**
+- **Event-loop**: Rerun event processing (JetRes, ElectronEn)
+- **Weight-only**: Reweight without reprocessing (L1Prefire, TrigSF)
 
-### HTCondor Integration
-- Jobs submitted via HTCondor with DAG workflows
-- Configurable memory (default 2GB) and CPU resources
-- Automatic output file management and merging
-- Telegram bot notifications (optional)
+Use `SystematicHelper` class with `variation` enum (nom/up/down).
 
-### Sample Selection
-- Regex patterns for flexible sample matching
-- Era-specific sample organization (2016preVFP, 2017, 2018, 2022, 2022EE, 2023, etc.)
-- Cross-section and luminosity handled automatically
+## Configuration Hierarchy
+
+1. **User config**: `config/config.$USER` - package manager, paths, Telegram
+2. **Sample config**: `data/{era}/Sample/CommonSampleInfo.json` - xsec, lumi
+3. **Systematic config**: YAML files in `AnalyzerTools/`
+
+## Build System
+
+**CMake with optional Ninja:**
+```bash
+./scripts/build.sh           # Uses Make by default
+./scripts/build.sh ninja     # Use Ninja (faster)
+```
+
+**Key Environment Variables** (set by setup.sh):
+- `SKNANO_VERSION`: Data version (Run3_v13_Run2_v9)
+- `SKNANO_BUILDDIR`, `SKNANO_INSTALLDIR`, `SKNANO_LIB`
+- `LHAPDF_*`, `LIBTORCH_*`, `CORRECTION_*`, `ONNXRUNTIME_*`
+
+**Dependencies** (conda/mamba):
+- ROOT 6.32+, correctionlib, onnxruntime-cpp, PyTorch/libtorch
+- LHAPDF (auto-installed via `scripts/install_lhapdf.sh`)
+
+## Job Submission (HTCondor)
+
+**DAG Workflow:** Analysis jobs → Hadd (merge) → Summary
+
+```bash
+# Basic submission
+SKNano.py -a DiLepton -i 'DYJets*' -e 2022 -n 50
+
+# With data reduction (process 1/N events)
+SKNano.py -a DiLepton -i 'DYJets*' -e 2022 -n 50 --reduction 10
+
+# Skimming mode (recommended before full analysis)
+SKNano.py -a Skim_DiLepton -i DYJets -e 2022 --skimming_mode
+```
+
+**Options:**
+- `-a`: Analyzer name
+- `-i`: Sample pattern (regex supported)
+- `-e`: Era (2022, 2022EE, 2023, 2023BPix, 2016preVFP, etc.)
+- `-n`: Files per job
+- `--skimming_mode`: Enable skim output
+- `--reduction N`: Process 1/N events
 
 ## Multi-Era Support
 
-The framework supports unified analysis across data-taking periods:
-- **Run 2**: 2016preVFP, 2016postVFP, 2017, 2018
-- **Run 3**: 2022, 2022EE, 2023, 2023BPix
+| Run | Eras | NanoAOD |
+|-----|------|---------|
+| Run 2 | 2016preVFP, 2016postVFP, 2017, 2018 | v9 |
+| Run 3 | 2022, 2022EE, 2023, 2023BPix        | v13 |
 
-Era-specific corrections and configurations are automatically loaded based on the `-e` flag in job submission.
+Era-specific data loaded automatically from `data/{SKNANO_VERSION}/{era}/`.
+
+## CI/CD
+
+GitHub Actions workflow (`.github/workflows/main.yml`):
+- Builds on push/PR using Docker container
+- Requires SSH key for RoccoR submodule (CERN GitLab)
+
+## Common Tasks
+
+**Add new physics object branch:**
+1. Update `DataFormats/include/` class definition
+2. Add branch in `AnalyzerTools/src/SKNanoLoader.cc`
+3. Update `python/NanoAODv*.json` if needed
+
+**Add new correction:**
+1. Place correction file in `data/{era}/`
+2. Implement getter in `AnalyzerTools/src/MyCorrection.cc`
+3. Add systematic variation support if applicable
+
+**Debug locally:**
+```bash
+root -l -b -q 'runAnalyzer.C("AnalyzerName", "input.root", "output.root")'
+```

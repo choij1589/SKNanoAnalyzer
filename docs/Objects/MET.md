@@ -1,85 +1,166 @@
-# METv (Missing Transverse Energy Vector)
+# MET (Missing Transverse Energy)
+
+The `METv` object represents Missing Transverse Energy with Type-I corrections applied using the latest JES/JER corrections.
+
+## Contents
+
+- [Overview](#overview)
+- [Getting MET](#getting-met)
+- [Type-I Correction](#type-i-correction)
+- [Systematic Variations](#systematic-variations)
+- [Usage Example](#usage-example)
+
+---
 
 ## Overview
 
-The `METv` object in SKNanoAnalyzer represents the Missing Transverse Energy corrected with Type-I corrections using the latest Jet Energy Scale (JES) and Jet Energy Resolution (JER) corrections. This ensures consistency between the MET calculation and the jet corrections applied in the analysis.
+| Run   | Base MET Source | Algorithm                        |
+| ----- | --------------- | -------------------------------- |
+| Run 2 | CHS or PUPPI    | Selectable via `Event::MET_Type` |
+| Run 3 | PUPPI           | Default                          |
 
-## Implementation
+---
 
-### Base MET Source
-- **Run 3**: PUPPI MET (`Event::MET_Type::PUPPI`)
-- **Run 2**: CHS MET / PUPPI MET (Can be selected by `Event::MET_type::CHS/PUPPI`)
+## Getting MET
 
-### Type-I Correction Method
+### From Event
 
-The Type-I MET correction is implemented in `AnalyzerCore::ApplyTypeICorrection()` and application example can be found in the `DiLepton::defineObjects()` method. The correction accounts for:
+```cpp
+// Get raw MET vector
+Particle MET_raw = ev.GetMETVector(Event::MET_Type::PUPPI, Event::MET_Syst::CENTRAL);
 
-#### Object Corrections
-1. **Jets** (pT > 15 GeV, |η| < 5.0 ):
-   - Subtracts difference between corrected and raw jet momentum
-   - Uses latest JES/JER corrections from framework
+// Available MET types
+enum class MET_Type { CHS, PUPPI };
 
-2. **Muons** (pT > 5 GeV, |η| < 2.4):
-   - Subtracts difference between corrected and raw muon momentum
-   - Uses RoccoR method
+// Available systematics
+enum class MET_Syst { CENTRAL, UP, DOWN };
+```
 
-3. **Electrons** (pT > 7 GeV, |η| < 2.5):
-   - Raw = corrected in NanoAOD for nominal case
-   - Only systematic variations are applied on the fly
+### With Type-I Correction
 
-4. **Unclustered Energy**:
-   - For PUPPI MET, use NanoAOD stored unclustered energy
-   - For CHS MET, calculated as: MET + jets + leptons, ±10% systematic variation applied
+```cpp
+// Apply Type-I correction (recommended)
+Particle METv = ApplyTypeICorrection(MET_raw, allJets, allElectrons, allMuons,
+                                      MyCorrection::variation::nom);
+```
 
-### Systematic Variations
+---
 
-The MET correction uses scaled objects from `GetAll*` method. The scaled objects are propagated to METv when calling ApplyTypeICorrection,
-so METv and object scale variations are 100% correlated.
-For unclustered energy up / down, it should be done by varing the name of systematic, Check `DiLeptonSystematic.yaml`.
+## Type-I Correction
 
+The Type-I MET correction accounts for differences between raw and corrected object momenta.
 
-### Technical Implementation
+### Method Signature
 
-#### Method Signature
 ```cpp
 Particle ApplyTypeICorrection(const Particle& MET,
                               const RVec<Jet>& jets,
                               const RVec<Electron>& electrons,
                               const RVec<Muon>& muons,
-                              const MyCorrection::variation& var);
+                              const MyCorrection::variation& unclustered_syst);
 ```
 
-#### Systematic Handling
-- Correlated variations (JES/JER, MuonEn, ElectronEn/Res) are applied by passing the already scaled/smeared `jets`, `muons`, and `electrons`.
-- For unclustered energy, the systematic variations are handled by using `PuppiMET_pt/phiUnclusterdUp/Down` in NanoAOD branches for PUPPI MET, or
-  re-calculated from other objects for CHS MET.
+### Object Contributions
 
-#### Object Access
-- **Jets**: Uses `OriginalPt()` method for raw momentum
-- **Muons**: Uses `OriginalPt()` method (renamed from `MiniAODPt()`)
-- **Electrons**: `Pt()`: corrected in NanoAOD
+| Object    | Selection           | Correction Applied                    |
+| --------- | ------------------- | ------------------------------------- |
+| Jets      | pT > 15, \|η\| < 5  | Corrected − Raw momentum              |
+| Muons     | pT > 5, \|η\| < 2.4 | Corrected − Raw (Rochester)           |
+| Electrons | pT > 7, \|η\| < 2.5 | Corrected − Nominal (scale/smear)     |
 
-### Usage in Analysis
+### Unclustered Energy
 
-#### DiLepton Analyzer
+- **PUPPI MET:** Uses NanoAOD stored `PuppiMET_pt/phiUnclusteredUp/Down`
+- **CHS MET:** Calculated as MET + jets + leptons, with ±10% systematic
+
+---
+
+## Systematic Variations
+
+### Correlated Variations
+
+Pass scaled/smeared objects to propagate systematics:
+
 ```cpp
-// In defineObjects method
-Particle MET_default = ev.GetMETVector(Event::MET_Type::PUPPI, Event::MET_Syst::CENTRAL);
-Particle METv = ApplyTypeICorrection(MET, allJets, allElectrons, allMuons);
+// JES/JER variation: pass varied jets
+RVec<Jet> jets_jesUp = ...;  // Apply JES up variation
+Particle METv_jesUp = ApplyTypeICorrection(MET_raw, jets_jesUp, electrons, muons,
+                                            MyCorrection::variation::nom);
 
-// XY correction is applied on top of Type-I correction
-// Not recommended for PUPPI MET
-myCorr->METXYCorrection(METv, ev.run(), ev.nPV(), MyCorrection::XYCorrection_MetType::Type1PFMET);
+// Electron energy variation: pass varied electrons
+RVec<Electron> electrons_up = ScaleElectrons(ev, electrons, "up");
+Particle METv_eleUp = ApplyTypeICorrection(MET_raw, jets, electrons_up, muons,
+                                            MyCorrection::variation::nom);
+
+// Muon scale variation: pass varied muons
+RVec<Muon> muons_up = ScaleMuons(muons, "up");
+Particle METv_muUp = ApplyTypeICorrection(MET_raw, jets, electrons, muons_up,
+                                           MyCorrection::variation::nom);
 ```
 
-#### Systematic Processing
-The MET correction is automatically applied for each systematic variation:
-- Central: Uses nominal object corrections
-- Systematic variations: Uses appropriate object variations and sources
+### Unclustered Energy Variation
 
-### Notes
+```cpp
+// Unclustered energy up/down
+Particle METv_unclUp = ApplyTypeICorrection(MET_raw, jets, electrons, muons,
+                                             MyCorrection::variation::up);
+Particle METv_unclDn = ApplyTypeICorrection(MET_raw, jets, electrons, muons,
+                                             MyCorrection::variation::down);
+```
 
-- The correction removes the dependency on NanoAOD's built-in Type-I correction
-- Latest corrections are always used, ensuring consistency with jet selections
-- Separate handling for Run 2 vs Run 3 data (future enhancement)
-- Unclustered energy systematic properly accounts for object contributions
+### XY Correction (Optional)
+
+```cpp
+// Apply XY correction on top of Type-I (not recommended for PUPPI)
+myCorr->METXYCorrection(METv, ev.run(), ev.nPV(),
+                        MyCorrection::XYCorrection_MetType::Type1PFMET);
+```
+
+---
+
+## Usage Example
+
+### DiLepton Analyzer Pattern
+
+```cpp
+void DiLepton::defineObjects() {
+    // Get base MET
+    Particle MET_default = ev.GetMETVector(Event::MET_Type::PUPPI, Event::MET_Syst::CENTRAL);
+
+    // Get all objects (with corrections already applied)
+    RVec<Jet> allJets = GetAllJets();
+    RVec<Electron> allElectrons = GetAllElectrons();
+    RVec<Muon> allMuons = GetAllMuons();
+
+    // Apply Type-I correction
+    Particle METv = ApplyTypeICorrection(MET_default, allJets, allElectrons, allMuons,
+                                          MyCorrection::variation::nom);
+
+    // Use METv for analysis
+    float met_pt = METv.Pt();
+    float met_phi = METv.Phi();
+}
+```
+
+### Accessing Raw Object pT
+
+The correction uses `OriginalPt()` method for raw momentum:
+
+```cpp
+// Jets
+float jet_rawPt = jet.GetOriginalPt();
+
+// Muons
+float muon_rawPt = muon.OriginalPt();
+
+// Electrons: Pt() is corrected in NanoAOD (raw = corrected for nominal)
+```
+
+---
+
+## Notes
+
+- Type-I correction removes dependency on NanoAOD's built-in correction
+- Latest JES/JER corrections are always used, ensuring consistency with jet selections
+- MET and object variations are 100% correlated when using scaled objects
+- For systematic studies, see `DiLeptonSystematic.yaml` for proper variation names

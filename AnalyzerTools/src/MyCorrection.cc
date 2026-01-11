@@ -86,8 +86,8 @@ MyCorrection::MyCorrection(const TString &era, const TString &period, const TStr
         }
         JME_JES_GT["2023BPix"] = "Summer23BPixPrompt23_V3_DATA_######_AK4PFPuppi";
         JME_JES_GT["2023"] = "Summer23Prompt23_V2_DATA_######_AK4PFPuppi";
-        JME_JES_GT["2022EE"] = "Summer22EE_22Sep2023_Run"+period+"_V2_DATA_######_AK4PFPuppi";
-        JME_JES_GT["2022"] = "Summer22_22Sep2023_RunCD_V2_DATA_######_AK4PFPuppi";
+        JME_JES_GT["2022EE"] = "Summer22EE_22Sep2023_Run"+period+"_V3_DATA_######_AK4PFPuppi";
+        JME_JES_GT["2022"] = "Summer22_22Sep2023_RunCD_V3_DATA_######_AK4PFPuppi";
         JME_JES_GT["2018"] = "Summer19UL18_Run"+period+"_V5_DATA_######_AK4PFchs";
         JME_JES_GT["2017"] = "Summer19UL17_Run"+period+"_V5_DATA_######_AK4PFchs";
         JME_JES_GT["2016postVFP"] = "Summer19UL16_RunFGH_V7_DATA_######_AK4PFchs";
@@ -95,8 +95,8 @@ MyCorrection::MyCorrection(const TString &era, const TString &period, const TStr
     } else { // MC
         JME_JES_GT["2023BPix"] = "Summer23BPixPrompt23_V3_MC_######_AK4PFPuppi";
         JME_JES_GT["2023"] = "Summer23Prompt23_V2_MC_######_AK4PFPuppi";
-        JME_JES_GT["2022EE"] = "Summer22EE_22Sep2023_V2_MC_######_AK4PFPuppi";
-        JME_JES_GT["2022"] = "Summer22_22Sep2023_V2_MC_######_AK4PFPuppi";
+        JME_JES_GT["2022EE"] = "Summer22EE_22Sep2023_V3_MC_######_AK4PFPuppi";
+        JME_JES_GT["2022"] = "Summer22_22Sep2023_V3_MC_######_AK4PFPuppi";
         JME_JES_GT["2018"] = "Summer19UL18_V5_MC_######_AK4PFchs";
         JME_JES_GT["2017"] = "Summer19UL17_V5_MC_######_AK4PFchs";
         JME_JES_GT["2016postVFP"] = "Summer19UL16_V7_MC_######_AK4PFchs";

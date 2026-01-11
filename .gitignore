@@ -5,8 +5,9 @@ test.root
 LocalRuns/**
 external/lhapdf/*
 external/libtorch/*
-config/config.*
+config/**
 !config/config.default
+!config/config.root
 **/Skim*.json
 external/** 
 *.onnx
@@ -15,9 +16,6 @@ external/**
 !external/RoccoR
 **/__pycache__/**
 .DS_Store
-SKFlatAnalyzer
-HSNanoAnalyzer
-SKNanoOutput
 Run*NanoAOD*
 
 #Temporary Added to my personal temp files

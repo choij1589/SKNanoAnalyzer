@@ -198,65 +198,6 @@ if [[ ! -f "$ROCCOR_PATH/CMakeLists.txt" ]] || [[ ! -f "$ROCCOR_PATH/RoccoR_Link
     fi
 fi
 
-# JSONPOG integration auto-update
-check_jsonpog_updates() {
-    local auto_update=${1:-false}
-    echo -e "\033[32m@@@@ Checking for updates in jsonpog-integration repository...\033[0m"
-    export JSONPOG_REPO_PATH="$SKNANO_HOME/external/jsonpog-integration"
-
-    if [ "$auto_update" = false ]; then
-        echo -e "\033[32m@@@@ Auto-update is disabled. Skipping update check.\033[0m"
-        return 0
-    fi
-
-    if [ ! -d "$JSONPOG_REPO_PATH" ]; then
-        echo -e "\033[31m@@@@ JSONPOG Repository not found\033[0m"
-        return 1
-    fi
-    
-    cd "$JSONPOG_REPO_PATH"
-    git fetch origin
-    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
-    if [ -z "$(git symbolic-ref -q HEAD)" ]; then
-        echo -e "\033[32m@@@@ HEAD is detached. Switching back to the previous branch: $CURRENT_BRANCH\033[0m"
-        git checkout "$CURRENT_BRANCH"
-    fi
-
-    # Check the current version of local and jsonpog version
-    LOCAL_COMMIT_HASH=$(git rev-parse HEAD)
-    LOCAL_COMMIT_DATE=$(git log -1 --format=%ci)
-    echo -e "\033[32m@@@@ Current Local commit: $LOCAL_COMMIT_HASH\033[0m"
-    echo -e "\033[32m@@@@ Current Local commit date: $LOCAL_COMMIT_DATE\033[0m"
-    UPSTREAM_COMMIT_HASH=$(git ls-remote origin -h refs/heads/master | awk '{print $1}')
-    UPSTREAM_COMMIT_DATE=$(git log -1 --format=%ci origin/master)
-    echo -e "\033[32m@@@@ Latest JSONPOG (origin/master) commit: $UPSTREAM_COMMIT_HASH\033[0m"
-    echo -e "\033[32m@@@@ Latest JSONPOG commit date: $UPSTREAM_COMMIT_DATE\033[0m"
-    
-    # Check if the local repository is behind the remote repository
-    BEHIND=$(git rev-list --count origin/master..HEAD)
-
-    if [ "$BEHIND" -gt 0 ]; then
-        echo -e "\033[32m@@@@ Repository is $BEHIND commits behind origin/master.\033[0m"
-
-        if [ "$auto_update" = true ]; then
-            echo -e "\033[32m@@@@ Auto-update is enabled. Updating jsonpog-integration repository...\033[0m"
-            git merge origin/master
-            echo -e "\033[32m@@@@ Update completed!\033[0m"
-        else
-            echo -e "\033[32m@@@@ Auto-update is disabled. Skipping update.\033[0m"
-        fi
-    else
-        echo -e "\033[32m@@@@ jsonpog-integration repository is already up-to-date.\033[0m"
-    fi
-
-    cd "$SKNANO_HOME"
-}
-
-# Call the function with auto_update set to false by default
-# To enable auto-update, call with: check_jsonpog_updates true
-check_jsonpog_updates false
-
 # env for onnxruntime
 ONNXRUNTIME=$(conda list | grep "onnxruntime")
 if [ -z "$ONNXRUNTIME" ]; then
