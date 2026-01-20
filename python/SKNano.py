@@ -176,7 +176,7 @@ def setParser():
     parser.add_argument('-r', dest='Run', default="None",help="Run2, Run3. can be comma separated. override era option")
     parser.add_argument('-p', dest='Period', default="All",help="Data period (e.g. A, B, C, etc.) for data samples. Default: All")
     parser.add_argument('--userflags', dest='Userflags', default="")
-    parser.add_argument('--nmax', dest='NMax', default=500, type=int, help="maximum running jobs")
+    parser.add_argument('--nmax', dest='NMax', default=-1, type=int, help="maximum running jobs")
     parser.add_argument('--reduction', dest='Reduction', default=1, type=float)
     parser.add_argument('--python', action="store_true", default=False,
     help="Use python analyzer")
@@ -415,7 +415,8 @@ def makeMainAnalyzerJobs(working_dir,abs_MasterDirectoryName,totalNumberOfJobs, 
     job_dict['RequestCpus'] = ncpu
     job_dict['output'] = os.path.join(working_dir,"job_$(Process).out")
     job_dict['error'] = os.path.join(working_dir,"job_$(Process).err")
-    job_dict['concurrency_limits'] = f"n{nmax}.{username}"
+    #job_dict['concurrency_limits'] = f"n{nmax}.{username}"
+    job_dict['concurrency_limits'] = ""
     
     return job_dict
 

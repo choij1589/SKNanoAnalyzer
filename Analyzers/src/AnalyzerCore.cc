@@ -666,6 +666,7 @@ RVec<Electron> AnalyzerCore::GetAllElectrons(){
         electron.SetPtEtaPhiM(Electron_pt[i], Electron_eta[i], Electron_phi[i], Electron_mass[i]);
         electron.SetCharge(Electron_charge[i]);
         electron.SetScEta(Electron_scEta[i]);
+        electron.SetScPhi(Electron_scPhi[i]);
         electron.SetDeltaEtaInSC(Electron_deltaEtaInSC[i]);
         electron.SetDeltaEtaInSeed(Electron_deltaEtaInSeed[i]);
         electron.SetDeltaPhiInSC(Electron_deltaPhiInSC[i]);
@@ -1344,8 +1345,8 @@ RVec<TrigObj> AnalyzerCore::GetAllTrigObjs() {
 bool AnalyzerCore::IsHEMElectron(const Electron& electron) const {
     if (DataYear != 2018) return false;
 
-    if (electron.Eta() < -1.25){
-        if((electron.Phi() < -0.82) && (electron.Phi() > -1.62)) return true;
+    if (electron.scEta() < -1.3){
+        if((electron.scPhi() < -0.87) && (electron.scPhi() > -1.57)) return true;
     }
     return false;
 }
@@ -1939,6 +1940,25 @@ void AnalyzerCore::FillHist(const TString &histname, float value_x, float value_
         it->second->Fill(value_x, value_y, value_z, weight);
     }
 }
+
+void AnalyzerCore::FillJetEtaPhi2D(const RVec<Jet>& jets, float weight, const TString& stage) {
+    for (const auto& jet : jets) {
+        FillHist(Form("JetEtaPhi/%s/eta_phi", stage.Data()),
+                 jet.Eta(), jet.Phi(), weight,
+                 100, -5.0, 5.0,   // eta: 100 bins from -5 to 5
+                 64, -3.2, 3.2);   // phi: 64 bins from -pi to pi
+    }
+}
+
+void AnalyzerCore::FillElectronScEtaPhi2D(const RVec<Electron>& electrons, float weight, const TString& stage) {
+    for (const auto& ele : electrons) {
+        FillHist(Form("ElectronScEtaPhi/%s/scEta_scPhi", stage.Data()),
+                 ele.scEta(), ele.scPhi(), weight,
+                 100, -2.5, 2.5,   // scEta: 100 bins from -2.5 to 2.5
+                 64, -3.2, 3.2);   // scPhi: 64 bins from -pi to pi
+    }
+}
+
 TTree* AnalyzerCore::NewTree(const TString &treename, const RVec<TString> &keeps, const RVec<TString> &drops){
     auto treekey = string(treename);
     auto it = treemap.find(treekey);

@@ -88,8 +88,8 @@ MyCorrection::MyCorrection(const TString &era, const TString &period, const TStr
         }
         JME_JES_GT["2023BPix"] = "Summer23BPixPrompt23_V3_DATA_######_AK4PFPuppi";
         JME_JES_GT["2023"] = "Summer23Prompt23_V2_DATA_######_AK4PFPuppi";
-        JME_JES_GT["2022EE"] = "Summer22EE_22Sep2023_Run"+period+"_V2_DATA_######_AK4PFPuppi";
-        JME_JES_GT["2022"] = "Summer22_22Sep2023_RunCD_V2_DATA_######_AK4PFPuppi";
+        JME_JES_GT["2022EE"] = "Summer22EE_22Sep2023_Run"+period+"_V3_DATA_######_AK4PFPuppi";
+        JME_JES_GT["2022"] = "Summer22_22Sep2023_RunCD_V3_DATA_######_AK4PFPuppi";
         JME_JES_GT["2018"] = "Summer19UL18_Run"+period+"_V5_DATA_######_AK4PFchs";
         JME_JES_GT["2017"] = "Summer19UL17_Run"+period+"_V5_DATA_######_AK4PFchs";
         JME_JES_GT["2016postVFP"] = "Summer19UL16_RunFGH_V7_DATA_######_AK4PFchs";
@@ -97,8 +97,8 @@ MyCorrection::MyCorrection(const TString &era, const TString &period, const TStr
     } else { // MC
         JME_JES_GT["2023BPix"] = "Summer23BPixPrompt23_V3_MC_######_AK4PFPuppi";
         JME_JES_GT["2023"] = "Summer23Prompt23_V2_MC_######_AK4PFPuppi";
-        JME_JES_GT["2022EE"] = "Summer22EE_22Sep2023_V2_MC_######_AK4PFPuppi";
-        JME_JES_GT["2022"] = "Summer22_22Sep2023_V2_MC_######_AK4PFPuppi";
+        JME_JES_GT["2022EE"] = "Summer22EE_22Sep2023_V3_MC_######_AK4PFPuppi";
+        JME_JES_GT["2022"] = "Summer22_22Sep2023_V3_MC_######_AK4PFPuppi";
         JME_JES_GT["2018"] = "Summer19UL18_V5_MC_######_AK4PFchs";
         JME_JES_GT["2017"] = "Summer19UL17_V5_MC_######_AK4PFchs";
         JME_JES_GT["2016postVFP"] = "Summer19UL16_V7_MC_######_AK4PFchs";
@@ -423,12 +423,12 @@ float MyCorrection::GetMuonIDSF(const TString &Muon_ID_SF_Key, const RVec<Muon> 
 float MyCorrection::GetFakeRate(const Muon muon, const TString &id_key, const TString &syst_key) const {
     if (id_key == "TopHNT") {
         const float absEta = fabs(muon.Eta());
-        float ptCorr = muon.Pt()*(1.+max(0., muon.MiniPFRelIso()-0.1));
         // For Run3, restrict the ptCorr < 50 GeV
-        ptCorr = ((Run == 3) ? (ptCorr > 50. ? 49 : ptCorr) : ptCorr);
+        float ptCorr = muon.Pt();
+        ptCorr = ((Run == 3) ? (ptCorr > 50. ? 49. : ptCorr) : ptCorr);
         const string cset_name = "fakerate_muon_" + string(syst_key.Data());
         auto cset = cset_muon_TopHNT_fakerate->at(cset_name);
-        return safeEvaluate(cset, "GetFakeRate", {absEta, ptCorr});
+        return safeEvaluate(cset, "GetFakeRate", {(double)absEta, (double)ptCorr});
     } else {
         // This is only a template
         auto cset = cset_muon->at(string(id_key));
@@ -585,12 +585,11 @@ float MyCorrection::GetElectronIDSF(const TString &Electron_ID_SF_Key, const RVe
 
 float MyCorrection::GetFakeRate(const Electron &electron, const TString &id_key, const TString &syst_key) const {
     if (id_key == "TopHNT") {
-        //const float scEta = (Run == 2) ? fabs(electron.scEta()): electron.scEta();
         const float absScEta = fabs(electron.scEta());
-        const float ptCorr = electron.Pt()*(1.+max(0., electron.MiniPFRelIso()-0.1));
+        float ptCorr = electron.Pt();
         const string cset_name = "fakerate_electron_" + string(syst_key.Data());
         auto cset = cset_electron_TopHNT_fakerate->at(cset_name);
-        return safeEvaluate(cset, "GetFakeRate", {absScEta, ptCorr});
+        return safeEvaluate(cset, "GetFakeRate", {(double)absScEta, (double)ptCorr});
     } else {
         // This is only a template
         auto cset = cset_electron->at(string(id_key));

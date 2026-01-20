@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
     "xsec": 3.757,
-    "sumsign": -1,
-    "sumW": -1,
-    "nmc": -1,
+    "sumsign": 1261452.0,
+    "sumW": 22157556.633499146,
+    "nmc": 3534208.0,
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/250411_111845/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/250411_111845/0000/NANOAOD_2.root",

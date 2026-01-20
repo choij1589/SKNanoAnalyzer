@@ -9,7 +9,8 @@ void DiLeptonBase::initializeAnalyzer() {
     RunEMu       = HasFlag("RunEMu");
     Run1E2Mu     = HasFlag("Run1E2Mu");
     Run3Mu       = HasFlag("Run3Mu");
-    RunNoVetoMap = HasFlag("RunNoVetoMap");
+    RunNoJetVeto = HasFlag("RunNoJetVeto");
+    RunNoHEMVeto = HasFlag("RunNoHEMVeto");
     MeasFakeMu8  = HasFlag("MeasFakeMu8");
     MeasFakeMu17 = HasFlag("MeasFakeMu17");
     MeasFakeEl8  = HasFlag("MeasFakeEl8");

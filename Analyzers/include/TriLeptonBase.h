@@ -15,9 +15,8 @@ public:
     // For tri-lepton regions
     bool Run1E2Mu, Run3Mu, Run2E1Mu;
     bool RunSyst;
+    bool RunNoJetVeto, RunNoHEMVeto;
     bool RunTheoryUnc;
-    bool RunNoVetoMap;
-    bool RunNoWZSF;
 
     // IDs
     IDContainer *MuonIDs, *ElectronIDs;
@@ -28,6 +27,8 @@ public:
     virtual void executeEvent();
 
     float GetFakeWeight(const RVec<Muon> &muons, const RVec<Electron> &electrons, const TString syst_key="Central");
+    float GetFakeWeight(const RVec<Muon> &muons, const RVec<Electron> &electrons,
+                        const TString &muon_syst_key, const TString &electron_syst_key);
     RVec<Electron> GetPTCorrScaledElectrons(const RVec<Electron> &electros);
     RVec<Muon> GetPTCorrScaledMuons(const RVec<Muon> &muons);
 protected:

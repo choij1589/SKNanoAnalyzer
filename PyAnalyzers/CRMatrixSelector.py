@@ -43,13 +43,22 @@ class CRMatrixSelector(MatrixSelector):
         ## 5. No b-jet
         if self.Run1E2Mu:
             if not ev.PassTrigger(self.EMuTriggers): return
-                
+
             mu1, mu2 = looseMuons.at(0), looseMuons.at(1)
             ele = looseElectrons.at(0)
             passLeadMu = mu1.Pt() > 25. and ele.Pt() > 15.
             passLeadEle = mu1.Pt() > 10. and ele.Pt() > 25.
             passSafeCut = passLeadMu or passLeadEle
             if not passSafeCut: return
+
+            # Scale loose leptons after trigger cuts and update recoObjects
+            looseMuons = self.GetPTCorrScaledMuons(looseMuons)
+            looseElectrons = self.GetPTCorrScaledElectrons(looseElectrons)
+            recoObjects["looseMuons"] = looseMuons
+            recoObjects["looseElectrons"] = looseElectrons
+
+            mu1, mu2 = looseMuons.at(0), looseMuons.at(1)
+            ele = looseElectrons.at(0)
             if not mu1.Charge()+mu2.Charge() == 0: return
             pair = mu1 + mu2
             if not (pair.M() > 12.): return
@@ -74,11 +83,16 @@ class CRMatrixSelector(MatrixSelector):
         ## 6. No b-jet
         if self.Run3Mu:
             if not ev.PassTrigger(self.DblMuTriggers): return
-                
+
             mu1, mu2, mu3 = tuple(looseMuons)
             if not mu1.Pt() > 20.: return
             if not mu2.Pt() > 10.: return
             if not mu3.Pt() > 10.: return
+
+            # Scale loose muons after trigger cuts and update recoObjects
+            looseMuons = self.GetPTCorrScaledMuons(looseMuons)
+            recoObjects["looseMuons"] = looseMuons
+
             if not abs(mu1.Charge()+mu2.Charge()+mu3.Charge()) == 1: return
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(looseMuons)
             pair1, pair2 = (mu_ss1+mu_os), (mu_ss2+mu_os)
@@ -147,12 +161,12 @@ class CRMatrixSelector(MatrixSelector):
             self.FillHist(f"{channel}/{syst}/electrons/{idx}/mass", ele.M(), weight, 100, 0., 1.)
         for idx, jet in enumerate(jets, start=1):
             self.FillHist(f"{channel}/{syst}/jets/{idx}/pt", jet.Pt(), weight, 300, 0., 300.)
-            self.FillHist(f"{channel}/{syst}/jets/{idx}/eta", jet.Eta(), weight, 48, -2.4, 2.4)
+            self.FillHist(f"{channel}/{syst}/jets/{idx}/eta", jet.Eta(), weight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/phi", jet.Phi(), weight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/mass", jet.M(), weight, 100, 0., 100.)
         for idx, bjet in enumerate(bjets, start=1):
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/pt", bjet.Pt(), weight, 300, 0., 300.)
-            self.FillHist(f"{channel}/{syst}/bjets/{idx}/eta", bjet.Eta(), weight, 48, -2.4, 2.4)
+            self.FillHist(f"{channel}/{syst}/bjets/{idx}/eta", bjet.Eta(), weight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/phi", bjet.Phi(), weight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/mass", bjet.M(), weight, 100, 0., 100.)
         self.FillHist(f"{channel}/{syst}/muons/size", muons.size(), weight, 10, 0., 10.)
@@ -192,14 +206,14 @@ class CRMatrixSelector(MatrixSelector):
                 else:
                     ZCand, nZCand = pair2, pair1
                     lep = mu_ss1
-            self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), weight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), weight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/ZCand/eta", ZCand.Eta(), weight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/ZCand/phi", ZCand.Phi(), weight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/ZCand/mass", ZCand.M(), weight, 200, 0., 200.)
-            self.FillHist(f"{channel}/{syst}/nZCand/pt", nZCand.Pt(), weight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/nZCand/pt", nZCand.Pt(), weight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/nZCand/eta", nZCand.Eta(), weight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/nZCand/phi", nZCand.Phi(), weight, 64, -3.2, 3.2)
-            self.FillHist(f"{channel}/{syst}/nZCand/mass", nZCand.M(), weight, 200, 0., 200.)
+            self.FillHist(f"{channel}/{syst}/nZCand/mass", nZCand.M(), weight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/lep/pt", lep.Pt(), weight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/lep/eta", lep.Eta(), weight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/lep/phi", lep.Phi(), weight, 64, -3.2, 3.2)

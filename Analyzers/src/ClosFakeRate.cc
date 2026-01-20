@@ -34,11 +34,26 @@ void ClosFakeRate::executeEvent() {
     RVec<GenJet> genJets = !IsDATA ? GetAllGenJets() : RVec<GenJet>();
 
     RecoObjects recoObjects = defineObjects(ev, rawMuons, rawElectrons, rawJets, "Central");
-    Channel selectedChannel = selectEvent(ev, genParts, recoObjects, "Central");
+    Channel selectedChannel = selectEvent(ev, genParts, recoObjects, "Central"); // Now the leptons in recoObjects are scaled
     
     if (selectedChannel == Channel::NONE) return;
-    WeightInfo centralWeights = getWeights(selectedChannel, ev, recoObjects, genParts, "Central");
-    fillObjects(selectedChannel, recoObjects, centralWeights, "Central");
+    WeightInfo baseWeights = getWeights(selectedChannel, ev, recoObjects, genParts, "Central");
+
+    // For SR, fill once with Central
+    if (selectedChannel == Channel::SR1E2MU || selectedChannel == Channel::SR3MU) {
+        fillObjects(selectedChannel, recoObjects, baseWeights, "Central");
+        return;
+    }
+
+    // For SB, loop over all fake rate variations
+    for (const auto& var : fakeRateVariations) {
+        WeightInfo weights = baseWeights;
+        weights.fakeWeight = GetFakeWeight(recoObjects.looseMuons, recoObjects.looseElectrons,
+                                           var.muon_key, var.electron_key);
+        weights.totalWeight = weights.genWeight * weights.prefireWeight
+                            * weights.pileupWeight * weights.fakeWeight;
+        fillObjects(selectedChannel, recoObjects, weights, var.name);
+    }
 }
 
 ClosFakeRate::RecoObjects ClosFakeRate::defineObjects(const Event& ev,
@@ -49,8 +64,6 @@ ClosFakeRate::RecoObjects ClosFakeRate::defineObjects(const Event& ev,
     RecoObjects objects;
 
     // Copy raw objects
-    //RVec<Muon> allMuons = GetPTCorrScaledMuons(rawMuons);
-    //RVec<Electron> allElectrons = GetPTCorrScaledElectrons(rawElectrons);
     RVec<Muon> allMuons = rawMuons;
     RVec<Electron> allElectrons = rawElectrons;
     RVec<Jet> allJets = rawJets;
@@ -98,7 +111,7 @@ ClosFakeRate::RecoObjects ClosFakeRate::defineObjects(const Event& ev,
 
 ClosFakeRate::Channel ClosFakeRate::selectEvent(const Event& ev,
                                                 const RVec<Gen>& truth,
-                                                const RecoObjects& objects,
+                                                RecoObjects& objects,
                                                 const TString& syst) {
     
     bool is3Mu = (objects.looseMuons.size() == 3 && objects.vetoMuons.size() == 3 && 
@@ -125,6 +138,10 @@ ClosFakeRate::Channel ClosFakeRate::selectEvent(const Event& ev,
         bool passLeadEle = mu1.Pt() > 10. && ele.Pt() > 25.;
         bool passSafeCut = passLeadMu || passLeadEle;
         if (!passSafeCut) return Channel::NONE;
+
+        // Scale loose electrons and muons
+        objects.looseElectrons = GetPTCorrScaledElectrons(objects.looseElectrons);
+        objects.looseMuons = GetPTCorrScaledMuons(objects.looseMuons);
         
         if (! (mu1.Charge() + mu2.Charge() == 0)) return Channel::NONE;
         Particle pair = mu1 + mu2;
@@ -150,9 +167,12 @@ ClosFakeRate::Channel ClosFakeRate::selectEvent(const Event& ev,
         
         if (! (mu1.Pt() > 20.)) return Channel::NONE;
         if (! (mu2.Pt() > 10.)) return Channel::NONE;
+        if (! (mu3.Pt() > 10.)) return Channel::NONE;
+
+        // Scale loose muons
+        objects.looseMuons = GetPTCorrScaledMuons(objects.looseMuons);
         
         if (! (abs(mu1.Charge() + mu2.Charge() + mu3.Charge()) == 1)) return Channel::NONE;
-        
         auto [mu_ss1, mu_ss2, mu_os] = configureChargeOf(objects.looseMuons);
         Particle pair1 = mu_ss1 + mu_os;
         Particle pair2 = mu_ss2 + mu_os;
@@ -182,14 +202,10 @@ ClosFakeRate::WeightInfo ClosFakeRate::getWeights(const Channel selectedChannel,
     weights.genWeight = IsDATA ? 1.0 : MCweight()*ev.GetTriggerLumi("Full");
     weights.prefireWeight = IsDATA ? 1.0 : GetL1PrefireWeight(MyCorrection::variation::nom);
     weights.pileupWeight = IsDATA ? 1.0 : myCorr->GetPUWeight(ev.nTrueInt(), MyCorrection::variation::nom);
-    
-    // Calculate fake weight for sideband regions
-    if (selectedChannel == Channel::SB1E2MU || selectedChannel == Channel::SB3MU) {
-        weights.fakeWeight = GetFakeWeight(objects.looseMuons, objects.looseElectrons, "QCD");
-    } else {
-        weights.fakeWeight = 1.;
-    }
-    
+
+    // Fake weight is set to 1.0 here; for SB regions it will be computed per variation in executeEvent
+    weights.fakeWeight = 1.;
+
     weights.totalWeight = weights.genWeight * weights.prefireWeight * weights.pileupWeight * weights.fakeWeight;
     
     return weights;
@@ -202,9 +218,8 @@ void ClosFakeRate::fillObjects(const Channel selectedChannel,
     
     TString channelStr = channelToString(selectedChannel);
     float weight = weights.totalWeight;
-
-    RVec<Muon> muons = GetPTCorrScaledMuons(objects.looseMuons);
-    RVec<Electron> electrons = GetPTCorrScaledElectrons(objects.looseElectrons);
+    RVec<Muon> muons = objects.looseMuons;
+    RVec<Electron> electrons = objects.looseElectrons;
     
     // Fill muon histograms
     for (size_t idx = 0; idx < muons.size(); ++idx) {

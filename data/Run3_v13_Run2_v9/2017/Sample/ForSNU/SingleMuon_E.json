@@ -1,7 +1,13 @@
 {
     "name": "SingleMuon",
     "isMC": 0,
-    "NEvents": [],
+    "NEvents": [
+        128742175.0,
+        153659512.0,
+        69031074.0,
+        151698383.0,
+        235942694.0
+    ],
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/SingleMuon/Run2017E/250411_094400/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/SingleMuon/Run2017E/250411_094400/0000/NANOAOD_2.root",

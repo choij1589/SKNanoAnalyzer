@@ -40,6 +40,10 @@ public:
         RVec<Muon> tightMuons;
         RVec<Electron> looseElectrons;
         RVec<Electron> tightElectrons;
+        RVec<int> looseMuonJetFlavours;      // mother jet hadron flavour for loose muons
+        RVec<int> tightMuonJetFlavours;      // mother jet hadron flavour for tight muons
+        RVec<int> looseElectronJetFlavours;  // mother jet hadron flavour for loose electrons
+        RVec<int> tightElectronJetFlavours;  // mother jet hadron flavour for tight electrons
         RVec<Jet> tightJets;
         //RVec<Jet> tightJets_vetoLep;
         RVec<Jet> bjets;
@@ -106,6 +110,9 @@ private:
     // Helper methods
     TString getBinPrefix(const double ptcorr, const double abseta);
     float getJetPtCut(const TString& selection);
+    template<typename T>
+    int getMotherJetFlavour(const T& lep, const RVec<Jet>& allJets);
+    TString getFlavourSubdir(int flavour);
 
     // Cutflow functionality
     enum class CutStage {

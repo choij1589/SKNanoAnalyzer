@@ -33,8 +33,13 @@ void DiLepton::executeEvent() {
     fillCutflow(CutStage::NoiseFilter, Channel::NONE, initialWeight, "Central");
 
     RVec<Muon> rawMuons = GetAllMuons();
-    if (!(RunNoVetoMap || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return; // For Run3, reject events if any jet is within the veto map
+    if (!(RunNoJetVeto || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return; // For Run3, reject events if any jet is within the veto map
     fillCutflow(CutStage::VetoMap, Channel::NONE, initialWeight, "Central");
+
+    // Fill jet eta-phi for events passing veto map (Run 3)
+    if (Run == 3) {
+        FillJetEtaPhi2D(rawJets, initialWeight, "PassedEventVeto_Run3");
+    }
 
     RVec<Electron> rawElectrons = GetAllElectrons();
     
@@ -154,18 +159,37 @@ DiLepton::RecoObjects DiLepton::defineObjects(Event& ev,
 
     RVec<Muon> vetoMuons = SelectMuons(allMuons, MuonIDs->GetID("loose"), 10., 2.4);
     RVec<Muon> tightMuons = SelectMuons(vetoMuons, MuonIDs->GetID("tight"), 10., 2.4);
+    // HEM veto: only apply to tight electrons, not veto (to properly reject events with extra leptons)
     RVec<Electron> vetoElectrons = SelectElectrons(allElectrons, ElectronIDs->GetID("loose"), 10., 2.5);
-    RVec<Electron> tightElectrons = SelectElectrons(vetoElectrons, ElectronIDs->GetID("tight"), 15., 2.5);
+    bool applyHEMVeto = DataEra.Contains("2018") && !RunNoHEMVeto;
 
-    
+    // Fill electron scEta-scPhi BEFORE HEM veto (2018 only, Central only)
+    if (applyHEMVeto && syst == "Central") {
+        FillElectronScEtaPhi2D(vetoElectrons, 1.0, "BeforeHEMVeto");
+    }
+
+    RVec<Electron> tightElectrons = SelectElectrons(vetoElectrons, ElectronIDs->GetID("tight"), 15., 2.5, applyHEMVeto);
+
+    // Fill electron scEta-scPhi AFTER HEM veto (2018 only, Central only)
+    if (applyHEMVeto && syst == "Central") {
+        FillElectronScEtaPhi2D(tightElectrons, 1.0, "AfterHEMVeto");
+    }
+
     const float max_jeteta = DataEra.Contains("2016") ? 2.4 : 2.5;
     RVec<Jet> tightJets = SelectJets(allJets, "tight", 20., max_jeteta);
     if (Run == 2) {
         tightJets = SelectJets(tightJets, "loosePuId", 20., max_jeteta);
+
+        // Fill jet eta-phi BEFORE jet-level veto (Run 2 only, Central only)
+        if (syst == "Central") FillJetEtaPhi2D(tightJets, 1.0, "BeforeJetVeto");
+
         RVec<Jet> tightJets_vetoMap;
         for (const auto &jet: tightJets)
             if (PassVetoMap(jet, allMuons, "jetvetomap")) tightJets_vetoMap.emplace_back(jet);
-        if (!RunNoVetoMap) tightJets = tightJets_vetoMap;
+        if (!RunNoJetVeto) tightJets = tightJets_vetoMap;
+
+        // Fill jet eta-phi AFTER jet-level veto (Run 2 only, Central only)
+        if (syst == "Central") FillJetEtaPhi2D(tightJets, 1.0, "AfterJetVeto");
     }
     RVec<Jet> tightJets_vetoLep = JetsVetoLeptonInside(tightJets, vetoElectrons, vetoMuons, 0.4);
 

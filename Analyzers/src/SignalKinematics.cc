@@ -25,7 +25,7 @@ void SignalKinematics::executeEvent() {
     if (!PassNoiseFilter(rawJets, ev)) return;
 
     RVec<Muon> rawMuons = GetAllMuons();
-    if (!(RunNoVetoMap || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return;
+    if (!(RunNoJetVeto || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return;
 
     RVec<Electron> rawElectrons = GetAllElectrons();
     RVec<Gen> truth = !IsDATA ? GetAllGens() : RVec<Gen>();
@@ -73,7 +73,7 @@ SignalKinematics::RecoObjects SignalKinematics::defineObjects(Event& ev,
         }
         jets = jets_puId;
 
-        if (!RunNoVetoMap) {
+        if (!RunNoJetVeto) {
             RVec<Jet> jets_vetoMap;
             for (const auto& j : jets) {
                 if (PassVetoMap(j, allMuons, "jetvetomap")) jets_vetoMap.emplace_back(j);

@@ -19,6 +19,8 @@ Electron::Electron() {
     j_dr03TkSumPt = -999.;
     j_dr03TkSumPtHEEP = -999.;
     // supercluster
+    j_scEta = -999.;
+    j_scPhi = -999.;
     j_deltaEtaInSC = -999.;
     j_deltaEtaInSeed = -999.;
     j_deltaPhiInSC = -999.;

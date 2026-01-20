@@ -11,6 +11,7 @@ Features:
 """
 
 import os
+import re
 import argparse
 import uproot
 import numpy as np
@@ -129,14 +130,14 @@ def convert_fakerate_to_json(era, lepton_type):
     
     base_path = f"data/Run3_v13_Run2_v9/{era}/{lepton_dir}/root"
     main_file = f"{base_path}/fakerate_TopHNT.root"
-    qcd_file = f"{base_path}/fakerate_qcd_TopHNT.root"
+    mc_file = f"{base_path}/fakerate_MC_TopHNT.root"
     output_file = f"data/Run3_v13_Run2_v9/{era}/{lepton_dir}/fakerate_TopHNT.json"
     
     # Check if files exist
     if not os.path.exists(main_file):
         raise RuntimeError(f"Main fake rate file not found: {main_file}")
-    if not os.path.exists(qcd_file):
-        raise RuntimeError(f"QCD fake rate file not found: {qcd_file}")
+    if not os.path.exists(mc_file):
+        raise RuntimeError(f"MC fake rate file not found: {mc_file}")
     
     corrections = []
     
@@ -164,30 +165,36 @@ def convert_fakerate_to_json(era, lepton_type):
     )
     corrections.append(corr_central)
     
-    # Process QCD fake rate file as separate systematic sources
-    print(f"Processing QCD fake rate file: {qcd_file}")
-    with uproot.open(qcd_file) as f:
-        qcd_keys = f.keys()
-    
-    # Process QCD fakerate
-    with uproot.open(qcd_file) as f:
-        qkeys = [k.replace(';1','') for k in f.keys()]
-    key_qcd = next((k for k in qkeys if 'QCD' in k or 'qcd' in k), qkeys[0])
-    vals_q, eta_edges_q, pt_edges_q = _read_hist2d(qcd_file, key_qcd)
-    if vals_q.shape[0] != len(eta_edges_q)-1 or vals_q.shape[1] != len(pt_edges_q)-1:
-        vals_q = vals_q.T
-    vals_q_r, pt_edges_q_r = _restrict_pt(vals_q, eta_edges_q, pt_edges_q, pt_min, pt_max)
-    syst_name = 'QCD_EMEnriched' if lepton_type == 'electron' else 'QCD_MuEnriched'
-    corr_qcd = _make_correction(
-        name=f"fakerate_{lepton_type}_" + syst_name,
-        desc=f"{lepton_type} fake rate systematic - {syst_name}",
-        era=era,
-        lepton_type=lepton_type,
-        values=vals_q_r,
-        eta_edges=eta_edges_q,
-        pt_edges=pt_edges_q_r,
-    )
-    corrections.append(corr_qcd)
+    # Process MC fake rate file (all histograms)
+    print(f"Processing MC fake rate file: {mc_file}")
+    with uproot.open(mc_file) as f:
+        mc_keys = [k.replace(';1','') for k in f.keys()]
+
+    for key in mc_keys:
+        # Extract variation name from key like "fake rate - (QCD_EMEnriched_bjet)"
+        # Pattern: "fake rate - (NAME)" -> NAME
+        match = re.search(r'\(([^)]+)\)', key)
+        if not match:
+            print(f"  Skipping unrecognized key: {key}")
+            continue
+        variation_name = match.group(1)
+
+        vals_mc, eta_edges_mc, pt_edges_mc = _read_hist2d(mc_file, key)
+        if vals_mc.shape[0] != len(eta_edges_mc)-1 or vals_mc.shape[1] != len(pt_edges_mc)-1:
+            vals_mc = vals_mc.T
+        vals_mc_r, pt_edges_mc_r = _restrict_pt(vals_mc, eta_edges_mc, pt_edges_mc, pt_min, pt_max)
+
+        corr_mc = _make_correction(
+            name=f"fakerate_{lepton_type}_{variation_name}",
+            desc=f"{lepton_type} fake rate - {variation_name}",
+            era=era,
+            lepton_type=lepton_type,
+            values=vals_mc_r,
+            eta_edges=eta_edges_mc,
+            pt_edges=pt_edges_mc_r,
+        )
+        corrections.append(corr_mc)
+        print(f"  Added: fakerate_{lepton_type}_{variation_name}")
     
     if not corrections:
         raise RuntimeError("No histograms were successfully converted")
@@ -195,7 +202,7 @@ def convert_fakerate_to_json(era, lepton_type):
     # Create correction set
     cset = correctionlib.schemav2.CorrectionSet(
     schema_version=2,
-        description=f"{lepton_type} fake rate corrections for {era} (includes QCD systematic sources)",
+        description=f"{lepton_type} fake rate corrections for {era} (includes MC systematic sources)",
         corrections=corrections
     )
     
@@ -247,7 +254,7 @@ Examples:
         print(f"  Era: {args.era} ({'Run3' if is_run3 else 'Run2'})")
         print(f"  Axis names: {axis_name} + ptCorr")
         print(f"  Flow: clamp for both axes (eta, pt)")
-        print(f"  Integrated: Main + QCD systematic corrections")
+        print(f"  Integrated: Main + MC systematic corrections (flavor-tagged)")
         
         return 0
     except Exception as e:

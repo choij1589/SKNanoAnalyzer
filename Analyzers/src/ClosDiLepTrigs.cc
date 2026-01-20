@@ -22,7 +22,7 @@ void ClosDiLepTrigs::executeEvent() {
     if (!PassNoiseFilter(rawJets, ev)) return;
 
     RVec<Muon> rawMuons = GetAllMuons();
-    if (!(RunNoVetoMap || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return;
+    if (!(RunNoJetVeto || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return;
 
     RVec<Electron> rawElectrons = GetAllElectrons();
     

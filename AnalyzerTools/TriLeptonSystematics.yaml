@@ -44,6 +44,4 @@ systematics:
 
   - syst: BtagSF_LFuncorr
 
-  - syst: WZNjetsSF_prompt
-
-  - syst: WZNjetsSF_nonprompt
+  - syst: WZNjetsSF

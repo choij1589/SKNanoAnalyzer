@@ -1,0 +1,16 @@
+./scripts/convertLeptonFakeRateToJson.py --era 2016preVFP --lepton muon
+./scripts/convertLeptonFakeRateToJson.py --era 2016postVFP --lepton muon
+./scripts/convertLeptonFakeRateToJson.py --era 2017 --lepton muon
+./scripts/convertLeptonFakeRateToJson.py --era 2018 --lepton muon
+./scripts/convertLeptonFakeRateToJson.py --era 2022 --lepton muon
+./scripts/convertLeptonFakeRateToJson.py --era 2022EE --lepton muon
+./scripts/convertLeptonFakeRateToJson.py --era 2023 --lepton muon
+./scripts/convertLeptonFakeRateToJson.py --era 2023BPix --lepton muon
+./scripts/convertLeptonFakeRateToJson.py --era 2016preVFP --lepton electron
+./scripts/convertLeptonFakeRateToJson.py --era 2016postVFP --lepton electron
+./scripts/convertLeptonFakeRateToJson.py --era 2017 --lepton electron
+./scripts/convertLeptonFakeRateToJson.py --era 2018 --lepton electron
+./scripts/convertLeptonFakeRateToJson.py --era 2022 --lepton electron
+./scripts/convertLeptonFakeRateToJson.py --era 2022EE --lepton electron
+./scripts/convertLeptonFakeRateToJson.py --era 2023 --lepton electron
+./scripts/convertLeptonFakeRateToJson.py --era 2023BPix --lepton electron

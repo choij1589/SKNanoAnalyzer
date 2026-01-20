@@ -1,5 +1,22 @@
 #!/usr/bin/env python
 """
+DEPRECATED: This module is deprecated in favor of PromptAnalyzer.py
+
+For SR + Tree only mode (equivalent to PromptTreeProducer):
+    module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst", "NoHistMode"])
+
+For SR + Tree + Theory systematics:
+    module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst", "RunTheoryUnc", "NoHistMode"])
+
+For SR + Both modes (default in PromptAnalyzer):
+    module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst"])
+
+Migration: Replace `from PromptTreeProducer import PromptTreeProducer` with
+           `from PromptAnalyzer import PromptAnalyzer as PromptTreeProducer`
+
+This file will be removed in a future version.
+
+---
 PromptTreeProducer: Python-based tree producer with ParticleNet multi-class inference.
 
 Produces output trees with:
@@ -10,6 +27,13 @@ Produces output trees with:
 
 This analyzer serves as a Python validation tool to verify ParticleNet C++ implementation.
 """
+import warnings
+warnings.warn(
+    "PromptTreeProducer is deprecated. Use PromptAnalyzer instead. "
+    "For SR + Tree only mode: Userflags = ['Run1E2Mu', 'RunSyst', 'NoHistMode']",
+    DeprecationWarning,
+    stacklevel=2
+)
 import os
 from ROOT import TString
 from ROOT.VecOps import RVec
@@ -124,7 +148,7 @@ class PromptTreeProducer(TriLeptonBase):
             return
 
         rawMuons = self.GetAllMuons()
-        if not (self.RunNoVetoMap or self.PassVetoMap(rawJets, rawMuons, "jetvetomap")):
+        if not (self.RunNoJetVeto or self.PassVetoMap(rawJets, rawMuons, "jetvetomap")):
             return
 
         rawElectrons = self.GetAllElectrons()
@@ -271,7 +295,7 @@ class PromptTreeProducer(TriLeptonBase):
             if self.Run == 2:
                 if not j.PassID("loosePuId"):
                     continue
-                if not (self.RunNoVetoMap or self.PassVetoMap(j, allMuons, "jetvetomap")):
+                if not (self.RunNoJetVeto or self.PassVetoMap(j, allMuons, "jetvetomap")):
                     continue
             jets.emplace_back(j)
 
@@ -466,16 +490,11 @@ class PromptTreeProducer(TriLeptonBase):
         if (self.Run == 3 and (self.MCSample.Contains("WZTo3LNu") or self.MCSample.Contains("ZZTo4L"))) and (not self.RunNoWZSF):
             njets = float(recoObjects["jets"].size())
             WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "Central")
-            if "WZNjetsSF_prompt" in syst:
+            if "WZNjetsSF" in syst:
                 if "Up" in syst:
-                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "prompt_up")
+                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "total_up")
                 elif "Down" in syst:
-                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "prompt_down")
-            if "WZNjetsSF_nonprompt" in syst:
-                if "Up" in syst:
-                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "nonprompt_up")
-                else:
-                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "nonprompt_down")
+                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "total_down")
 
         return {
             "genWeight": genWeight,

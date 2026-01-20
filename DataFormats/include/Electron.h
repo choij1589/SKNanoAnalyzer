@@ -45,6 +45,9 @@ public:
     void SetScEta(float scEta) { j_scEta = scEta; }
     inline float scEta() const { return j_scEta; }
 
+    void SetScPhi(float scPhi) { j_scPhi = scPhi; }
+    inline float scPhi() const { return j_scPhi; }
+
     void SetDeltaEtaInSC(float deltaEtaInSC) { j_deltaEtaInSC = deltaEtaInSC; }
     inline float deltaEtaInSC() const { return j_deltaEtaInSC; }
 
@@ -164,7 +167,7 @@ private:
     float j_dr03EcalRecHitSumEt, j_dr03HcalDepth1TowerSumEt, j_dr03TkSumPt, j_dr03TkSumPtHEEP; // no j_e2x5OverE5x5, j_e1x5OverE5x5, j_calPFClusterIso, j_hcalPFClusterIso, j_dr03HcalTowerSumEt
 
     // SuperCluster
-    float j_scEta;
+    float j_scEta, j_scPhi;
     float j_deltaEtaInSC, j_deltaEtaInSeed, j_deltaPhiInSC, j_deltaPhiInSeed; // missing phi and E?
     float j_ecalPFClusterIso, j_hcalPFClusterIso;
 

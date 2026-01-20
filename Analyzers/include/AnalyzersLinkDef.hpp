@@ -32,5 +32,3 @@
 #pragma link C++ class MeasFakeRateV3+;
 #pragma link C++ class ClosFakeRate+;
 #pragma link C++ class EvtTreeProducer+;
-#pragma link C++ class PromptTreeProducer+;
-#pragma link C++ class MatrixTreeProducer+;

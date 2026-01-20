@@ -1,3 +1,26 @@
+"""
+DEPRECATED: This module is deprecated in favor of PromptAnalyzer.py
+
+For CR + Histogram only mode (equivalent to CRPromptSelector):
+    module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst", "RunCR", "NoTreeMode"])
+
+For CR + Both modes (default in PromptAnalyzer):
+    module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst", "RunCR"])
+
+Migration: Replace `from CRPromptSelector import CRPromptSelector` with
+           `from PromptAnalyzer import PromptAnalyzer as CRPromptSelector`
+           and add "RunCR" to Userflags
+
+This file will be removed in a future version.
+"""
+import warnings
+warnings.warn(
+    "CRPromptSelector is deprecated. Use PromptAnalyzer with 'RunCR' flag instead. "
+    "For CR + Histogram only mode: Userflags = ['Run1E2Mu', 'RunSyst', 'RunCR', 'NoTreeMode']",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 import os
 from ROOT import TString
 from ROOT.VecOps import RVec
@@ -204,13 +227,13 @@ class CRPromptSelector(PromptSelector):
             self.FillHist(f"{channel}/{syst}/electrons/{idx}/mass", ele.M(), totWeight, 100, 0., 1.)
         for idx, jet in enumerate(jets, start=1):
             self.FillHist(f"{channel}/{syst}/jets/{idx}/pt", jet.Pt(), totWeight, 300, 0., 300.)
-            self.FillHist(f"{channel}/{syst}/jets/{idx}/eta", jet.Eta(), totWeight, 48, -2.4, 2.4)
+            self.FillHist(f"{channel}/{syst}/jets/{idx}/eta", jet.Eta(), totWeight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/phi", jet.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/mass", jet.M(), totWeight, 100, 0., 100.)
 
         for idx, bjet in enumerate(bjets, start=1):
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/pt", bjet.Pt(), totWeight, 300, 0., 300.)
-            self.FillHist(f"{channel}/{syst}/bjets/{idx}/eta", bjet.Eta(), totWeight, 48, -2.4, 2.4)
+            self.FillHist(f"{channel}/{syst}/bjets/{idx}/eta", bjet.Eta(), totWeight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/phi", bjet.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/mass", bjet.M(), totWeight, 100, 0., 100.)
         self.FillHist(f"{channel}/{syst}/muons/size", muons.size(), totWeight, 10, 0., 10.)
@@ -248,14 +271,14 @@ class CRPromptSelector(PromptSelector):
                 else:
                     ZCand, nZCand = pair2, pair1
                     lep = mu_ss1
-            self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), totWeight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/ZCand/eta", ZCand.Eta(), totWeight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/ZCand/phi", ZCand.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/ZCand/mass", ZCand.M(), totWeight, 200, 0., 200.)
-            self.FillHist(f"{channel}/{syst}/nZCand/pt", nZCand.Pt(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/nZCand/pt", nZCand.Pt(), totWeight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/nZCand/eta", nZCand.Eta(), totWeight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/nZCand/phi", nZCand.Phi(), totWeight, 64, -3.2, 3.2)
-            self.FillHist(f"{channel}/{syst}/nZCand/mass", nZCand.M(), totWeight, 200, 0., 200.)
+            self.FillHist(f"{channel}/{syst}/nZCand/mass", nZCand.M(), totWeight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/lep/pt", lep.Pt(), totWeight, 300, 0., 300.)
             self.FillHist(f"{channel}/{syst}/lep/eta", lep.Eta(), totWeight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/lep/phi", lep.Phi(), totWeight, 64, -3.2, 3.2)

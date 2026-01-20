@@ -128,6 +128,14 @@
         "sumsign": 72748242.0,
         "sumW": 3.690373662837236e+20
     },
+    "TTJJ_powheg": {
+        "isMC": 1,
+        "PD": "TTToHadronic_TuneCP5_13TeV-powheg-pythia8",
+        "xsec": 377.96,
+        "nmc": 109380000.0,
+        "sumsign": 108494782.0,
+        "sumW": 34334910051.243774
+    },
     "TTLJ_powheg": {
         "isMC": 1,
         "PD": "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",

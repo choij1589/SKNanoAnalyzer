@@ -1,3 +1,23 @@
+"""
+DEPRECATED: This module is deprecated in favor of PromptAnalyzer.py
+
+For SR + Histogram only mode (equivalent to PromptSelector):
+    module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst", "NoTreeMode"])
+
+Migration: Replace `from PromptSelector import PromptSelector` with
+           `from PromptAnalyzer import PromptAnalyzer as PromptSelector`
+           and add "NoTreeMode" to Userflags if you don't want trees
+
+This file will be removed in a future version.
+"""
+import warnings
+warnings.warn(
+    "PromptSelector is deprecated. Use PromptAnalyzer instead. "
+    "For SR + Histogram only mode: Userflags = ['Run1E2Mu', 'RunSyst', 'NoTreeMode']",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 import os
 from ROOT import TString
 from ROOT.VecOps import RVec
@@ -14,13 +34,13 @@ from MLTools.helpers import loadMultiClassParticleNet, getGraphInput, getMultiCl
 class CutStage(IntEnum):
     Initial = 0
     NoiseFilter = 1
-    VetoMap = 2
+    EventVetoMap = 2
     LeptonSelection = 3
     Trigger = 4
     KinematicCuts = 5
     JetRequirements = 6
-    ConversionFilter = 7
-    SamplePatching = 8
+    JetVetoMap = 7
+    ConversionFilter = 8
     Final = 9
 
 class PromptSelector(TriLeptonBase):
@@ -31,10 +51,25 @@ class PromptSelector(TriLeptonBase):
     def fillCutflow(self, stage, channel, weight, syst):
         if not syst == "Central": return
         if weight is None: return
-        channelStr = channel if channel else "ALL"
         cutIndex = int(stage)
-        self.FillHist(f"{channelStr}/{syst}/cutflow", cutIndex, weight, 10, 0., 10.)
-        
+        self.FillHist(f"{channel}/{syst}/cutflow", cutIndex, weight, 10, 0., 10.)
+
+    def fillJetEtaPhi2D(self, jets, weight, stage):
+        """Fill 2D jet eta-phi distribution for veto map validation."""
+        for jet in jets:
+            self.FillHist(f"JetEtaPhi/{stage}/eta_phi",
+                          jet.Eta(), jet.Phi(), weight,
+                          100, -5.0, 5.0,   # eta: 100 bins from -5 to 5
+                          64, -3.2, 3.2)    # phi: 64 bins from -pi to pi
+
+    def fillElectronScEtaPhi2D(self, electrons, weight, stage):
+        """Fill 2D electron scEta-scPhi distribution for HEM veto validation."""
+        for ele in electrons:
+            self.FillHist(f"ElectronScEtaPhi/{stage}/scEta_scPhi",
+                          ele.scEta(), ele.scPhi(), weight,
+                          100, -2.5, 2.5,   # scEta: 100 bins from -2.5 to 2.5
+                          64, -3.2, 3.2)    # scPhi: 64 bins from -pi to pi
+
     def initializePyAnalyzer(self):
         self.initializeAnalyzer()
 
@@ -70,16 +105,20 @@ class PromptSelector(TriLeptonBase):
         
         # Initial cutflow entry
         initialWeight = 1.0 if self.IsDATA else self.MCweight() * ev.GetTriggerLumi("Full")
-        self.fillCutflow(CutStage.Initial, None, initialWeight, "Central")
+        self.fillCutflow(CutStage.Initial, self.channel, initialWeight, "Central")
         
         rawJets = self.GetAllJets()
         if not self.PassNoiseFilter(rawJets, ev): return
-        self.fillCutflow(CutStage.NoiseFilter, None, initialWeight, "Central")
+        self.fillCutflow(CutStage.NoiseFilter, self.channel, initialWeight, "Central")
         
         rawMuons = self.GetAllMuons()
-        if not (self.RunNoVetoMap or self.PassVetoMap(rawJets, rawMuons, "jetvetomap")): return
-        self.fillCutflow(CutStage.VetoMap, None, initialWeight, "Central")
-        
+        if not (self.RunNoJetVeto or self.PassVetoMap(rawJets, rawMuons, "jetvetomap")): return
+        self.fillCutflow(CutStage.EventVetoMap, self.channel, initialWeight, "Central")
+
+        # Fill jet eta-phi for events passing veto map (Run 3)
+        if self.Run == 3:
+            self.fillJetEtaPhi2D(rawJets, initialWeight, "PassedEventVeto")
+
         rawElectrons = self.GetAllElectrons()
         truth = self.GetAllGens()
         genJets = self.GetAllGenJets()
@@ -194,27 +233,50 @@ class PromptSelector(TriLeptonBase):
         # select objects
         vetoMuons = self.SelectMuons(allMuons, self.MuonIDs.GetID("loose"), 10., 2.4)
         tightMuons = self.SelectMuons(vetoMuons, self.MuonIDs.GetID("tight"), 10., 2.4)
+        # HEM veto: only apply to tight electrons, not veto (to properly reject events with extra leptons)
         vetoElectrons = self.SelectElectrons(allElectrons, self.ElectronIDs.GetID("loose"), 10., 2.5)
-        tightElectrons = self.SelectElectrons(vetoElectrons, self.ElectronIDs.GetID("tight"), 15., 2.5)
-        
+        applyHEMVeto = (self.DataEra == "2018") and not self.RunNoHEMVeto
+
+        # Fill electron scEta-scPhi BEFORE HEM veto (2018 only, Central only)
+        if applyHEMVeto and syst == "Central":
+            self.fillElectronScEtaPhi2D(vetoElectrons, 1.0, "BeforeHEMVeto")
+
+        tightElectrons = self.SelectElectrons(vetoElectrons, self.ElectronIDs.GetID("tight"), 15., 2.5, applyHEMVeto)
+
+        # Fill electron scEta-scPhi AFTER HEM veto (2018 only, Central only)
+        if applyHEMVeto and syst == "Central":
+            self.fillElectronScEtaPhi2D(tightElectrons, 1.0, "AfterHEMVeto")
+
         max_jeteta = 2.4 if self.DataEra.Contains("2016") else 2.5
         jets_selected = self.SelectJets(allJets, "tight", 20., max_jeteta)
         jets_vetoLep = self.JetsVetoLeptonInside(jets_selected, vetoElectrons, vetoMuons, 0.4)
-        
-        # Single-pass filtering for better performance
+        jets_passPUID = RVec(Jet)()
+        jets_vetoMap = RVec(Jet)()
         jets = RVec(Jet)()
+        if self.Run == 2:
+            jets_passPUID = self.SelectJets(jets_vetoLep, "loosePuId", 20., max_jeteta)
+
+            # Fill jet eta-phi BEFORE jet-level veto (Run 2 only, Central only)
+            if syst == "Central":
+                self.fillJetEtaPhi2D(jets_passPUID, 1.0, "BeforeJetVeto")
+
+            for j in jets_passPUID:
+                if not (self.RunNoJetVeto or self.PassVetoMap(j, allMuons, "jetvetomap")): continue
+                jets_vetoMap.emplace_back(j)
+            jets = jets_vetoMap
+
+            # Fill jet eta-phi AFTER jet-level veto (Run 2 only, Central only)
+            if syst == "Central":
+                self.fillJetEtaPhi2D(jets, 1.0, "AfterJetVeto")
+        else:   # Run3
+            jets = jets_vetoLep
+        
+        # b-tagging
         bjets = RVec(Jet)()
         tagger = JetTagging.JetFlavTagger.DeepJet
         wp = self.myCorr.GetBTaggingWP(tagger, JetTagging.JetFlavTaggerWP.Medium)
         
-        for j in jets_vetoLep:
-            # Apply Run 2 specific filters
-            if self.Run == 2:
-                if not j.PassID("loosePuId"): continue
-                if not (self.RunNoVetoMap or self.PassVetoMap(j, allMuons, "jetvetomap")): continue
-            jets.emplace_back(j)
-            
-            # b-tagging
+        for j in jets:
             if j.GetBTaggerResult(tagger) > wp:
                 bjets.emplace_back(j)
 
@@ -223,6 +285,8 @@ class PromptSelector(TriLeptonBase):
                 "vetoElectrons": vetoElectrons,
                 "tightElectrons": tightElectrons,
                 "jets_vetoLep": jets_vetoLep,
+                "jets_passPUID": jets_passPUID,
+                "jets_vetoMap": jets_vetoMap,
                 "jets": jets,
                 "bjets": bjets,
                 "METv": METv}
@@ -236,6 +300,7 @@ class PromptSelector(TriLeptonBase):
         tightMuons = recoObjects["tightMuons"]
         vetoElectrons = recoObjects["vetoElectrons"]
         tightElectrons = recoObjects["tightElectrons"]
+        jets_passPUID = recoObjects["jets_passPUID"]
         jets = recoObjects["jets"]
         bjets = recoObjects["bjets"]
         METv = recoObjects["METv"]
@@ -252,12 +317,7 @@ class PromptSelector(TriLeptonBase):
         if self.Run2E1Mu and not is2E1Mu: return
 
         # Record lepton selection cutflow 
-        if is1E2Mu:
-            self.fillCutflow(CutStage.LeptonSelection, "1E2Mu", weight, "Central")
-        elif is3Mu:
-            self.fillCutflow(CutStage.LeptonSelection, "3Mu", weight, "Central")
-        elif is2E1Mu:
-            self.fillCutflow(CutStage.LeptonSelection, "2E1Mu", weight, "Central")
+        self.fillCutflow(CutStage.LeptonSelection, self.channel, weight, "Central")
 
         # for conversion samples
         if self.MCSample.Contains("DYJets") or self.MCSample.Contains("TTG"):
@@ -271,9 +331,7 @@ class PromptSelector(TriLeptonBase):
             for ele in tightElectrons:
                 if self.GetLeptonType(ele, truth) in [4, 5, -5, -6]: convElectrons.emplace_back(ele)
             if not (convMuons.size()+convElectrons.size()) > 0: return
-            self.fillCutflow(CutStage.ConversionFilter, "1E2Mu", weight, "Central")
-            self.fillCutflow(CutStage.ConversionFilter, "3Mu", weight, "Central")
-            self.fillCutflow(CutStage.ConversionFilter, "2E1Mu", weight, "Central")
+        self.fillCutflow(CutStage.ConversionFilter, self.channel, weight, "Central")
 
         ## 1E2Mu baseline
         ## 1. pass EMuTriggers
@@ -282,8 +340,7 @@ class PromptSelector(TriLeptonBase):
         ## 4. At least two jets
         if self.Run1E2Mu:
             if not ev.PassTrigger(self.EMuTriggers): return
-            if syst == "Central" and weight is not None:
-                self.fillCutflow(CutStage.Trigger, "1E2Mu", weight, "Central")
+            self.fillCutflow(CutStage.Trigger, self.channel, weight, "Central")
                 
             mu1, mu2 = tightMuons.at(0), tightMuons.at(1)
             ele = tightElectrons.at(0)
@@ -294,20 +351,22 @@ class PromptSelector(TriLeptonBase):
             if not mu1.Charge()+mu2.Charge() == 0: return
             pair = mu1 + mu2
             if not pair.M() > 12.: return
-            self.fillCutflow(CutStage.KinematicCuts, "1E2Mu", weight, "Central")
+
+            self.fillCutflow(CutStage.KinematicCuts, self.channel, weight, "Central")
+            if jets_passPUID.size() >= 2:
+                self.fillCutflow(CutStage.JetRequirements, self.channel, weight, "Central")
+            if not jets.size() >= 2: return
+            self.fillCutflow(CutStage.JetVetoMap, self.channel, weight, "Central")
             
-            if jets.size() >= 2:
-                self.fillCutflow(CutStage.JetRequirements, "1E2Mu", weight, "Central")
-                if bjets.size() == 0:
-                    isOnZ = abs(pair.M() - 91.2) < 10.
-                    if isOnZ:
-                        self.fillCutflow(CutStage.Final, "ZFake1E2Mu", weight, "Central")
-                        return "ZFake1E2Mu"
-                    else:
-                        return
-                else:
-                    self.fillCutflow(CutStage.Final, "SR1E2Mu", weight, "Central")
-                    return "SR1E2Mu"
+            if bjets.size() == 0:
+                isOnZ = abs(pair.M() - 91.2) < 10.
+                if isOnZ:
+                    self.fillCutflow(CutStage.Final, "ZFake1E2Mu", weight, "Central")
+                    return "ZFake1E2Mu"
+                return
+            else:
+                self.fillCutflow(CutStage.Final, "SR1E2Mu", weight, "Central")
+                return "SR1E2Mu"
         
         ## 3Mu baseline
         ## 1. pass DblMuTriggers
@@ -317,7 +376,7 @@ class PromptSelector(TriLeptonBase):
         ## 5. At least two jets
         if self.Run3Mu:
             if not ev.PassTrigger(self.DblMuTriggers): return
-            self.fillCutflow(CutStage.Trigger, "3Mu", weight, "Central")
+            self.fillCutflow(CutStage.Trigger, self.channel, weight, "Central")
                 
             mu1, mu2, mu3 = tuple(tightMuons)
             if not mu1.Pt() > 20.: return
@@ -328,11 +387,12 @@ class PromptSelector(TriLeptonBase):
             pair1, pair2 = (mu_ss1+mu_os), (mu_ss2+mu_os)
             if not pair1.M() > 12.: return
             if not pair2.M() > 12.: return
-            self.fillCutflow(CutStage.KinematicCuts, "3Mu", weight, "Central")
-                
+            self.fillCutflow(CutStage.KinematicCuts, self.channel, weight, "Central")
+
+            if jets_passPUID.size() >= 2:
+                self.fillCutflow(CutStage.JetRequirements, self.channel, weight, "Central")
             if not jets.size() >= 2: return
-            if syst == "Central" and weight is not None:
-                self.fillCutflow(CutStage.JetRequirements, "3Mu", weight, "Central")
+            self.fillCutflow(CutStage.JetVetoMap, self.channel, weight, "Central")
             if bjets.size() == 0:
                 isOnZ = abs(pair1.M() - 91.2) < 10. or abs(pair2.M() - 91.2) < 10.
                 if isOnZ: 
@@ -350,7 +410,7 @@ class PromptSelector(TriLeptonBase):
         ## 4. At least two jets, at least one bjet
         if self.Run2E1Mu:
             if not ev.PassTrigger(self.EMuTriggers): return
-            self.fillCutflow(CutStage.Trigger, "2E1Mu", weight, "Central")
+            self.fillCutflow(CutStage.Trigger, self.channel, weight, "Central")
             
             el1, el2 = tuple(tightElectrons)
             mu = tightMuons.at(0)
@@ -358,15 +418,14 @@ class PromptSelector(TriLeptonBase):
             passLeadEl = (el1.Pt() > 25. or el2.Pt() > 25.) and mu.Pt() > 10.
             passSafeCut = passLeadMu or passLeadEl
             if not passSafeCut: return
-            self.fillCutflow(CutStage.KinematicCuts, "2E1Mu", weight, "Central")
-            
+            self.fillCutflow(CutStage.KinematicCuts, self.channel, weight, "Central")
             if not (el1.Charge() + el2.Charge() == 0): return
             pair = el1 + el2
             if not 60. < pair.M() < 120.: return
 
             if not jets.size() >= 2: return
             if not bjets.size() >= 1: return
-            self.fillCutflow(CutStage.Final, "2E1Mu", weight, "Central")
+            self.fillCutflow(CutStage.Final, "TTZ2E1Mu", weight, "Central")
             return "TTZ2E1Mu"
         return 
 
@@ -477,8 +536,6 @@ class PromptSelector(TriLeptonBase):
                 pileupIDSF = self.myCorr.GetPileupJetIDSF(jets, matched_idx, "loose", var)
             else:
                 pileupIDSF = self.myCorr.GetPileupJetIDSF(jets, matched_idx, "loose", myVar.nom)
-        else:
-            pass
         
         btagSF = 1.
         tagger = JetTagging.JetFlavTagger.DeepJet
@@ -495,16 +552,11 @@ class PromptSelector(TriLeptonBase):
         if (self.Run == 3 and self.MCSample.Contains("WZTo3LNu") and (not self.RunNoWZSF)):
             njets = float(recoObjects["jets"].size())
             WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "Central")
-            if "WZNjetsSF_prompt" in syst:
+            if "WZNjetsSF" in syst:
                 if "Up" in syst:
-                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "prompt_up")
+                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "total_up")
                 elif "Down" in syst:
-                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "prompt_down")
-            if "WZNjetsSF_nonprompt" in syst:
-                if "Up" in syst:
-                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "nonprompt_up")
-                else:
-                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "nonprompt_down")
+                    WZNjetsSF = self.myCorr.GetWZNjetsSF(njets, "total_down")
         
         return {
             "genWeight": genWeight,
@@ -586,35 +638,34 @@ class PromptSelector(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/electrons/{idx}/charge", ele.Charge(), totWeight, 3, -1, 2)
             if bjets.size() > 0:
                 self.FillHist(f"{channel}/{syst}/electrons/{idx}/min_dR_bjets", min([ele.DeltaR(bjet) for bjet in bjets]), totWeight, 100, 0., 10.)
+        
         for idx, jet in enumerate(jets, start=1):
             self.FillHist(f"{channel}/{syst}/jets/{idx}/pt", jet.Pt(), totWeight, 300, 0., 300.)
-            self.FillHist(f"{channel}/{syst}/jets/{idx}/eta", jet.Eta(), totWeight, 48, -2.4, 2.4)
+            self.FillHist(f"{channel}/{syst}/jets/{idx}/eta", jet.Eta(), totWeight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/phi", jet.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/mass", jet.M(), totWeight, 100, 0., 100.)
-            self.FillHist(f"{channel}/{syst}/jets/{idx}/energy", jet.E(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/jets/{idx}/energy", jet.E(), totWeight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/px", jet.Px(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/jets/{idx}/py", jet.Py(), totWeight, 500, -250., 250.)
-            self.FillHist(f"{channel}/{syst}/jets/{idx}/pz", jet.Pz(), totWeight, 500, -250., 250.)
+            self.FillHist(f"{channel}/{syst}/jets/{idx}/pz", jet.Pz(), totWeight, 600, -300., 300.)
 
         for idx, bjet in enumerate(bjets, start=1):
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/pt", bjet.Pt(), totWeight, 300, 0., 300.)
-            self.FillHist(f"{channel}/{syst}/bjets/{idx}/eta", bjet.Eta(), totWeight, 48, -2.4, 2.4)
+            self.FillHist(f"{channel}/{syst}/bjets/{idx}/eta", bjet.Eta(), totWeight, 50, -2.5, 2.5)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/phi", bjet.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/mass", bjet.M(), totWeight, 100, 0., 100.)
-            self.FillHist(f"{channel}/{syst}/bjets/{idx}/energy", bjet.E(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/bjets/{idx}/energy", bjet.E(), totWeight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/px", bjet.Px(), totWeight, 500, -250., 250.)
             self.FillHist(f"{channel}/{syst}/bjets/{idx}/py", bjet.Py(), totWeight, 500, -250., 250.)
-            self.FillHist(f"{channel}/{syst}/bjets/{idx}/pz", bjet.Pz(), totWeight, 500, -250., 250.)
+            self.FillHist(f"{channel}/{syst}/bjets/{idx}/pz", bjet.Pz(), totWeight, 600, -300., 300.)
         self.FillHist(f"{channel}/{syst}/muons/size", muons.size(), totWeight, 10, 0., 10.)
         self.FillHist(f"{channel}/{syst}/electrons/size", electrons.size(), totWeight, 10, 0., 10.)
         self.FillHist(f"{channel}/{syst}/jets/size", jets.size(), totWeight, 20, 0., 20.)
         self.FillHist(f"{channel}/{syst}/bjets/size", bjets.size(), totWeight, 15, 0., 15.)
         self.FillHist(f"{channel}/{syst}/METv/pt", METv.Pt(), totWeight, 300, 0., 300.)
         self.FillHist(f"{channel}/{syst}/METv/phi", METv.Phi(), totWeight, 64, -3.2, 3.2)
-        self.FillHist(f"{channel}/{syst}/METv/energy", METv.E(), totWeight, 300, 0., 300.)
         self.FillHist(f"{channel}/{syst}/METv/px", METv.Px(), totWeight, 500, -250., 250.)
         self.FillHist(f"{channel}/{syst}/METv/py", METv.Py(), totWeight, 500, -250., 250.)
-        self.FillHist(f"{channel}/{syst}/METv/pz", METv.Pz(), totWeight, 500, -250., 250.)
 
         if "1E2Mu" in channel:
             pair = muons.at(0) + muons.at(1)
@@ -638,7 +689,7 @@ class PromptSelector(TriLeptonBase):
                 self.FillHist(f"{channel}/{syst}/pair_offZ/mass", pair.M(), totWeight, 200, 0., 200.);
         elif "2E1Mu" in channel:
             pair = electrons.at(0) + electrons.at(1)
-            self.FillHist(f"{channel}/{syst}/pair/pt", pair.Pt(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/pair/pt", pair.Pt(), totWeight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/pair/eta", pair.Eta(), totWeight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/pair/phi", pair.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/pair/mass", pair.M(), totWeight, 200, 0., 200.)
@@ -654,11 +705,11 @@ class PromptSelector(TriLeptonBase):
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
             pair1, pair2 = (mu_ss1+mu_os), (mu_ss2+mu_os)
             pair_lowM, pair_highM = (pair1, pair2) if pair1.M() < pair2.M() else (pair2, pair1)
-            self.FillHist(f"{channel}/{syst}/pair_lowM/pt", pair_lowM.Pt(), totWeight, 300, 0., 300.);
+            self.FillHist(f"{channel}/{syst}/pair_lowM/pt", pair_lowM.Pt(), totWeight, 500, 0., 500.);
             self.FillHist(f"{channel}/{syst}/pair_lowM/eta", pair_lowM.Eta(), totWeight, 100, -5., 5.);
             self.FillHist(f"{channel}/{syst}/pair_lowM/phi", pair_lowM.Phi(), totWeight, 64, -3.2, 3.2);
             self.FillHist(f"{channel}/{syst}/pair_lowM/mass", pair_lowM.M(), totWeight, 200, 0., 200.);
-            self.FillHist(f"{channel}/{syst}/pair_highM/pt", pair_highM.Pt(), totWeight, 300, 0., 300.);
+            self.FillHist(f"{channel}/{syst}/pair_highM/pt", pair_highM.Pt(), totWeight, 500, 0., 500.);
             self.FillHist(f"{channel}/{syst}/pair_highM/eta", pair_highM.Eta(), totWeight, 100, -5., 5.);
             self.FillHist(f"{channel}/{syst}/pair_highM/phi", pair_highM.Phi(), totWeight, 64, -3.2, 3.2);
             self.FillHist(f"{channel}/{syst}/pair_highM/mass", pair_highM.M(), totWeight, 200, 0., 200.);
@@ -709,11 +760,11 @@ class PromptSelector(TriLeptonBase):
             else:                                         
                 ZCand, nZCand = pair2, pair1
                 nonprompt = mu_ss1
-            self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/ZCand/pt", ZCand.Pt(), totWeight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/ZCand/eta", ZCand.Eta(), totWeight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/ZCand/phi", ZCand.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/ZCand/mass", ZCand.M(), totWeight, 200, 0., 200.)
-            self.FillHist(f"{channel}/{syst}/nZCand/pt", nZCand.Pt(), totWeight, 300, 0., 300.)
+            self.FillHist(f"{channel}/{syst}/nZCand/pt", nZCand.Pt(), totWeight, 500, 0., 500.)
             self.FillHist(f"{channel}/{syst}/nZCand/eta", nZCand.Eta(), totWeight, 100, -5., 5.)
             self.FillHist(f"{channel}/{syst}/nZCand/phi", nZCand.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/nZCand/mass", nZCand.M(), totWeight, 300, 0., 300.)

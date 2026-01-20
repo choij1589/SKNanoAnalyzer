@@ -26,10 +26,11 @@ if [[ $OBJECT == "muon" ]]; then
     fi
     USERFLAGs=("MeasFakeMu8" "MeasFakeMu17")
     for USERFLAG in ${USERFLAGs[@]}; do
-        SKNano.py -a MeasFakeRateV3 -i $DATASTREAM -n 10 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 30 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/DiLepton.txt -n 10 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/$QCD.txt -n 10 -e $ERA --userflags $USERFLAG,RunSyst
+        #SKNano.py -a MeasFakeRateV3 -i $DATASTREAM -n 10 -e $ERA --userflags $USERFLAG,RunSyst
+        #SKNano.py -a MeasFakeRateV3 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 30 -e $ERA --userflags $USERFLAG,RunSyst
+        #SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/DiLepton.txt -n 10 -e $ERA --userflags $USERFLAG,RunSyst
+        SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/$QCD.txt -n 20 -e $ERA --userflags $USERFLAG,RunSyst
+        SKNano.py -a MeasFakeRateV3 -i TTJJ_powheg -n 50 -e $ERA --userflags $USERFLAG,RunSyst
     done
 elif [[ $OBJECT == "electron" ]]; then
     QCD="QCD_EMEnriched"
@@ -54,10 +55,11 @@ elif [[ $OBJECT == "electron" ]]; then
     fi
     USERFLAGs=("MeasFakeEl8" "MeasFakeEl12" "MeasFakeEl23")
     for USERFLAG in ${USERFLAGs[@]}; do
-        SKNano.py -a MeasFakeRateV3 -i $DATASTREAM -n 10 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 30 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/DiLepton.txt -n 10 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/$QCD.txt -n 10 -e $ERA --userflags $USERFLAG,RunSyst 
+        #SKNano.py -a MeasFakeRateV3 -i $DATASTREAM -n 10 -e $ERA --userflags $USERFLAG,RunSyst
+        #SKNano.py -a MeasFakeRateV3 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 30 -e $ERA --userflags $USERFLAG,RunSyst
+        #SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/DiLepton.txt -n 10 -e $ERA --userflags $USERFLAG,RunSyst
+        SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/$QCD.txt -n 20 -e $ERA --userflags $USERFLAG,RunSyst 
+        SKNano.py -a MeasFakeRateV3 -i TTJJ_powheg -n 50 -e $ERA --userflags $USERFLAG,RunSyst
     done
 else
     echo "Wrong object $OBJECT"

@@ -221,17 +221,40 @@ MeasFakeRateV3::RecoObjects MeasFakeRateV3::defineObjects(Event& ev,
         if (btagScore > wp) bjets.emplace_back(jet);
     }
     
+    // Compute mother jet flavours for leptons (MC only)
+    RVec<int> looseMuonJetFlavours, tightMuonJetFlavours;
+    RVec<int> looseElectronJetFlavours, tightElectronJetFlavours;
+
+    if (!IsDATA) {
+        for (const auto& mu : looseMuons) {
+            looseMuonJetFlavours.push_back(getMotherJetFlavour(mu, allJets));
+        }
+        for (const auto& mu : tightMuons) {
+            tightMuonJetFlavours.push_back(getMotherJetFlavour(mu, allJets));
+        }
+        for (const auto& el : looseElectrons) {
+            looseElectronJetFlavours.push_back(getMotherJetFlavour(el, allJets));
+        }
+        for (const auto& el : tightElectrons) {
+            tightElectronJetFlavours.push_back(getMotherJetFlavour(el, allJets));
+        }
+    }
+
     RecoObjects objects;
     objects.looseMuons = looseMuons;
     objects.tightMuons = tightMuons;
     objects.looseElectrons = looseElectrons;
     objects.tightElectrons = tightElectrons;
+    objects.looseMuonJetFlavours = looseMuonJetFlavours;
+    objects.tightMuonJetFlavours = tightMuonJetFlavours;
+    objects.looseElectronJetFlavours = looseElectronJetFlavours;
+    objects.tightElectronJetFlavours = tightElectronJetFlavours;
     objects.tightJets = tightJets;
     //objects.tightJets_vetoLep = tightJets_vetoLep;
     objects.bjets = bjets;
     objects.genJets = genJets;
     objects.METv = METv;
-    
+
     return objects;
 }
 
@@ -443,7 +466,24 @@ void MeasFakeRateV3::fillObjects(const Channel& channel,
             FillHist(prefix + "/MET", METv.Pt(), totalWeight, 500, 0., 500.);
             FillHist(prefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
             FillHist(prefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
-                
+
+            // Fill flavour-binned histograms in Inclusive/ (MC only)
+            if (!IsDATA) {
+                int jetFlavour = (ID == "loose") ? recoObjects.looseMuonJetFlavours[0] : recoObjects.tightMuonJetFlavours[0];
+                TString flavourSubdir = getFlavourSubdir(jetFlavour);
+                TString flavourPrefix = prefix + "/" + flavourSubdir;
+                FillHist(flavourPrefix + "/muon/pt", mu.Pt(), totalWeight, 300, 0., 300.);
+                FillHist(flavourPrefix + "/muon/eta", mu.Eta(), totalWeight, 48, -2.4, 2.4);
+                FillHist(flavourPrefix + "/muon/phi", mu.Phi(), totalWeight, 64, -3.2, 3.2);
+                FillHist(flavourPrefix + "/muon/ptcorr", ptcorr, totalWeight, ptcorr_bins);
+                FillHist(flavourPrefix + "/muon/abseta", abseta, totalWeight, abseta_bins);
+                FillHist(flavourPrefix + "/MT", mT, totalWeight, 600, 0., 300.);
+                FillHist(flavourPrefix + "/MTfix", mTfix, totalWeight, 600, 0., 300.);
+                FillHist(flavourPrefix + "/MET", METv.Pt(), totalWeight, 500, 0., 500.);
+                FillHist(flavourPrefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
+                FillHist(flavourPrefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
+            }
+
             // Fill binned histograms
             TString binnedPrefix = binName + "/" + channelToString(channel) + "/" + ID + "/" + syst;
             FillHist(binnedPrefix + "/muon/ptcorr", ptcorr, totalWeight, 200, 0., 200.);
@@ -466,10 +506,33 @@ void MeasFakeRateV3::fillObjects(const Channel& channel,
             FillHist(subchannelPrefix + "/muon/pt", mu.Pt(), totalWeight, 200, 0., 200.);
             FillHist(subchannelPrefix + "/muon/eta", mu.Eta(), totalWeight, 48, -2.4, 2.4);
             FillHist(subchannelPrefix + "/muon/ptcorr", ptcorr, totalWeight, 200, 0., 200.);
-            
+
             FillHist(subchannelPrefix + "/muon/abseta", abseta, totalWeight, 24, 0., 2.4);
             FillHist(subchannelPrefix + "/MT", mT, totalWeight, 300, 0., 300.);
             FillHist(subchannelPrefix + "/MET", METv.Pt(), totalWeight, 300, 0., 300.);
+
+            // Fill flavour-binned histograms (MC only)
+            if (!IsDATA) {
+                int jetFlavour = (ID == "loose") ? recoObjects.looseMuonJetFlavours[0] : recoObjects.tightMuonJetFlavours[0];
+                TString flavourSubdir = getFlavourSubdir(jetFlavour);
+
+                // Flavour-binned histograms under binnedPrefix
+                TString flavourBinnedPrefix = binnedPrefix + "/" + flavourSubdir;
+                FillHist(flavourBinnedPrefix + "/muon/ptcorr", ptcorr, totalWeight, 200, 0., 200.);
+                FillHist(flavourBinnedPrefix + "/muon/abseta", abseta, totalWeight, 24, 0., 2.4);
+                FillHist(flavourBinnedPrefix + "/MT", mT, totalWeight, 500, 0., 500.);
+                FillHist(flavourBinnedPrefix + "/MTfix", mTfix, totalWeight, 600, 0., 300.);
+                FillHist(flavourBinnedPrefix + "/MET", METv.Pt(), totalWeight, 600, 0., 300.);
+
+                // Flavour-binned histograms under subchannelPrefix
+                TString flavourSubchPrefix = subchannelPrefix + "/" + flavourSubdir;
+                FillHist(flavourSubchPrefix + "/muon/pt", mu.Pt(), totalWeight, 200, 0., 200.);
+                FillHist(flavourSubchPrefix + "/muon/eta", mu.Eta(), totalWeight, 48, -2.4, 2.4);
+                FillHist(flavourSubchPrefix + "/muon/ptcorr", ptcorr, totalWeight, 200, 0., 200.);
+                FillHist(flavourSubchPrefix + "/muon/abseta", abseta, totalWeight, 24, 0., 2.4);
+                FillHist(flavourSubchPrefix + "/MT", mT, totalWeight, 300, 0., 300.);
+                FillHist(flavourSubchPrefix + "/MET", METv.Pt(), totalWeight, 300, 0., 300.);
+            }
         } else { // ELECTRON
             const Electron& el = (ID=="loose") ? recoObjects.looseElectrons[0]: recoObjects.tightElectrons[0];
             float ptcorr = el.Pt()*(1.+max(0., el.MiniPFRelIso()-0.1));
@@ -489,7 +552,24 @@ void MeasFakeRateV3::fillObjects(const Channel& channel,
             FillHist(prefix + "/MET", METv.Pt(), totalWeight, 500, 0., 500.);
             FillHist(prefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
             FillHist(prefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
-                
+
+            // Fill flavour-binned histograms in Inclusive/ (MC only)
+            if (!IsDATA) {
+                int jetFlavour = (ID == "loose") ? recoObjects.looseElectronJetFlavours[0] : recoObjects.tightElectronJetFlavours[0];
+                TString flavourSubdir = getFlavourSubdir(jetFlavour);
+                TString flavourPrefix = prefix + "/" + flavourSubdir;
+                FillHist(flavourPrefix + "/electron/pt", el.Pt(), totalWeight, 300, 0., 300.);
+                FillHist(flavourPrefix + "/electron/scEta", el.scEta(), totalWeight, 50, -2.5, 2.5);
+                FillHist(flavourPrefix + "/electron/phi", el.Phi(), totalWeight, 64, -3.2, 3.2);
+                FillHist(flavourPrefix + "/electron/ptcorr", ptcorr, totalWeight, ptcorr_bins);
+                FillHist(flavourPrefix + "/electron/abseta", abseta, totalWeight, abseta_bins);
+                FillHist(flavourPrefix + "/MT", mT, totalWeight, 600, 0., 300.);
+                FillHist(flavourPrefix + "/MTfix", mTfix, totalWeight, 600, 0., 300.);
+                FillHist(flavourPrefix + "/MET", METv.Pt(), totalWeight, 500, 0., 500.);
+                FillHist(flavourPrefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
+                FillHist(flavourPrefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
+            }
+
             // Fill binned histograms
             TString binnedPrefix = binName+"/"+channelToString(channel)+"/"+ID+"/"+syst;
             FillHist(binnedPrefix + "/electron/ptcorr", ptcorr, totalWeight, ptcorr_bins);
@@ -515,6 +595,29 @@ void MeasFakeRateV3::fillObjects(const Channel& channel,
             FillHist(subchannelPrefix + "/electron/abseta", abseta, totalWeight, 25, 0., 2.5);
             FillHist(subchannelPrefix + "/MT", mT, totalWeight, 300, 0., 300.);
             FillHist(subchannelPrefix + "/MET", METv.Pt(), totalWeight, 300, 0., 300.);
+
+            // Fill flavour-binned histograms (MC only)
+            if (!IsDATA) {
+                int jetFlavour = (ID == "loose") ? recoObjects.looseElectronJetFlavours[0] : recoObjects.tightElectronJetFlavours[0];
+                TString flavourSubdir = getFlavourSubdir(jetFlavour);
+
+                // Flavour-binned histograms under binnedPrefix
+                TString flavourBinnedPrefix = binnedPrefix + "/" + flavourSubdir;
+                FillHist(flavourBinnedPrefix + "/electron/ptcorr", ptcorr, totalWeight, ptcorr_bins);
+                FillHist(flavourBinnedPrefix + "/electron/abseta", abseta, totalWeight, abseta_bins);
+                FillHist(flavourBinnedPrefix + "/MT", mT, totalWeight, 600, 0., 300.);
+                FillHist(flavourBinnedPrefix + "/MTfix", mTfix, totalWeight, 600, 0., 300.);
+                FillHist(flavourBinnedPrefix + "/MET", METv.Pt(), totalWeight, 500, 0., 500.);
+
+                // Flavour-binned histograms under subchannelPrefix
+                TString flavourSubchPrefix = subchannelPrefix + "/" + flavourSubdir;
+                FillHist(flavourSubchPrefix + "/electron/pt", el.Pt(), totalWeight, 300, 0., 300.);
+                FillHist(flavourSubchPrefix + "/electron/scEta", el.scEta(), totalWeight, 50, -2.5, 2.5);
+                FillHist(flavourSubchPrefix + "/electron/ptcorr", ptcorr, totalWeight, 300, 0., 300.);
+                FillHist(flavourSubchPrefix + "/electron/abseta", abseta, totalWeight, 25, 0., 2.5);
+                FillHist(flavourSubchPrefix + "/MT", mT, totalWeight, 300, 0., 300.);
+                FillHist(flavourSubchPrefix + "/MET", METv.Pt(), totalWeight, 300, 0., 300.);
+            }
         }
     } else if (channel == Channel::ZENRICHED) {
         if (leptonType == LeptonType::MUON) {
@@ -532,6 +635,18 @@ void MeasFakeRateV3::fillObjects(const Channel& channel,
             FillHist(prefix + "/muons/2/phi", muons[1].Phi(), totalWeight, 64, -3.2, 3.2);
             FillHist(prefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
             FillHist(prefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
+
+            // Fill flavour-binned histograms for ZENRICHED (MC only)
+            if (!IsDATA) {
+                const RVec<int>& jetFlavours = (ID == "loose") ? recoObjects.looseMuonJetFlavours : recoObjects.tightMuonJetFlavours;
+                for (size_t i = 0; i < muons.size() && i < jetFlavours.size(); i++) {
+                    TString flavourSubdir = getFlavourSubdir(jetFlavours[i]);
+                    TString flavourPrefix = prefix + "/" + flavourSubdir;
+                    FillHist(flavourPrefix + "/ZCand/mass", ZCand.M(), totalWeight, 40, 75., 115.);
+                    FillHist(flavourPrefix + Form("/muons/%zu/pt", i+1), muons[i].Pt(), totalWeight, 300, 0., 300.);
+                    FillHist(flavourPrefix + Form("/muons/%zu/eta", i+1), muons[i].Eta(), totalWeight, 48, -2.4, 2.4);
+                }
+            }
         } else { // ELECTRON
             const RVec<Electron>& electrons = (ID == "loose") ? recoObjects.looseElectrons : recoObjects.tightElectrons;
             const Particle ZCand = electrons[0] + electrons[1];
@@ -547,6 +662,18 @@ void MeasFakeRateV3::fillObjects(const Channel& channel,
             FillHist(prefix + "/electrons/2/phi", electrons[1].Phi(), totalWeight, 64, -3.2, 3.2);
             FillHist(prefix + "/nJets", jets.size(), totalWeight, 10, 0., 10.);
             FillHist(prefix + "/nBJets", bjets.size(), totalWeight, 5, 0., 5.);
+
+            // Fill flavour-binned histograms for ZENRICHED (MC only)
+            if (!IsDATA) {
+                const RVec<int>& jetFlavours = (ID == "loose") ? recoObjects.looseElectronJetFlavours : recoObjects.tightElectronJetFlavours;
+                for (size_t i = 0; i < electrons.size() && i < jetFlavours.size(); i++) {
+                    TString flavourSubdir = getFlavourSubdir(jetFlavours[i]);
+                    TString flavourPrefix = prefix + "/" + flavourSubdir;
+                    FillHist(flavourPrefix + "/ZCand/mass", ZCand.M(), totalWeight, 40, 75., 115.);
+                    FillHist(flavourPrefix + Form("/electrons/%zu/pt", i+1), electrons[i].Pt(), totalWeight, 300, 0., 300.);
+                    FillHist(flavourPrefix + Form("/electrons/%zu/scEta", i+1), electrons[i].scEta(), totalWeight, 50, -2.5, 2.5);
+                }
+            }
         }
     }
 }
@@ -582,12 +709,38 @@ TString MeasFakeRateV3::getBinPrefix(const double ptcorr, const double abseta) {
 }
 
 float MeasFakeRateV3::getJetPtCut(const TString& selection) {
-    if (selection.Contains("MotherJetPt_Up")) 
+    if (selection.Contains("MotherJetPt_Up"))
         return 60.0;
-    else if (selection.Contains("MotherJetPt_Down")) 
+    else if (selection.Contains("MotherJetPt_Down"))
         return (leptonType == LeptonType::MUON) ? 20.0 : 30.0;
-    else 
+    else
         return 40.0;
+}
+
+template<typename T>
+int MeasFakeRateV3::getMotherJetFlavour(const T& lep, const RVec<Jet>& allJets) {
+    if (IsDATA) return -999;  // Not applicable for data
+
+    short jetIdx = lep.JetIdx();
+    if (jetIdx < 0) return -1;  // No associated jet
+
+    for (const auto& jet : allJets) {
+        if (jet.OriginalIndex() == jetIdx) {
+            return (jet.genJetIdx() < 0) ? -1 : jet.hadronFlavour();
+        }
+    }
+    return -1;  // Jet not found
+}
+
+// Explicit template instantiations
+template int MeasFakeRateV3::getMotherJetFlavour<Muon>(const Muon&, const RVec<Jet>&);
+template int MeasFakeRateV3::getMotherJetFlavour<Electron>(const Electron&, const RVec<Jet>&);
+
+TString MeasFakeRateV3::getFlavourSubdir(int flavour) {
+    if (flavour == 5) return "bjet";
+    if (flavour == 4) return "cjet";
+    if (flavour == 0) return "ljet";
+    return "pujet";  // 0, -1, or any other value
 }
 
 void MeasFakeRateV3::fillCutflow(CutStage stage, const Channel& channel, const TString& ID, float weight, const TString& syst) {

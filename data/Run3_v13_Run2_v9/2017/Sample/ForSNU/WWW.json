@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
     "xsec": 0.2086,
-    "sumsign": -1,
-    "sumW": -1,
-    "nmc": -1,
+    "sumsign": 8932640.0,
+    "sumW": 2127100.308432579,
+    "nmc": 9854000.0,
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8/250411_112144/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8/250411_112144/0000/NANOAOD_2.root",

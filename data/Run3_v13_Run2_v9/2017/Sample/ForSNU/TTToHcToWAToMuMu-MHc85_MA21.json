@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "TTToHcToWAToMuMu_MHc-85_MA-21_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8",
     "xsec": 0.009755999999999999,
-    "sumsign": -1,
-    "sumW": -1,
-    "nmc": -1,
+    "sumsign": 200714.0,
+    "sumW": 3837.3709296770394,
+    "nmc": 200714.0,
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/TTToHcToWAToMuMu_MHc-85_MA-21_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250421_121431/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/TTToHcToWAToMuMu_MHc-85_MA-21_MultiLepFilter_TuneCP5_13TeV-madgraph-pythia8/250421_121431/0000/NANOAOD_2.root",

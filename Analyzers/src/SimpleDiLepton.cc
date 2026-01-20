@@ -24,7 +24,7 @@ void SimpleDiLepton::executeEvent() {
     fillCutflow(CutStage::NoiseFilter, Channel::NONE, initialWeight);
 
     RVec<Muon> rawMuons = GetAllMuons();
-    if (!(RunNoVetoMap || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return;
+    if (!(RunNoJetVeto || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return;
     fillCutflow(CutStage::VetoMap, Channel::NONE, initialWeight);
 
     RVec<Electron> rawElectrons = GetAllElectrons();
@@ -89,7 +89,7 @@ SimpleDiLepton::RecoObjects SimpleDiLepton::defineObjects(Event& ev,
         RVec<Jet> tightJets_vetoMap;
         for (const auto &jet: tightJets)
             if (PassVetoMap(jet, allMuons, "jetvetomap")) tightJets_vetoMap.emplace_back(jet);
-        if (!RunNoVetoMap) tightJets = tightJets_vetoMap;
+        if (!RunNoJetVeto) tightJets = tightJets_vetoMap;
     }
     RVec<Jet> tightJets_vetoLep = JetsVetoLeptonInside(tightJets, tightElectrons, tightMuons, 0.4);
 

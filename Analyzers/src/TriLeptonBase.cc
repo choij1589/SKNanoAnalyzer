@@ -8,9 +8,9 @@ void TriLeptonBase::initializeAnalyzer() {
     Run1E2Mu = HasFlag("Run1E2Mu");
     Run3Mu = HasFlag("Run3Mu");
     Run2E1Mu = HasFlag("Run2E1Mu");
-    RunNoVetoMap = HasFlag("RunNoVetoMap");
-    RunNoWZSF = HasFlag("RunNoWZSF");
     RunSyst = HasFlag("RunSyst");
+    RunNoJetVeto = HasFlag("RunNoJetVeto");
+    RunNoHEMVeto = HasFlag("RunNoHEMVeto");
     RunTheoryUnc = HasFlag("RunTheoryUnc");
 
     // Lepton IDs and triggers
@@ -82,6 +82,22 @@ float TriLeptonBase::GetFakeWeight(const RVec<Muon> &muons, const RVec<Electron>
         const TString this_syst_key = syst_key.Contains("QCD") ? "QCD_EMEnriched" : syst_key;
         if (ele.PassID(ElectronIDs->GetID("tight"))) continue;
         const float fr = myCorr->GetFakeRate(ele, "TopHNT", this_syst_key);
+        weight *= -1.*(fr / (1.-fr));
+    }
+    return weight;
+}
+
+float TriLeptonBase::GetFakeWeight(const RVec<Muon> &muons, const RVec<Electron> &electrons,
+                                    const TString &muon_syst_key, const TString &electron_syst_key) {
+    float weight = -1.;
+    for (const auto &mu: muons) {
+        if (mu.PassID(MuonIDs->GetID("tight"))) continue;
+        const float fr = myCorr->GetFakeRate(mu, "TopHNT", muon_syst_key);
+        weight *= -1.*(fr / (1.-fr));
+    }
+    for (const auto &ele: electrons) {
+        if (ele.PassID(ElectronIDs->GetID("tight"))) continue;
+        const float fr = myCorr->GetFakeRate(ele, "TopHNT", electron_syst_key);
         weight *= -1.*(fr / (1.-fr));
     }
     return weight;

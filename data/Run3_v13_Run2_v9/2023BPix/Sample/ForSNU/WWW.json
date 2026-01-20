@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "WWW_4F_TuneCP5_13p6TeV_amcatnlo-madspin-pythia8",
     "xsec": 0.2328,
-    "sumsign": -1,
-    "sumW": -1,
-    "nmc": -1,
+    "sumsign": 423054.0,
+    "sumW": 108441.08441233635,
+    "nmc": 466500.0,
     "path": [
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/WWW_4F_TuneCP5_13p6TeV_amcatnlo-madspin-pythia8/250617_130934/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/WWW_4F_TuneCP5_13p6TeV_amcatnlo-madspin-pythia8/250617_130934/0000/NANOAOD_2.root",

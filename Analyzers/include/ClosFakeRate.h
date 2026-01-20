@@ -51,6 +51,22 @@ public:
         float totalWeight;
     };
 
+    // Fake rate variation: {name, muon_key, electron_key}
+    struct FakeRateVariation {
+        TString name;
+        TString muon_key;
+        TString electron_key;
+    };
+
+    // Shared variations for both channels (5 total, synchronized)
+    const std::vector<FakeRateVariation> fakeRateVariations = {
+        {"Central", "QCD_MuEnriched",      "QCD_EMEnriched"},
+        {"TT",      "TT",                  "TT"},
+        {"bjet",    "QCD_MuEnriched_bjet", "QCD_EMEnriched_bjet"},
+        {"cjet",    "QCD_MuEnriched_cjet", "QCD_EMEnriched_cjet"},
+        {"ljet",    "QCD_MuEnriched_ljet", "QCD_EMEnriched_ljet"},
+    };
+
 private:
     // Helper methods
     RecoObjects defineObjects(const Event& ev, 
@@ -61,7 +77,7 @@ private:
     
     Channel selectEvent(const Event& ev, 
                         const RVec<Gen>& truth,
-                        const RecoObjects& objects, 
+                        RecoObjects& objects, 
                         const TString& syst);
 
     WeightInfo getWeights(const Channel selectedChannel,

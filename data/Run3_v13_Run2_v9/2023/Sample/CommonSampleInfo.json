@@ -128,6 +128,15 @@
         "sumW": 6969086273408.197,
         "ref": "Scaling NLO to NNLO using mll > 50 GeV"
     },
+    "TTJJ_powheg": {
+        "isMC": 1,
+        "PD": "TTto4Q_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*0.6741*3*0.6741",
+        "xsec": 419.7,
+        "nmc": 104963000.0,
+        "sumsign": 104112654.0,
+        "sumW": 36457129449.17706
+    },
     "TTLL_powheg": {
         "isMC": 1,
         "PD": "TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8",

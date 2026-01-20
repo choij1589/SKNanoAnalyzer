@@ -87,7 +87,7 @@ class MatrixTreeProducer(TriLeptonBase):
             return
 
         rawMuons = self.GetAllMuons()
-        if not (self.RunNoVetoMap or self.PassVetoMap(rawJets, rawMuons, "jetvetomap")):
+        if not (self.RunNoJetVeto or self.PassVetoMap(rawJets, rawMuons, "jetvetomap")):
             return
 
         rawElectrons = self.GetAllElectrons()
@@ -112,6 +112,8 @@ class MatrixTreeProducer(TriLeptonBase):
         Matrix method requires all three selection levels!
         """
         # Create copies
+        #allMuons = self.GetPTCorrScaledMuons(rawMuons)
+        #allElectrons = self.GetPTCorrScaledElectrons(rawElectrons)
         allMuons = RVec(Muon)(rawMuons)
         allElectrons = RVec(Electron)(rawElectrons)
         allJets = RVec(Jet)(rawJets)
@@ -130,9 +132,14 @@ class MatrixTreeProducer(TriLeptonBase):
         looseMuons = self.SelectMuons(vetoMuons, self.MuonIDs.GetID("loose"), 10., 2.4)
         tightMuons = self.SelectMuons(looseMuons, self.MuonIDs.GetID("tight"), 10., 2.4)
 
-        vetoElectrons = self.SelectElectrons(allElectrons, self.ElectronIDs.GetID("loose"), 10., 2.5)
-        looseElectrons = self.SelectElectrons(vetoElectrons, self.ElectronIDs.GetID("loose"), 15., 2.5)
-        tightElectrons = self.SelectElectrons(looseElectrons, self.ElectronIDs.GetID("tight"), 15., 2.5)
+        applyHEMVeto = (self.DataEra == "2018")
+        vetoElectrons = self.SelectElectrons(allElectrons, self.ElectronIDs.GetID("loose"), 10., 2.5, applyHEMVeto)
+        looseElectrons = self.SelectElectrons(vetoElectrons, self.ElectronIDs.GetID("loose"), 15., 2.5, applyHEMVeto)
+        tightElectrons = self.SelectElectrons(looseElectrons, self.ElectronIDs.GetID("tight"), 15., 2.5, applyHEMVeto)
+
+        # Scale loose muon and electrons
+        looseMuons = self.GetPTCorrScaledMuons(looseMuons)
+        looseElectrons = self.GetPTCorrScaledElectrons(looseElectrons)
 
         max_jeteta = 2.4 if self.DataEra.Contains("2016") else 2.5
         jets_selected = self.SelectJets(allJets, "tight", 20., max_jeteta)
@@ -149,7 +156,7 @@ class MatrixTreeProducer(TriLeptonBase):
             if self.Run == 2:
                 if not j.PassID("loosePuId"):
                     continue
-                if not (self.RunNoVetoMap or self.PassVetoMap(j, allMuons, "jetvetomap")):
+                if not (self.RunNoJetVeto or self.PassVetoMap(j, allMuons, "jetvetomap")):
                     continue
             jets.emplace_back(j)
 
@@ -197,20 +204,10 @@ class MatrixTreeProducer(TriLeptonBase):
         if self.Run3Mu and not is3Mu:
             return None
 
-        # CRITICAL: Require at least one non-tight lepton (matrix method requirement)
-        if self.Run1E2Mu:
-            if (tightMuons.size() == looseMuons.size() and
-                tightElectrons.size() == looseElectrons.size()):
-                return None
-
-        if self.Run3Mu:
-            if tightMuons.size() == looseMuons.size():
-                return None
-
         # 1E2Mu baseline
         if self.Run1E2Mu:
-            if not ev.PassTrigger(self.EMuTriggers):
-                return None
+            if (tightMuons.size() == looseMuons.size() and tightElectrons.size() == looseElectrons.size()): return
+            if not ev.PassTrigger(self.EMuTriggers): return
 
             mu1, mu2 = looseMuons.at(0), looseMuons.at(1)
             ele = looseElectrons.at(0)
@@ -218,51 +215,38 @@ class MatrixTreeProducer(TriLeptonBase):
             passLeadMu = mu1.Pt() > 25. and ele.Pt() > 15.
             passLeadEle = mu1.Pt() > 10. and ele.Pt() > 25.
             passSafeCut = passLeadMu or passLeadEle
-            if not passSafeCut:
-                return None
-            if not mu1.Charge() + mu2.Charge() == 0:
-                return None
+            if not passSafeCut: return
+            if not mu1.Charge() + mu2.Charge() == 0: return
 
             pair = mu1 + mu2
-            if not pair.M() > 12.:
-                return None
-            if not jets.size() >= 2:
-                return None
-            if not bjets.size() >= 1:
-                return None
+            if not pair.M() > 12.: return
+            if not jets.size() >= 2: return
+            if not bjets.size() >= 1: return
 
             return "SR1E2Mu"
 
         # 3Mu baseline
         if self.Run3Mu:
-            if not ev.PassTrigger(self.DblMuTriggers):
-                return None
+            if (tightMuons.size() == looseMuons.size()): return
+            if not ev.PassTrigger(self.DblMuTriggers): return
 
             mu1, mu2, mu3 = tuple(looseMuons)
-            if not mu1.Pt() > 20.:
-                return None
-            if not mu2.Pt() > 10.:
-                return None
-            if not mu3.Pt() > 10.:
-                return None
-            if not abs(mu1.Charge() + mu2.Charge() + mu3.Charge()) == 1:
-                return None
+            if not mu1.Pt() > 20.: return
+            if not mu2.Pt() > 10.: return
+            if not mu3.Pt() > 10.: return
+            if not abs(mu1.Charge() + mu2.Charge() + mu3.Charge()) == 1: return
 
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(looseMuons)
             pair1 = mu_ss1 + mu_os
             pair2 = mu_ss2 + mu_os
-            if not pair1.M() > 12.:
-                return None
-            if not pair2.M() > 12.:
-                return None
-            if not jets.size() >= 2:
-                return None
-            if not bjets.size() >= 1:
-                return None
+            if not pair1.M() > 12.: return
+            if not pair2.M() > 12.: return
+            if not jets.size() >= 2: return
+            if not bjets.size() >= 1:return
 
             return "SR3Mu"
 
-        return None
+        return
 
     def configureChargeOf(self, muons: RVec[Muon]) -> tuple:
         """Configure muon charges for 3Mu channel."""

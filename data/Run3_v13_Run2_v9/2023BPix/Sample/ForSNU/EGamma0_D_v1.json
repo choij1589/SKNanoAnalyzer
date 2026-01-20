@@ -1,7 +1,10 @@
 {
     "name": "EGamma0",
     "isMC": 0,
-    "NEvents": [],
+    "NEvents": [
+        102379655.0,
+        22365144.0
+    ],
     "path": [
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/EGamma0/Run2023D_v1/250622_221630/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/EGamma0/Run2023D_v1/250622_221630/0000/NANOAOD_2.root",

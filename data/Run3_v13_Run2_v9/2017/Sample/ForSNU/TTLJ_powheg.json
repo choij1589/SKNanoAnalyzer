@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
     "xsec": 365.34,
-    "sumsign": -1,
-    "sumW": -1,
-    "nmc": -1,
+    "sumsign": 352379292.0,
+    "sumW": 106897077864.7467,
+    "nmc": 355248000.0,
     "path": [
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/250411_111015/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run2NanoAODv9p1/2017/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/250505_051504/0000/NANOAOD_1.root",

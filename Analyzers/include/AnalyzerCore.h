@@ -197,6 +197,11 @@ public:
     inline void FillHist(const TString &histname, float value_x, float value_y, float weight, const RVec<float> &xbins, const RVec<float> &ybins) {FillHist(histname, value_x, value_y, weight, xbins.size() - 1, const_cast<float *>(xbins.data()), ybins.size() - 1, const_cast<float *>(ybins.data())); }
     inline void FillHist(const TString &histname, float value_x, float value_y, float value_z, float weight, const RVec<float> &xbins, const RVec<float> &ybins, const RVec<float> &zbins) {FillHist(histname, value_x, value_y, value_z, weight, xbins.size() - 1, const_cast<float *>(xbins.data()), ybins.size() - 1, const_cast<float *>(ybins.data()), zbins.size() - 1, const_cast<float *>(zbins.data())); }
 
+    // Helper for 2D jet eta-phi distributions (for veto map validation)
+    void FillJetEtaPhi2D(const RVec<Jet>& jets, float weight, const TString& stage);
+
+    // Helper for 2D electron scEta-scPhi distributions (for HEM veto validation)
+    void FillElectronScEtaPhi2D(const RVec<Electron>& electrons, float weight, const TString& stage);
 
     TTree* NewTree(const TString &treename, const RVec<TString> &keeps = {}, const RVec<TString> &drops = {});
     TTree* GetTree(const TString &treename);
