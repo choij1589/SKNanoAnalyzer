@@ -24,6 +24,7 @@ public:
         std::string target = "";
         bool evtLoopAgain = false;
         bool oneSided = false;
+        bool promptNormOnly = false;     // Only fill ZEnriched for normalization
         bool hasDedicatedSample = false;
         bool decorrelate_by_era = false;
         std::string dedicatedSampleKey_up = "";

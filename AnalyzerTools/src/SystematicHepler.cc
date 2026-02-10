@@ -36,6 +36,10 @@ Era(Era.Data()){
         {
             syst.oneSided = node["oneSided"].as<bool>();
         }
+        if (node["promptNormOnly"].IsDefined())
+        {
+            syst.promptNormOnly = node["promptNormOnly"].as<bool>();
+        }
         if (node["hasDedicatedSample"].IsDefined())
         {
             syst.hasDedicatedSample = node["hasDedicatedSample"].as<bool>();

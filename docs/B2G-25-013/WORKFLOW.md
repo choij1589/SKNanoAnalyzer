@@ -12,8 +12,8 @@ Run `DiLepton` analyzer to check object kinematics and basic distributions.
 
 ## 2. Background Estimation
 ### Fake Rate Measurement
-- `MeasFakeRateV3`
-- Closure test: `ClosFakeRate`
+- `MeasFakeRateV4` analyzer to measure fake rates in data and MC.
+- Closure test: `ClosFakeRate` analyzer to validate fake rate method.
 
 ## 3. Control Regions (Conversion Rate and WZNj Reweighting)
 Run `PromptAnalyzer` and `MatrixAnalyzer` for background estimation and reweighting derivations.

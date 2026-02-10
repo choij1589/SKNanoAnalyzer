@@ -51,10 +51,10 @@ class CutStage(IntEnum):
     NoiseFilter = 1
     EventVetoMap = 2
     LeptonSelection = 3
-    Trigger = 4
-    KinematicCuts = 5
-    JetRequirements = 6
-    JetVetoMap = 7
+    ConversionFilter = 4
+    Trigger = 5
+    KinematicCuts = 6
+    JetRequirements = 7
     Final = 8
 
 
@@ -288,31 +288,36 @@ class MatrixAnalyzer(TriLeptonBase):
 
         # Select jets
         max_jeteta = 2.4 if self.DataEra.Contains("2016") else 2.5
-        jets_passtight = self.SelectJets(allJets, "tight", 20., max_jeteta)
-        jets_vetoLep = self.JetsVetoLeptonInside(jets_passtight, vetoElectrons, vetoMuons, 0.4)
+        jets_selected = self.SelectJets(allJets, "tight", 20., max_jeteta)
+        jets_vetoLep = self.JetsVetoLeptonInside(jets_selected, vetoElectrons, vetoMuons, 0.4)
 
         jets = RVec(Jet)()
+        if self.Run == 2:
+            # Fill jet eta-phi BEFORE jet-level veto (Run 2 only)
+            self.fillJetEtaPhi2D(jets_vetoLep, 1.0, "BeforeJetVeto")
+
+            jets_vetoMap = RVec(Jet)()
+            for j in jets_vetoLep:
+                if not (self.RunNoJetVeto or self.PassVetoMap(j, allMuons, "jetvetomap")):
+                    continue
+                jets_vetoMap.emplace_back(j)
+
+            # Fill jet eta-phi AFTER jet-level veto (Run 2 only)
+            self.fillJetEtaPhi2D(jets_vetoMap, 1.0, "AfterJetVeto")
+
+            # Apply PUID as final step (Run 2 only)
+            jets = self.SelectJets(jets_vetoMap, "loosePuId", 20., max_jeteta)
+        else:   # Run3
+            jets = jets_vetoLep
+
+        # B-tagging
         bjets = RVec(Jet)()
-        jets_beforeVeto = RVec(Jet)()  # Track jets before veto map (Run 2 only)
         tagger = JetTagging.JetFlavTagger.DeepJet
         wp = self.myCorr.GetBTaggingWP(tagger, JetTagging.JetFlavTaggerWP.Medium)
 
-        for j in jets_vetoLep:
-            if self.Run == 2:
-                if not j.PassID("loosePuId"):
-                    continue
-                jets_beforeVeto.emplace_back(j)  # Track before veto map
-                if not (self.RunNoJetVeto or self.PassVetoMap(j, allMuons, "jetvetomap")):
-                    continue
-            jets.emplace_back(j)
-
+        for j in jets:
             if j.GetBTaggerResult(tagger) > wp:
                 bjets.emplace_back(j)
-
-        # Fill jet eta-phi for Run 2
-        if self.Run == 2:
-            self.fillJetEtaPhi2D(jets_beforeVeto, 1.0, "BeforeJetVeto")
-            self.fillJetEtaPhi2D(jets, 1.0, "AfterJetVeto")
 
         return {"vetoMuons": vetoMuons,
                 "looseMuons": looseMuons,
@@ -1023,6 +1028,10 @@ class MatrixAnalyzer(TriLeptonBase):
     def fillTree(self, channel: str, recoObjects: dict, weight: float):
         """Fill output tree with event information and ParticleNet scores."""
         if not self.RunTreeMode:
+            return
+
+        # Only fill tree for SR channels
+        if channel not in ["SR1E2Mu", "SR3Mu", "TTZ2E1Mu"]:
             return
 
         looseMuons = recoObjects["looseMuons"]

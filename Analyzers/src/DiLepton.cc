@@ -177,21 +177,24 @@ DiLepton::RecoObjects DiLepton::defineObjects(Event& ev,
 
     const float max_jeteta = DataEra.Contains("2016") ? 2.4 : 2.5;
     RVec<Jet> tightJets = SelectJets(allJets, "tight", 20., max_jeteta);
+    RVec<Jet> tightJets_vetoLep = JetsVetoLeptonInside(tightJets, vetoElectrons, vetoMuons, 0.4);
+    RVec<Jet> tightJets_noPUID;  // Jets before PUID for SF calculation
     if (Run == 2) {
-        tightJets = SelectJets(tightJets, "loosePuId", 20., max_jeteta);
-
         // Fill jet eta-phi BEFORE jet-level veto (Run 2 only, Central only)
-        if (syst == "Central") FillJetEtaPhi2D(tightJets, 1.0, "BeforeJetVeto");
+        if (syst == "Central") FillJetEtaPhi2D(tightJets_vetoLep, 1.0, "BeforeJetVeto");
 
         RVec<Jet> tightJets_vetoMap;
-        for (const auto &jet: tightJets)
+        for (const auto &jet: tightJets_vetoLep)
             if (PassVetoMap(jet, allMuons, "jetvetomap")) tightJets_vetoMap.emplace_back(jet);
-        if (!RunNoJetVeto) tightJets = tightJets_vetoMap;
+        if (!RunNoJetVeto) tightJets_vetoLep = tightJets_vetoMap;
 
         // Fill jet eta-phi AFTER jet-level veto (Run 2 only, Central only)
-        if (syst == "Central") FillJetEtaPhi2D(tightJets, 1.0, "AfterJetVeto");
+        if (syst == "Central") FillJetEtaPhi2D(tightJets_vetoLep, 1.0, "AfterJetVeto");
+
+        // Store jets before PUID for SF calculation, then apply PUID
+        tightJets_noPUID = tightJets_vetoLep;
+        tightJets_vetoLep = SelectJets(tightJets_vetoLep, "loosePuId", 20., max_jeteta);
     }
-    RVec<Jet> tightJets_vetoLep = JetsVetoLeptonInside(tightJets, vetoElectrons, vetoMuons, 0.4);
 
     RVec<Jet> bjets;
     float wp = myCorr->GetBTaggingWP(JetTagging::JetFlavTagger::DeepJet, JetTagging::JetFlavTaggerWP::Medium);
@@ -207,6 +210,7 @@ DiLepton::RecoObjects DiLepton::defineObjects(Event& ev,
     objects.tightElectrons = tightElectrons;
     objects.tightJets = tightJets;
     objects.tightJets_vetoLep = tightJets_vetoLep;
+    objects.tightJets_noPUID = tightJets_noPUID;
     objects.bjets = bjets;
     objects.genJets = genJets;
     objects.METv_default = METv_default;
@@ -404,8 +408,9 @@ DiLepton::WeightInfo DiLepton::getWeights(const DiLepton::Channel& channel,
     }
 
     // PileupJet ID scale factor (Run 2 only)
+    // Use jets before PUID selection for SF calculation
     if (Run == 2) {
-        const RVec<Jet>& jets = recoObjects.tightJets_vetoLep;
+        const RVec<Jet>& jets = recoObjects.tightJets_noPUID;
         const RVec<GenJet>& genJets = recoObjects.genJets;
         unordered_map<int, int> matched_idx = GenJetMatching(jets, genJets, fixedGridRhoFastjetAll, 0.4, 10.);
         if (syst.Contains("PileupJetIDSF")) {

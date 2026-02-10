@@ -33,6 +33,7 @@ public:
         RVec<Electron> tightElectrons;
         RVec<Jet> tightJets;
         RVec<Jet> tightJets_vetoLep;
+        RVec<Jet> tightJets_noPUID;  // Jets before PUID for SF calculation (Run 2)
         RVec<Jet> bjets;
         RVec<GenJet> genJets;
         Particle METv_default;

@@ -82,23 +82,25 @@ ClosFakeRate::RecoObjects ClosFakeRate::defineObjects(const Event& ev,
     objects.looseMuons = SelectMuons(objects.vetoMuons, MuonIDs->GetID("loose"), 10., 2.4);
     objects.tightMuons = SelectMuons(objects.looseMuons, MuonIDs->GetID("tight"), 10., 2.4);
 
-    // Select electrons
+    // Select electrons (HEM veto for 2018)
+    bool applyHEMVeto = DataEra.Contains("2018") && !RunNoHEMVeto;
     objects.vetoElectrons = SelectElectrons(allElectrons, ElectronIDs->GetID("loose"), 10., 2.5);
-    objects.looseElectrons = SelectElectrons(objects.vetoElectrons, ElectronIDs->GetID("loose"), 15., 2.5);
-    objects.tightElectrons = SelectElectrons(objects.looseElectrons, ElectronIDs->GetID("tight"), 15., 2.5);
+    objects.looseElectrons = SelectElectrons(objects.vetoElectrons, ElectronIDs->GetID("loose"), 15., 2.5, applyHEMVeto);
+    objects.tightElectrons = SelectElectrons(objects.looseElectrons, ElectronIDs->GetID("tight"), 15., 2.5, applyHEMVeto);
 
     // Select jets
+    // Order: tight -> vetoLep -> vetoMap -> PUID
     const float max_jeteta = DataEra.Contains("2016") ? 2.4 : 2.5;
     objects.jets = SelectJets(allJets, "tight", 20., max_jeteta);
+    objects.jets = JetsVetoLeptonInside(objects.jets, objects.vetoElectrons, objects.vetoMuons, 0.4);
     if (Run == 2) {
-        objects.jets = Filter(objects.jets, [&](const Jet& j) {
-            return j.PassID("loosePuId");
-        });
         objects.jets = Filter(objects.jets, [&](const Jet& j) {
             return PassVetoMap(j, allMuons, "jetvetomap");
         });
+        objects.jets = Filter(objects.jets, [&](const Jet& j) {
+            return j.PassID("loosePuId");
+        });
     }
-    objects.jets = JetsVetoLeptonInside(objects.jets, objects.vetoElectrons, objects.vetoMuons, 0.4);
 
     // Select b-jets
     const float wp = myCorr->GetBTaggingWP(JetTagging::JetFlavTagger::DeepJet, JetTagging::JetFlavTaggerWP::Medium);

@@ -53,8 +53,7 @@ class CutStage(IntEnum):
     Trigger = 5
     KinematicCuts = 6
     JetRequirements = 7
-    JetVetoMap = 8
-    Final = 9
+    Final = 8
 
 
 class PromptAnalyzer(TriLeptonBase):
@@ -380,25 +379,26 @@ class PromptAnalyzer(TriLeptonBase):
         max_jeteta = 2.4 if self.DataEra.Contains("2016") else 2.5
         jets_selected = self.SelectJets(allJets, "tight", 20., max_jeteta)
         jets_vetoLep = self.JetsVetoLeptonInside(jets_selected, vetoElectrons, vetoMuons, 0.4)
-        jets_passPUID = RVec(Jet)()
-        jets_vetoMap = RVec(Jet)()
+        jets_noPUID = RVec(Jet)()  # Jets before PUID for SF calculation (Run 2)
         jets = RVec(Jet)()
         if self.Run == 2:
-            jets_passPUID = self.SelectJets(jets_vetoLep, "loosePuId", 20., max_jeteta)
-
             # Fill jet eta-phi BEFORE jet-level veto (Run 2 only, Central only)
             if syst == "Central":
-                self.fillJetEtaPhi2D(jets_passPUID, 1.0, "BeforeJetVeto")
+                self.fillJetEtaPhi2D(jets_vetoLep, 1.0, "BeforeJetVeto")
 
-            for j in jets_passPUID:
+            jets_vetoMap = RVec(Jet)()
+            for j in jets_vetoLep:
                 if not (self.RunNoJetVeto or self.PassVetoMap(j, allMuons, "jetvetomap")):
                     continue
                 jets_vetoMap.emplace_back(j)
-            jets = jets_vetoMap
 
             # Fill jet eta-phi AFTER jet-level veto (Run 2 only, Central only)
             if syst == "Central":
-                self.fillJetEtaPhi2D(jets, 1.0, "AfterJetVeto")
+                self.fillJetEtaPhi2D(jets_vetoMap, 1.0, "AfterJetVeto")
+
+            # Store jets before PUID for SF calculation, then apply PUID
+            jets_noPUID = jets_vetoMap
+            jets = self.SelectJets(jets_vetoMap, "loosePuId", 20., max_jeteta)
         else:   # Run3
             jets = jets_vetoLep
 
@@ -415,9 +415,7 @@ class PromptAnalyzer(TriLeptonBase):
                 "tightMuons": tightMuons,
                 "vetoElectrons": vetoElectrons,
                 "tightElectrons": tightElectrons,
-                "jets_vetoLep": jets_vetoLep,
-                "jets_passPUID": jets_passPUID,
-                "jets_vetoMap": jets_vetoMap,
+                "jets_noPUID": jets_noPUID,
                 "jets": jets,
                 "bjets": bjets,
                 "METv": METv}
@@ -447,7 +445,6 @@ class PromptAnalyzer(TriLeptonBase):
         tightMuons = recoObjects["tightMuons"]
         vetoElectrons = recoObjects["vetoElectrons"]
         tightElectrons = recoObjects["tightElectrons"]
-        jets_passPUID = recoObjects["jets_passPUID"]
         jets = recoObjects["jets"]
         bjets = recoObjects["bjets"]
         METv = recoObjects["METv"]
@@ -510,11 +507,9 @@ class PromptAnalyzer(TriLeptonBase):
                 return
 
             self.fillCutflow(CutStage.KinematicCuts, self.channel, weight, "Central")
-            if jets_passPUID.size() >= 2:
-                self.fillCutflow(CutStage.JetRequirements, self.channel, weight, "Central")
             if not jets.size() >= 2:
                 return
-            self.fillCutflow(CutStage.JetVetoMap, self.channel, weight, "Central")
+            self.fillCutflow(CutStage.JetRequirements, self.channel, weight, "Central")
 
             if bjets.size() == 0:
                 isOnZ = abs(pair.M() - 91.2) < 10.
@@ -553,12 +548,10 @@ class PromptAnalyzer(TriLeptonBase):
             if not pair2.M() > 12.:
                 return
             self.fillCutflow(CutStage.KinematicCuts, self.channel, weight, "Central")
-
-            if jets_passPUID.size() >= 2:
-                self.fillCutflow(CutStage.JetRequirements, self.channel, weight, "Central")
             if not jets.size() >= 2:
                 return
-            self.fillCutflow(CutStage.JetVetoMap, self.channel, weight, "Central")
+            self.fillCutflow(CutStage.JetRequirements, self.channel, weight, "Central")
+
             if bjets.size() == 0:
                 isOnZ = abs(pair1.M() - 91.2) < 10. or abs(pair2.M() - 91.2) < 10.
                 if isOnZ:
@@ -873,9 +866,11 @@ class PromptAnalyzer(TriLeptonBase):
         else:
             pass
 
+        # PileupJet ID scale factor (Run 2 only)
+        # Use jets before PUID selection for SF calculation
         pileupIDSF = 1.
         if self.Run == 2:
-            jets = recoObjects["jets_vetoLep"]
+            jets = recoObjects["jets_noPUID"]
             matched_idx = self.GenJetMatching(jets, genJets, self.fixedGridRhoFastjetAll, 0.4, 10.)
             if "PileupJetIDSF" in syst:
                 pileupIDSF = self.myCorr.GetPileupJetIDSF(jets, matched_idx, "loose", var)
@@ -1306,6 +1301,10 @@ class PromptAnalyzer(TriLeptonBase):
         if not self.RunTreeMode:
             return
 
+        # Only fill tree for SR channels
+        if channel not in ["SR1E2Mu", "SR3Mu", "TTZ2E1Mu"]:
+            return
+
         muons = recoObjects["tightMuons"]
         electrons = recoObjects["tightElectrons"]
         jets = recoObjects["jets"]
@@ -1345,6 +1344,13 @@ class PromptAnalyzer(TriLeptonBase):
             self.mass2[syst][0] = pair2.M()
             self.MT1[syst][0] = (mu_ss1 + METv).Mt()
             self.MT2[syst][0] = (mu_ss2 + METv).Mt()
+        elif "2E1Mu" in channel:
+            el1, el2 = electrons.at(0), electrons.at(1)
+            pair = el1 + el2
+            self.mass1[syst][0] = pair.M()
+            self.mass2[syst][0] = -999.
+            self.MT1[syst][0] = -999.
+            self.MT2[syst][0] = -999.
 
         # ParticleNet scores (use scores from recoObjects)
         if syst == "Central":
@@ -1421,6 +1427,10 @@ class PromptAnalyzer(TriLeptonBase):
 
     def processTheorySystematics(self, channel: str, recoObjects: dict, weights: dict):
         """Process theory systematic variations."""
+        # Only fill tree for SR channels
+        if channel not in ["SR1E2Mu", "SR3Mu", "TTZ2E1Mu"]:
+            return
+
         muons = recoObjects["tightMuons"]
         electrons = recoObjects["tightElectrons"]
         jets = recoObjects["jets"]
@@ -1454,6 +1464,13 @@ class PromptAnalyzer(TriLeptonBase):
                 self.mass2[systName][0] = pair2.M()
                 self.MT1[systName][0] = (mu_ss1 + METv).Mt()
                 self.MT2[systName][0] = (mu_ss2 + METv).Mt()
+            elif "2E1Mu" in channel:
+                el1, el2 = electrons.at(0), electrons.at(1)
+                pair = el1 + el2
+                self.mass1[systName][0] = pair.M()
+                self.mass2[systName][0] = -999.
+                self.MT1[systName][0] = -999.
+                self.MT2[systName][0] = -999.
 
             # Copy fold and scores from Central (objects don't change for theory systematics)
             self.fold[systName][0] = self.fold["Central"][0]

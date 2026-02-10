@@ -15,7 +15,7 @@ public:
     // For tri-lepton regions
     bool Run1E2Mu, Run3Mu, Run2E1Mu;
     bool RunSyst;
-    bool RunNoJetVeto, RunNoHEMVeto;
+    bool RunNoJetVeto, RunNoHEMVeto, RunNoWZSF;
     bool RunTheoryUnc;
 
     // IDs

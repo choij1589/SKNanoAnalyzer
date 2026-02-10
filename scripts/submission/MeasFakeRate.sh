@@ -24,14 +24,11 @@ if [[ $OBJECT == "muon" ]]; then
         echo "Wrong era $ERA"
         exit 1
     fi
-    USERFLAGs=("MeasFakeMu8" "MeasFakeMu17")
-    for USERFLAG in ${USERFLAGs[@]}; do
-        #SKNano.py -a MeasFakeRateV3 -i $DATASTREAM -n 10 -e $ERA --userflags $USERFLAG,RunSyst
-        #SKNano.py -a MeasFakeRateV3 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 30 -e $ERA --userflags $USERFLAG,RunSyst
-        #SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/DiLepton.txt -n 10 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/$QCD.txt -n 20 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i TTJJ_powheg -n 50 -e $ERA --userflags $USERFLAG,RunSyst
-    done
+    SKNano.py -a MeasFakeRateV4 -i $DATASTREAM -n 20 -e $ERA --userflags MeasFakeMu,RunSyst
+    SKNano.py -a MeasFakeRateV4 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 50 -e $ERA --userflags MeasFakeMu,RunSyst
+    SKNano.py -a MeasFakeRateV4 -i $SAMPLELIST/DiLepton.txt -n 20 -e $ERA --userflags MeasFakeMu,RunSyst
+    SKNano.py -a MeasFakeRateV4 -i $SAMPLELIST/$QCD.txt -n 20 -e $ERA --userflags MeasFakeMu
+    SKNano.py -a MeasFakeRateV4 -i TTJJ_powheg -n 50 -e $ERA --userflags MeasFakeMu
 elif [[ $OBJECT == "electron" ]]; then
     QCD="QCD_EMEnriched"
     if [[ $ERA == "2016"* ]]; then
@@ -53,14 +50,16 @@ elif [[ $OBJECT == "electron" ]]; then
         echo "Wrong era $ERA"
         exit 1
     fi
-    USERFLAGs=("MeasFakeEl8" "MeasFakeEl12" "MeasFakeEl23")
-    for USERFLAG in ${USERFLAGs[@]}; do
-        #SKNano.py -a MeasFakeRateV3 -i $DATASTREAM -n 10 -e $ERA --userflags $USERFLAG,RunSyst
-        #SKNano.py -a MeasFakeRateV3 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 30 -e $ERA --userflags $USERFLAG,RunSyst
-        #SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/DiLepton.txt -n 10 -e $ERA --userflags $USERFLAG,RunSyst
-        SKNano.py -a MeasFakeRateV3 -i $SAMPLELIST/$QCD.txt -n 20 -e $ERA --userflags $USERFLAG,RunSyst 
-        SKNano.py -a MeasFakeRateV3 -i TTJJ_powheg -n 50 -e $ERA --userflags $USERFLAG,RunSyst
-    done
+    SKNano.py -a MeasFakeRateV4 -i $DATASTREAM -n 20 -e $ERA --userflags MeasFakeEl,RunSyst
+    SKNano.py -a MeasFakeRateV4 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 50 -e $ERA --userflags MeasFakeEl,RunSyst
+    SKNano.py -a MeasFakeRateV4 -i $SAMPLELIST/DiLepton.txt -n 20 -e $ERA --userflags MeasFakeEl,RunSyst
+    SKNano.py -a MeasFakeRateV4 -i $SAMPLELIST/$QCD.txt -n 20 -e $ERA --userflags MeasFakeEl
+    SKNano.py -a MeasFakeRateV4 -i TTJJ_powheg -n 50 -e $ERA --userflags MeasFakeEl
+    if [[ $ERA == "2018" ]]; then
+        SKNano.py -a MeasFakeRateV4 -i $DATASTREAM -n 20 -e $ERA --userflags MeasFakeEl,RunNoHEMVeto
+        SKNano.py -a MeasFakeRateV4 -i DYJets,WJets,TTLJ_powheg,TTLL_powheg -n 50 -e $ERA --userflags MeasFakeEl,RunNoHEMVeto
+        SKNano.py -a MeasFakeRateV4 -i $SAMPLELIST/DiLepton.txt -n 20 -e $ERA --userflags MeasFakeEl,RunNoHEMVeto
+    fi
 else
     echo "Wrong object $OBJECT"
     exit 1

@@ -1,23 +1,4 @@
 systematics:
-  # Object variations that require event re-processing
-  - syst: JetRes
-    evtLoopAgain: true
-    
-  - syst: JetEn
-    evtLoopAgain: true
-    
-  - syst: ElectronRes
-    evtLoopAgain: true
-    
-  - syst: ElectronEn
-    evtLoopAgain: true
-    
-  - syst: MuonEn
-    evtLoopAgain: true
-
-  - syst: UnclusteredEn
-    evtLoopAgain: true
-
   # Selection variations that require event re-processing
   - syst: MotherJetPt
     evtLoopAgain: true
@@ -26,13 +7,43 @@ systematics:
     evtLoopAgain: true
     oneSided: true
 
-  # Weight-only variations (no evtLoopAgain needed)
+  # Object variations that require event re-processing
+  - syst: JetRes
+    evtLoopAgain: true
+    promptNormOnly: true
+    
+  - syst: JetEn
+    evtLoopAgain: true
+    promptNormOnly: true
+    
+  - syst: ElectronRes
+    evtLoopAgain: true
+    promptNormOnly: true
+    
+  - syst: ElectronEn
+    evtLoopAgain: true
+    promptNormOnly: true
+    
+  - syst: MuonEn
+    evtLoopAgain: true
+    promptNormOnly: true
+
+  - syst: UnclusteredEn
+    evtLoopAgain: true
+    promptNormOnly: true
+
+  # Weight-only variations - prompt normalization only (ZEnriched Z mass only)
   - syst: L1Prefire
-    
+    promptNormOnly: true
+
   - syst: MuonRecoSF
-    
+    promptNormOnly: true
+
   - syst: ElectronRecoSF
-    
+    promptNormOnly: true
+
   - syst: PileupReweight
+    promptNormOnly: true
 
   - syst: PileupJetIDSF
+    promptNormOnly: true

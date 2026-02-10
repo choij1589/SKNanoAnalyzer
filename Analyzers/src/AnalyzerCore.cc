@@ -1161,18 +1161,29 @@ RVec<Jet> AnalyzerCore::JetsVetoLeptonInside(const RVec<Jet> &jets, const RVec<E
 // For Run2, reject jets within the veto map
 bool AnalyzerCore::PassVetoMap(const Jet &jet, const RVec<Muon> &AllMuons, const TString mapCategory){
     if (! (Run == 2)) return true;
+
     // Only apply to the jets with em energy fraction less than 0.9
     if (jet.chEmEF() + jet.neEmEF() > 0.9) return true;
+    // Not overlapping with muons within dR < 0.2
+    for (const auto &muon: AllMuons) {
+        if (jet.DeltaR(muon) < 0.2) return true;
+    }
+
+    // Other selections are already applied
+    const bool overlap_veto_map = myCorr->IsJetVetoZone(jet.Eta(), jet.Phi(), mapCategory);
+    return !overlap_veto_map;
+
 
     // Selections should be looser than Analysis jet selections
-    bool pass_loose_selection = jet.Pt() > 15.;
-    pass_loose_selection = pass_loose_selection && jet.PassID(Jet::JetID::TIGHT);
-    pass_loose_selection = pass_loose_selection && (jet.Pt() > 50. || jet.PassID(Jet::JetID::PUID_LOOSE));
-    for (const auto &muon: AllMuons){
-        pass_loose_selection = pass_loose_selection && (jet.DeltaR(muon) > 0.2);
-    }
-    bool pass_veto_map = pass_loose_selection && (!myCorr->IsJetVetoZone(jet.Eta(), jet.Phi(), mapCategory));
-    return pass_veto_map;
+    //bool pass_loose_selection = jet.Pt() > 15.;
+    //pass_loose_selection = pass_loose_selection && jet.PassID(Jet::JetID::TIGHT);
+    //pass_loose_selection = pass_loose_selection && (jet.Pt() > 50. || jet.PassID(Jet::JetID::PUID_LOOSE));
+    // This selection is tighter than veto map lepton veto dR=0.4
+    //for (const auto &muon: AllMuons){
+    //    pass_loose_selection = pass_loose_selection && (jet.DeltaR(muon) > 0.2);
+    //}
+    //bool pass_veto_map = pass_loose_selection && (!myCorr->IsJetVetoZone(jet.Eta(), jet.Phi(), mapCategory));
+    //return pass_veto_map;
 }
 
 // For Run3, reject events if any jet is within the veto map

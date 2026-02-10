@@ -11,6 +11,7 @@ void TriLeptonBase::initializeAnalyzer() {
     RunSyst = HasFlag("RunSyst");
     RunNoJetVeto = HasFlag("RunNoJetVeto");
     RunNoHEMVeto = HasFlag("RunNoHEMVeto");
+    RunNoWZSF = HasFlag("RunNoWZSF");
     RunTheoryUnc = HasFlag("RunTheoryUnc");
 
     // Lepton IDs and triggers
