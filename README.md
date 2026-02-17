@@ -1,8 +1,9 @@
 # SKNanoAnalyzer
----
+**v1.0.1**
+
 ## Introduction
-- If you want to engage in the development and commit to the repository, please read [Development Guide](docs/DevelopmentGuide.md) first.
 - For setting up the environment and starting the analysis, please refer [Getting Started](docs/GettingStarted.md).
+- If you want to engage in the development and commit to the repository, please read [Development Guide](docs/DevelopmentGuide.md) first.
 
 ## To do
 ### Assigned
@@ -16,9 +17,6 @@
 - [ ] tt reconstruction using KinFit Library : **Yeonjoon**
 - [ ] NLO vs LO comparison in MadGraph Tutorial: **Jin**
 - [ ] Tau+Fatjet Tutorial : **Youngwan**
-
-- [ ] At least try to install until next meeting : ***All***
-
 
 ## Useful links
 - [MiniAOD](https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD)

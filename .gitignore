@@ -1,10 +1,10 @@
 build/*
 install/*
 test/*
-test.root
 LocalRuns/**
-config/config.*
+config/**
 !config/config.default
+!config/config.root
 **/Skim*.json
 external/RoccoR/**
 external/KinematicFitter/**
@@ -13,15 +13,12 @@ external/libtorch/**
 *.onnx
 **/__pycache__/**
 .DS_Store
-SKFlatAnalyzer
-HSNanoAnalyzer
-SKNanoOutput
 Run*NanoAOD*
 **/BTV/*.json
 logs/**
 
 #Temporary Added to my personal temp files
-setup.sh
+SKFlatAnalyzer/**
 DataCOPY/** 
 MCCOPY/**
 .vscode/**

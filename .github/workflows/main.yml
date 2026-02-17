@@ -36,4 +36,4 @@ jobs:
           submodules: true
 
       - name: Setup and Build
-        run: source ./setup.sh && ./scripts/build.sh
+        run: source /etc/profile.d/conda.sh && source ./setup.sh && ./scripts/build.sh

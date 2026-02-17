@@ -1,144 +1,274 @@
-# Electrons Documentation
+# Electron
 
-## Overview
-This document summarizes the electron corrections and algorithms used in SKNanoAnalyzer for both Run 2 (NanoAODv9) and Run 3 (NanoAODv13) data periods.
+The `Electron` class represents reconstructed electrons. Inherits from `Lepton` → `Particle` → `TLorentzVector`.
 
-## Electron Reconstruction
+## Contents
 
-### Run 2 (NanoAODv9)
-- **Energy Corrections**: Pre-applied scale and smearing corrections in NanoAOD
-- **ID Algorithms**: Fall17v2 recommendations
-- **Scale Factors**: POG-provided via correctionlib framework
+- [Class Hierarchy](#class-hierarchy)
+- [Getting Electrons](#getting-electrons)
+- [Identification](#identification)
+- [Isolation](#isolation)
+- [Energy Corrections](#energy-corrections)
+- [Scale Factors](#scale-factors)
+- [Properties Reference](#properties-reference)
+- [Run 2 vs Run 3](#run-2-vs-run-3)
 
-### Run 3 (NanoAODv13)
-- **Energy Corrections**: Applied post-processing via correctionlib (not pre-applied)
-- **ID Algorithms**: Updated MVA and cut-based IDs for 13.6 TeV (Winter22v1)
-- **Scale Factors**: Era-specific (2022, 2022EE, 2023, 2023BPix) POG recommendations
+---
 
-## Energy Scale and Smearing Corrections
+## Class Hierarchy
 
-### NanoAODv9 (Run 2)
-- **Pre-applied**: Energy corrections embedded in stored electron objects
-- **Scale Corrections**: Applied to data to match MC energy scale
-- **Smearing**: Applied to MC to match data energy resolution
-- **Systematics**: Scale uncertainty stored in `data/Run3_v13_Run2_v9/*/EGM/EGM_ScaleUnc.json.gz`. Resolution uncertainty stored in NanoAOD branches.
-
-### NanoAODv13 (Run 3)
-- **Pre-appllied**: Energy corrections embedded in stored electron objects
-- **Scale Uncertainties**: Systematic variations available via POG corrections
-- **Smearing**: MC resolution smearing applied with seed-based randomization
-- **Systematics**: Integrated into CMS correctionlib ecosystem
-
-## SKNanoAnalyzer Implementation
-
-### Electron Class Structure
-**File**: `DataFormats/include/Electron.h`, `DataFormats/src/Electron.cc`
-
-#### Key Properties Stored:
-- **Energy Uncertainties**:
-  - `j_energyErr`: Energy uncertainty for propagation
-  - `j_dEsigmaUp/Down`: Resolution uncertainty variations
-- **Identification Variables**:
-  - SuperCluster: `j_scEta`, track-cluster matching parameters
-  - Shower shape: `j_sieie`, `j_hoe`, `j_r9`
-  - Isolation: PF cluster isolation, track isolation variants
-
-#### Electron ID Implementation:
-- **Cut-based IDs**: Veto, Loose, Medium, Tight, HEEP working points
-- **MVA-based IDs**: ISO and NoISO variants with WP80, WP90 working points
-
-### Energy Corrections in MyCorrection
-
-**File**: `AnalyzerTools/include/MyCorrection.h`
-
-#### Available Methods:
-- `GetElectronScaleUnc(scEta, seedGain, runNumber, r9, pt, syst)`: Energy scale corrections
-- `GetElectronSmearUnc(electron, syst, seed)`: Energy resolution smearing
-- `GetElectronRECOSF(eta, pt, phi, syst)`: Reconstruction efficiency scale factors
-- `GetElectronIDSF(ID_key, eta, pt, phi, syst)`: Identification efficiency scale factors
-- `GetElectronTriggerSF(trigger_key, eta, pt, phi, syst)`: Trigger efficiency scale factors
-
-#### Energy Scale Implementation:
-- **Run 2**: Uses "UL-EGM_ScaleUnc" correction set with era-specific parameters
-- **Run 3**: Uses "Scale"/"ScaleJSON" with run-dependent corrections
-- **Systematic Variations**: Total uncertainty propagation for up/down variations
-
-## Identification Algorithms
-
-### Available ID Working Points:
-1. **Cut-based IDs**: Veto, Loose, Medium, Tight (POG standard)
-2. **HEEP ID**: High-energy electron identification for high-pT electrons
-3. **MVA IDs**: Machine learning-based with isolation (WP80, WP90, WPL)
-4. **MVA NoIso IDs**: MVA without isolation requirements
-> In NanoV12, NoIso ID has a bug [MVAElectronIDRun3](https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun3). This is the main reason for using NanoV13.
-
-### Identification Variables:
-- **Shower Shape**: σ_iηiη, H/E ratio, R9
-- **Track-Cluster Matching**: Δη, Δφ in seed and supercluster
-- **Isolation**: ECAL/HCAL PF cluster isolation, tracker isolation
-- **Quality**: Conversion veto, missing hits, charge consistency
-
-## Era-Specific Configurations
-
-### Run 2 Eras:
-- 2016preVFP, 2016postVFP, 2017, 2018
-- UL (Ultra-Legacy) reprocessing recommendations
-- Fall17v2 IDs recommended
-
-### Run 3 Eras:
-- 2022, 2022EE, 2023, 2023BPix
-- Winter22v1 IDs recommended
-
-## Usage Examples
-
-### Basic Electron Selection:
-```cpp
-RVec<Electron *> selectedElectrons;
-for (auto &electron : *electrons) {
-    if (electron.Pt() > 25 && abs(electron.Eta()) < 2.5 && 
-        electron.PassID("POGTight")) {
-        selectedElectrons.push_back(&electron);
-    }
-}
+```text
+TLorentzVector
+└── Particle        (charge, 4-momentum)
+    └── Lepton      (dXY, dZ, IP3D, isolation)
+        └── Electron
 ```
 
-### Energy Scale Corrections:
+**Files:** `DataFormats/include/Electron.h`, `DataFormats/src/Electron.cc`
+
+---
+
+## Getting Electrons
+
+### From AnalyzerCore
+
 ```cpp
-float scaleSF = myCorrection.GetElectronScaleUnc(electron.scEta(), electron.SeedGain(),
-                                                 runNumber, electron.r9(), electron.Pt(),
-                                                 MyCorrection::variation::nom);
-TLorentzVector corrected_p4 = electron.P4() * scaleSF;
+// All electrons (GAP region excluded automatically)
+RVec<Electron> allElectrons = GetAllElectrons();
+
+// With ID, pT, eta cuts
+RVec<Electron> electrons = GetElectrons("POGTight", 20., 2.5);
+
+// With HEM veto (2018 only)
+RVec<Electron> electrons = GetElectrons("POGTight", 20., 2.5, true);
+
+// Select from existing collection (enum-based)
+RVec<Electron> selected = SelectElectrons(electrons, Electron::ElectronID::POG_TIGHT, 25., 2.4);
 ```
 
-### Scale Factor Application:
+---
+
+## Identification
+
+### Enum-Based IDs (Recommended)
+
 ```cpp
-float recoSF = myCorrection.GetElectronRECOSF(abs(electron.Eta()), electron.Pt(),
-                                              electron.Phi(), MyCorrection::variation::nom);
-float idSF = myCorrection.GetElectronIDSF("Tight", abs(electron.Eta()), electron.Pt(),
-                                          electron.Phi(), MyCorrection::variation::nom);
+enum class ElectronID {
+    NOCUT,
+    POG_VETO, POG_LOOSE, POG_MEDIUM, POG_TIGHT,
+    POG_HEEP,
+    POG_MVAISO_WP80, POG_MVAISO_WP90, POG_MVAISO_WPL,
+    POG_MVANOISO_WP80, POG_MVANOISO_WP90, POG_MVANOISO_WPL,
+};
+
+if (electron.PassID(Electron::ElectronID::POG_TIGHT)) { ... }
 ```
 
-### Custom Analysis IDs:
+### String-Based IDs
+
+| String              | Description                       |
+| ------------------- | --------------------------------- |
+| `"POGVeto"`         | Cut-based Veto                    |
+| `"POGLoose"`        | Cut-based Loose                   |
+| `"POGMedium"`       | Cut-based Medium                  |
+| `"POGTight"`        | Cut-based Tight                   |
+| `"POGHEEP"`         | High-Energy Electron Pairs        |
+| `"POGMVAIsoWP80"`   | MVA with Iso, 80% eff WP          |
+| `"POGMVAIsoWP90"`   | MVA with Iso, 90% eff WP          |
+| `"POGMVANoIsoWP80"` | MVA without Iso, 80% eff WP       |
+| `"POGMVANoIsoWP90"` | MVA without Iso, 90% eff WP       |
+| `"HcToWATight"`     | Analysis-specific tight           |
+| `"HcToWALooseRun2"` | Analysis-specific loose (Run 2)   |
+| `"HcToWALooseRun3"` | Analysis-specific loose (Run 3)   |
+
+### MVA Scores
+
 ```cpp
-// Run-dependent custom selection
-if (run == 2) {
-    if (electron.PassID("HcToWALooseRun2")) selectedElectrons.push_back(&electron);
-} else {
-    if (electron.PassID("HcToWALooseRun3")) selectedElectrons.push_back(&electron);
-}
+float mvaIso   = electron.MvaIso();       // MVA with isolation
+float mvaNoIso = electron.MvaNoIso();     // MVA without isolation
+float mvaTTH   = electron.MvaTTH();       // ttH-optimized
+
+// Boolean WP checks
+bool pass = electron.isMVAIsoWP80();
+bool pass = electron.isMVANoIsoWP90();
 ```
 
-## Key Differences Run 2 vs Run 3
+### Cut-Based Working Points
 
-| Aspect | Run 2 (NanoAODv9) | Run 3 (NanoAODv13) |
-|--------|-------------------|---------------------|
-| ID Algorithms | Fall17v2 | Winter22v1 |
-| Systematic Framework | POG JSON files | Integrated correctionlib |
-| Phi Dependencies | Not used in scale factors | Some SFs depend on phi |
+```cpp
+enum class WORKINGPOINT { NONE, VETO, LOOSE, MEDIUM, TIGHT };
+
+// Check if passes at least Medium
+if ((int)electron.CutBased() >= (int)Electron::WORKINGPOINT::MEDIUM) { ... }
+```
+
+---
+
+## Isolation
+
+Inherited from `Lepton`:
+
+```cpp
+float tkRelIso = electron.TkRelIso();        // Track-based
+float pfIso03  = electron.PfRelIso03();      // PF ΔR < 0.3
+float pfIso04  = electron.PfRelIso04();      // PF ΔR < 0.4
+float miniIso  = electron.MiniPFRelIso();    // Mini-isolation (pT-dependent cone)
+```
+
+---
+
+## Energy Corrections
+
+### Scale and Smearing
+
+Energy corrections are pre-applied in NanoAOD. Use these for systematic variations:
+
+```cpp
+// Scale variation (data-like uncertainty)
+RVec<Electron> scaled = ScaleElectrons(event, electrons, "up");    // or "down"
+
+// Smearing variation (MC resolution uncertainty)
+RVec<Electron> smeared = SmearElectrons(electrons, "up");          // or "down", "nom" (Run 3)
+```
+
+### Energy Uncertainty
+
+```cpp
+float energyErr = electron.energyErr();
+
+// Run 2: resolution variations stored in NanoAOD
+float dEup   = electron.dEsigmaUp();
+float dEdown = electron.dEsigmaDown();
+```
+
+### Direct Correction Access
+
+```cpp
+// Scale uncertainty
+float scale = myCorr->GetElectronScaleUnc(
+    electron.scEta(), electron.SeedGain(), run, electron.r9(), electron.Pt(),
+    MyCorrection::variation::up);
+
+// Smearing (Run 3)
+float smear = myCorr->GetElectronSmearUnc(electron, MyCorrection::variation::nom, seed);
+```
+
+---
+
+## Scale Factors
+
+```cpp
+// Reconstruction SF
+float recoSF = myCorr->GetElectronRECOSF(eta, pt, phi, MyCorrection::variation::nom);
+
+// Identification SF
+float idSF = myCorr->GetElectronIDSF("Tight", eta, pt, phi, MyCorrection::variation::nom);
+
+// Trigger SF
+float trigSF = myCorr->GetElectronTriggerSF("Ele32", eta, pt, phi, MyCorrection::variation::nom);
+```
+
+---
+
+## Properties Reference
+
+### Supercluster
+
+```cpp
+float scEta = electron.scEta();
+
+// Eta regions
+enum class ETAREGION { IB, OB, GAP, EC };  // |η|: <0.8, <1.444, <1.566, else
+ETAREGION region = electron.etaRegion();
+
+// Track-SC matching
+float dEtaSC   = electron.deltaEtaInSC();
+float dPhiSC   = electron.deltaPhiInSC();
+float dEtaSeed = electron.deltaEtaInSeed();
+float dPhiSeed = electron.deltaPhiInSeed();
+```
+
+### Shower Shape
+
+```cpp
+float sieie = electron.sieie();               // σ_iηiη
+float hoe   = electron.hoe();                 // H/E
+float r9    = electron.r9();                  // R9
+float eInvMinusPInv = electron.eInvMinusPInv();
+```
+
+### Track Quality
+
+```cpp
+bool  convVeto    = electron.ConvVeto();      // Conversion veto
+uchar lostHits    = electron.LostHits();      // Missing inner hits
+uchar tightCharge = electron.TightCharge();   // Charge consistency (0/1/2)
+uchar seedGain    = electron.SeedGain();
+```
+
+### Isolation Sums (ΔR < 0.3)
+
+```cpp
+float ecalSum   = electron.dr03EcalRecHitSumEt();
+float hcalSum   = electron.dr03HcalDepth1TowerSumEt();
+float tkSum     = electron.dr03TkSumPt();
+float tkSumHEEP = electron.dr03TkSumPtHEEP();
+
+// PF cluster isolation
+float ecalPF = electron.ecalPFClusterIso();
+float hcalPF = electron.hcalPFClusterIso();
+```
+
+### Impact Parameters (from Lepton)
+
+```cpp
+float dxy   = electron.dXY();
+float dz    = electron.dZ();
+float ip3d  = electron.IP3D();
+float sip3d = electron.SIP3D();
+```
+
+### Generator Matching (MC)
+
+```cpp
+short genIdx  = electron.GenPartIdx();    // Index in GenPart
+uchar genFlav = electron.GenPartFlav();   // Generator flavor
+short jetIdx  = electron.JetIdx();        // Matched jet index
+```
+
+---
+
+## Run 2 vs Run 3
+
+| Aspect             | Run 2 (NanoAODv9)        | Run 3 (NanoAODv13)             |
+| ------------------ | ------------------------ | ------------------------------ |
+| ID Algorithm       | Fall17v2                 | Winter22v1                     |
+| MVA branches       | `mvaFall17V2*`           | `mvaIso*`, `mvaNoIso*`         |
+| Energy smearing    | Stored in NanoAOD        | Applied via correction         |
+| φ in scale factors | Not used                 | Used in some SFs               |
+| Eras               | 2016pre/post, 2017, 2018 | 2022, 2022EE, 2023, 2023BPix   |
+
+> **Note:** NanoAODv12 has a bug in MVA NoIso ID. Use v13 for Run 3. See [MVAElectronIDRun3](https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun3).
+
+---
+
+## HEM Veto (2018)
+
+The 2018 data has a HEM detector issue affecting electrons in η < -1.25 and -1.62 < φ < -0.82:
+
+```cpp
+// Check manually
+bool isHEM = IsHEMElectron(electron);
+
+// Or apply during selection
+RVec<Electron> electrons = GetElectrons("POGTight", 20., 2.4, true);  // vetoHEM=true
+```
+
+---
 
 ## References
+
 - [CMS EGamma POG Run2](https://cms-egamma.github.io/Run2/)
-- [Electron Performance 2022-2023](https://cds.cern.ch/record/2904365)
 - [EGM Scale Factors JSON](https://cms-egamma.github.io/EgammaSFJSON/)
-- [CMS EGamma Results](https://twiki.cern.ch/twiki/bin/view/CMSPublic/PhysicsResultsEGM)
+- [Electron Performance 2022-2023](https://cds.cern.ch/record/2904365)
 - [correctionlib Framework](https://github.com/cms-nanoAOD/correctionlib)
