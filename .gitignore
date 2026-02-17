@@ -14,7 +14,6 @@ external/libtorch/**
 **/__pycache__/**
 .DS_Store
 Run*NanoAOD*
-**/BTV/*.json
 logs/**
 
 #Temporary Added to my personal temp files
