@@ -329,6 +329,7 @@ def jobProducer(era, sample, argparse, masterJobDirectory, userflags, isample, t
                 job_content = job_content.replace("[xsec]", str(sampleInfo["xsec"]))
                 job_content = job_content.replace("[sumW]", str(sampleInfo["sumW"]))
                 job_content = job_content.replace("[sumSign]", str(sampleInfo["sumsign"]))
+                job_content = job_content.replace("[filterEff]", str(sampleInfo.get("filterEff", 1.)))
             else:
                 # For data, remove MC-specific lines
                 job_content = job_content.replace("module.IsDATA = false;", "module.IsDATA = true;")
@@ -336,6 +337,7 @@ def jobProducer(era, sample, argparse, masterJobDirectory, userflags, isample, t
                 job_content = job_content.replace("module.xsec = [xsec];", "")
                 job_content = job_content.replace("module.sumW = [sumW];", "") 
                 job_content = job_content.replace("module.sumSign = [sumSign];", "")
+                job_content = job_content.replace("module.filterEff = [filterEff];", "")
 
             # Handle userflags
             if userflags:

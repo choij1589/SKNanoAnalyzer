@@ -10,6 +10,7 @@ void [jobname]() {
     module.xsec = [xsec];
     module.sumW = [sumW];
     module.sumSign = [sumSign];
+    module.filterEff = [filterEff];
     module.SetEra("[era]");
     module.SetPeriod("[period]");
 [USERFLAGS]

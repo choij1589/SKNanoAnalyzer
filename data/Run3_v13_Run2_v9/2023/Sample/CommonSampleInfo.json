@@ -96,37 +96,37 @@
         "isMC": 1,
         "PD": "DYto2L-2Jets_MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
         "xsec": 6345.99,
+        "ref": "10.1103/PhysRevD.86.094034",
         "nmc": 156185509.0,
         "sumsign": 103978251.0,
-        "sumW": 2784538780275.129,
-        "ref": "FEWZ, SMP-22-017"
+        "sumW": 2784538780275.129
     },
     "DYJets_MG": {
         "isMC": 1,
         "PD": "DYto2L-4Jets_MLL-50_TuneCP5_13p6TeV_madgraphMLM-pythia8",
         "xsec": 6345.99,
+        "ref": "10.1103/PhysRevD.86.094034",
         "nmc": 130559088.0,
         "sumsign": 130559088.0,
-        "sumW": 1722165370848.2812,
-        "ref": "FEWZ, SMP-22-017"
+        "sumW": 1722165370848.2812
     },
     "DYJets10to50": {
         "isMC": 1,
         "PD": "DYto2L-2Jets_MLL-10to50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
         "xsec": 19982.5,
+        "ref": "10.1103/PhysRevD.86.094034",
         "nmc": 200673913.0,
         "sumsign": 149951901.0,
-        "sumW": 7037027158072.3125,
-        "ref": "Scaling NLO to NNLO using mll > 50 GeV"
+        "sumW": 7037027158072.3125
     },
     "DYJets10to50_MG": {
         "isMC": 1,
         "PD": "DYto2L-4Jets_MLL-10to50_TuneCP5_13p6TeV_madgraphMLM-pythia8",
         "xsec": 19982.5,
+        "ref": "10.1103/PhysRevD.86.094034",
         "nmc": 306998077.0,
         "sumsign": 306998077.0,
-        "sumW": 6969086273408.197,
-        "ref": "Scaling NLO to NNLO using mll > 50 GeV"
+        "sumW": 6969086273408.197
     },
     "TTJJ_powheg": {
         "isMC": 1,
@@ -140,12 +140,12 @@
     "TTLL_powheg": {
         "isMC": 1,
         "PD": "TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8",
-        "xsec_formula": "923.6*3*0.1086*3*0.1086",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
         "nmc": 48104000.0,
         "sumsign": 47713334.0,
-        "sumW": 3869737330.782318,
-        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO"
+        "sumW": 3869737330.782318
     },
     "TTLJ_powheg": {
         "isMC": 1,
@@ -157,32 +157,172 @@
         "sumW": 51034620213.917725,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO"
     },
+    "TTLL_powheg_ext1": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8_ext1",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
+    },
+    "TTLL_hdamp_down_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_Hdamp-158_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19646000.0,
+        "sumsign": 19324248.0,
+        "sumW": 1580163155.1549683
+    },
+    "TTLL_hdamp_up_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_Hdamp-418_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19631000.0,
+        "sumsign": 19540042.0,
+        "sumW": 1579384510.0451813
+    },
+    "TTLL_TuneCP5_erdOn_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_TuneCP5_ERDOn_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19940000.0,
+        "sumsign": 19779416.0,
+        "sumW": 1604187719.857788
+    },
+    "TTLL_TuneCP5CR1_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_TuneCP5CR1_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19674000.0,
+        "sumsign": 19515276.0,
+        "sumW": 1582764936.479187
+    },
+    "TTLL_TuneCP5CR2_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_TuneCP5CR2_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19544000.0,
+        "sumsign": 19387078.0,
+        "sumW": 1572367579.0794373
+    },
+    "TTLL_TuneCP5up_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_TuneCP5Up_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19694000.0,
+        "sumsign": 19534126.0,
+        "sumW": 1584293744.9394226
+    },
+    "TTLL_TuneCP5down_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_TuneCP5Down_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19573999.0,
+        "sumsign": 19416355.0,
+        "sumW": 1574742057.8746796
+    },
+    "TTLL_mtop166p5_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_MT-166p5_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19439000.0,
+        "sumsign": 19276660.0,
+        "sumW": 1844888222.867279
+    },
+    "TTLL_mtop169p5_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_MT-169p5_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19751000.0,
+        "sumsign": 19589166.0,
+        "sumW": 1724792797.956253
+    },
+    "TTLL_mtop171p5_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_MT-171p5_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19805000.0,
+        "sumsign": 19644316.0,
+        "sumW": 1637241752.5700684
+    },
+    "TTLL_mtop173p5_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_MT-173p5_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19604000.0,
+        "sumsign": 19445262.0,
+        "sumW": 1534896131.1607819
+    },
+    "TTLL_mtop175p5_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_MT-175p5_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 19973000.0,
+        "sumsign": 19814384.0,
+        "sumW": 1482052491.5324707
+    },
+    "TTLL_mtop178p5_powheg": {
+        "isMC": 1,
+        "PD": "TTto2L2Nu_MT-178p5_TuneCP5_13p6TeV_powheg-pythia8",
+        "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
+        "xsec": 98.03,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
+        "nmc": 16290000.0,
+        "sumsign": 16162832.0,
+        "sumW": 1116211674.0289307
+    },
     "TTWToLNu": {
         "isMC": 1,
         "PD": "TTLNu-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
         "xsec": 0.2502,
+        "ref": "10.1016/j.physletb.2024.138708",
         "nmc": 460305.0,
         "sumsign": 239029.0,
-        "sumW": 205678.43692231178,
-        "ref": "GenXsecAnalyzer"
+        "sumW": 205678.43692231178
     },
     "TTZ_M50": {
         "isMC": 1,
         "PD": "TTLL_MLL-50_TuneCP5_13p6TeV_amcatnlo-pythia8",
         "xsec": "0.08646",
+        "ref": "10.1016/j.physletb.2024.139146",
         "nmc": 791000.0,
         "sumsign": 411332.0,
-        "sumW": 68255.89336043596,
-        "ref": "SMP-24-001"
+        "sumW": 68255.89336043596
     },
     "TTZ_M4to50": {
         "isMC": 1,
         "PD": "TTLL_MLL-4to50_TuneCP5_13p6TeV_amcatnlo-pythia8",
         "xsec": 0.03949,
+        "ref": "10.1016/j.physletb.2024.139146",
         "nmc": 591000.0,
         "sumsign": 326292.0,
-        "sumW": 23188.765499174595,
-        "ref": "SMP-24-001"
+        "sumW": 23188.765499174595
     },
     "TTZ_NoFullyHad": {
         "isMC": 1,
@@ -197,82 +337,82 @@
         "isMC": 1,
         "PD": "TBbartoLplusNuBbar-s-channel-4FS_TuneCP5_13p6TeV_amcatnlo-pythia8",
         "xsec": 3.7,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopNNLORef, 10.1103/PhysRevD.98.071501",
         "nmc": 2588000.0,
         "sumsign": 1591938.0,
-        "sumW": 5889942.483705044,
-        "ref": "TOP-22-012"
+        "sumW": 5889942.483705044
     },
     "ST_sch_antitop_Lep": {
         "isMC": 1,
         "PD": "TbarBtoLminusNuB-s-channel-4FS_TuneCP5_13p6TeV_amcatnlo-pythia8",
         "xsec": 2.322,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopNNLORef, 10.1103/PhysRevD.98.071501",
         "nmc": 1600000.0,
         "sumsign": 985718.0,
-        "sumW": 2286436.2828617096,
-        "ref": "TOP-22-012"
+        "sumW": 2286436.2828617096
     },
     "ST_tW_top_Semilep": {
         "isMC": 1,
         "PD": "TWminustoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8",
         "xsec": 19.36,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopNNLORef, 10.1007/JHEP05(2021)278",
         "nmc": 9650268.0,
         "sumsign": 9649924.0,
-        "sumW": 347275675.48768616,
-        "ref": "TOP-22-012"
+        "sumW": 347275675.48768616
     },
     "ST_tW_antitop_Semilep": {
         "isMC": 1,
         "PD": "TbarWplustoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8",
         "xsec": 19.36,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopNNLORef, 10.1007/JHEP05(2021)278",
         "nmc": 9550671.0,
         "sumsign": 9550319.0,
-        "sumW": 344335807.2385559,
-        "ref": "TOP-22-012"
+        "sumW": 344335807.2385559
     },
     "ST_tW_top_Lep": {
         "isMC": 1,
         "PD": "TWminusto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8",
         "xsec": 4.76,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopNNLORef, 10.1007/JHEP05(2021)278",
         "nmc": 4985000.0,
         "sumsign": 4984812.0,
-        "sumW": 18936453.531211853,
-        "ref": "SMP-24-001"
+        "sumW": 18936453.531211853
     },
     "ST_tW_antitop_Lep": {
         "isMC": 1,
         "PD": "TbarWplusto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8",
         "xsec": 4.76,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopNNLORef, 10.1007/JHEP05(2021)278",
         "nmc": 4907000.0,
         "sumsign": 4906798.0,
-        "sumW": 18675027.486843586,
-        "ref": "SMP-24-001"
+        "sumW": 18675027.486843586
     },
     "ST_tch_top": {
         "isMC": 1,
         "PD": "TBbarQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8",
         "xsec": 145.0,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopNNLORef, 10.1007/JHEP02(2021)040",
         "nmc": 5908000.0,
         "sumsign": 5437414.0,
-        "sumW": 735644048.319519,
-        "ref": "TOP-22-012"
+        "sumW": 735644048.319519
     },
     "ST_tch_antitop": {
         "isMC": 1,
         "PD": "TbarBQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8",
         "xsec": 87.2,
+        "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopNNLORef, 10.1007/JHEP02(2021)040",
         "nmc": 2878000.0,
         "sumsign": 2662016.0,
-        "sumW": 218222494.49902344,
-        "ref": "TOP-22-012"
+        "sumW": 218222494.49902344
     },
     "tZq": {
         "isMC": 1,
         "PD": "TZQB-Zto2L-4FS_MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8",
         "xsec": 0.08,
+        "ref": "10.1007/JHEP10(2018)005, https://xsdb-temp.app.cern.ch/",
         "nmc": 1800000.0,
         "sumsign": 483922.0,
-        "sumW": 146946.9206238389,
-        "ref": "SMP-24-005"
+        "sumW": 146946.9206238389
     },
     "TTTT": {
         "isMC": 1,
@@ -286,56 +426,57 @@
     "WW_pythia": {
         "isMC": 1,
         "PD": "WW_TuneCP5_13p6TeV_pythia8",
-        "xsec": 116.8,
+        "xsec": 124.4,
+        "ref": "10.1140/epjc/s10052-018-5771-7, https://twiki.cern.ch/twiki/bin/viewauth/CMS/MATRIXCrossSectionsat13p6TeV",
         "nmc": 33507000.0,
         "sumsign": 33507000.0,
-        "sumW": 33507271.10903895,
-        "ref": "TOP-22-012 (NNLO)"
+        "sumW": 33507271.10903895
     },
     "WZ_pythia": {
         "isMC": 1,
         "PD": "WZ_TuneCP5_13p6TeV_pythia8",
-        "xsec": 54.3,
+        "xsec": 54.1,
+        "ref": "10.1140/epjc/s10052-018-5771-7, https://twiki.cern.ch/twiki/bin/viewauth/CMS/MATRIXCrossSectionsat13p6TeV",
         "nmc": 16770000.0,
         "sumsign": 16770000.0,
-        "sumW": 16770000.0,
-        "ref": "TOP-22-012"
+        "sumW": 16770000.0
     },
     "ZZ_pythia": {
         "isMC": 1,
         "PD": "ZZ_TuneCP5_13p6TeV_pythia8",
-        "xsec": 16.7,
+        "xsec": 17.6,
+        "ref": "10.1140/epjc/s10052-018-5771-7, https://twiki.cern.ch/twiki/bin/viewauth/CMS/MATRIXCrossSectionsat13p6TeV",
         "nmc": 2517000.0,
         "sumsign": 2517000.0,
-        "sumW": 2517000.0,
-        "ref": "TOP-22-012"
+        "sumW": 2517000.0
     },
     "WZTo3LNu_amcatnlo": {
         "isMC": 1,
         "PD": "WZto3LNu-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
         "xsec": 5.315,
-        "nmc": 0,
-        "sumsign": -1,
-        "sumW": -1,
-        "ref": "XSDB"
+        "nmc": 3896983.0,
+        "sumsign": 2223191.0,
+        "sumW": 22280992.633638382,
+        "ref": "XSDB",
+        "filterEff": 1.0
     },
     "WZTo3LNu_powheg": {
         "isMC": 1,
         "PD": "WZto3LNu_TuneCP5_13p6TeV_powheg-pythia8",
-        "xsec": 5.31,
+        "xsec": 5.315,
+        "ref": "10.1016/j.physletb.2016.08.017, https://xsdb-temp.app.cern.ch/",
         "nmc": 5519000.0,
         "sumsign": 5507998.0,
-        "sumW": 27175251.43729496,
-        "ref": "SMP-24-001"
+        "sumW": 27175251.43729496
     },
     "ZZTo4L_powheg": {
         "isMC": 1,
         "PD": "ZZto4L_TuneCP5_13p6TeV_powheg-pythia8",
         "xsec": 1.529,
+        "ref": "10.1016/j.physletb.2014.06.056",
         "nmc": 29832000.0,
         "sumsign": 29522954.0,
-        "sumW": 41480636.4167552,
-        "ref": "HIG-24-013"
+        "sumW": 41480636.4167552
     },
     "WWW": {
         "isMC": 1,
@@ -418,33 +559,6 @@
         "sumW": 3783054.47659111,
         "ref": "XSDB"
     },
-    "DYGTo2LG_MLL50_PTG200to400": {
-        "isMC": 1,
-        "PD": "DYGto2LG-1Jets_MLL-50_PTG-200to400_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
-        "xsec": 0.04331,
-        "nmc": 981022.0,
-        "sumsign": 524584.0,
-        "sumW": 145899.46536564827,
-        "ref": "XSDB"
-    },
-    "DYGTo2LG_MLL50_PTG400to600": {
-        "isMC": 1,
-        "PD": "DYGto2LG-1Jets_MLL-50_PTG-400to600_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
-        "xsec": 0.00313,
-        "nmc": 969648.0,
-        "sumsign": 513780.0,
-        "sumW": 8333.714297488332,
-        "ref": "XSDB"
-    },
-    "DYGTo2LG_MLL50_PTG600toInf": {
-        "isMC": 1,
-        "PD": "DYGto2LG-1Jets_MLL-50_PTG-600_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
-        "xsec": 0.0006528,
-        "nmc": 940148.0,
-        "sumsign": 510510.0,
-        "sumW": 1402.6429078378715,
-        "ref": "XSDB"
-    },
     "TTG_PTG10to100": {
         "isMC": 1,
         "PD": "TTG-1Jets_PTG-10to100_TuneCP5_13p6TeV_amcatnloFXFXold-pythia8",
@@ -476,37 +590,37 @@
         "isMC": 1,
         "PD": "GluGluHtoZZto4L_M-125_TuneCP5_13p6TeV_powheg-jhugen-pythia8",
         "xsec": 0.01434,
+        "ref": "arXiv:2402.09955",
         "nmc": 250000.0,
         "sumsign": 249972.0,
-        "sumW": 5790476.214729309,
-        "ref": "HIG-24-013"
+        "sumW": 5790476.214729309
     },
     "VBFHToZZTo4L": {
         "isMC": 1,
         "PD": "VBFHto2Zto4L_M-125_TuneCP5_13p6TeV_powheg-jhugen-pythia8",
         "xsec": 0.00112,
+        "ref": "arXiv:2402.09955",
         "nmc": 250000.0,
         "sumsign": 249688.0,
-        "sumW": 1055653.401977539,
-        "ref": "HIG-24-013"
+        "sumW": 1055653.401977539
     },
     "VHToNonbb": {
         "isMC": 1,
         "PD": "VH_HtoNonbb_M-125_TuneCP5_13p6TeV_amcatnloFXFX-madspin-pythia8",
         "xsec": 1.0132,
+        "ref": "arXiv:2402.09955",
         "nmc": 518559.0,
         "sumsign": 245783.0,
-        "sumW": 3129797.4910726547,
-        "ref": "SMP-24-001"
+        "sumW": 3129797.4910726547
     },
     "TTHToNonbb": {
         "isMC": 1,
         "PD": "TTHtoNon2B_M-125_TuneCP5_13p6TeV_powheg-pythia8",
         "xsec": 0.24111,
+        "ref": "arXiv:2402.09955",
         "nmc": 11901980.0,
         "sumsign": 11639626.0,
-        "sumW": 6824277.521062255,
-        "ref": "SMP-24-001"
+        "sumW": 6824277.521062255
     },
     "tHq": {
         "isMC": 1,
@@ -740,6 +854,93 @@
         "nmc": 1663024.0,
         "sumsign": 1663024.0,
         "sumW": 1663024.0,
+        "ref": "XSDB"
+    },
+    "TTToHcToWAToMuMu-MHc70_MA15": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-70_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 392014.0,
+        "sumsign": 392014.0,
+        "sumW": 2596.063163633924,
+        "filterEff": 0.6155998743718593
+    },
+    "TTToHcToWAToMuMu-MHc100_MA95": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-100_MA-95_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 807893.0,
+        "sumsign": 807893.0,
+        "sumW": 0.4935358066088611,
+        "filterEff": 0.562726940289411
+    },
+    "TTToHcToWAToMuMu-MHc130_MA55": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-55_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 397275.0,
+        "sumsign": 397275.0,
+        "sumW": 38866.63125536591,
+        "filterEff": 0.7015175487543881
+    },
+    "TTToHcToWAToMuMu-MHc130_MA90": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 383714.0,
+        "sumsign": 383714.0,
+        "sumW": 2320.003885857761,
+        "filterEff": 0.6952134029789632
+    },
+    "TTToHcToWAToMuMu-MHc160_MA85": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-85_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 397932.0,
+        "sumsign": 397932.0,
+        "sumW": 8564.410902753472,
+        "filterEff": 0.69604185360683
+    },
+    "TTToHcToWAToMuMu-MHc160_MA145": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-145_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 388479.0,
+        "sumsign": 388479.0,
+        "sumW": 3.836372384444985,
+        "filterEff": 0.618035194114905
+    },
+    "DYGTo2LG_MLL50_PTG200to400": {
+        "isMC": 1,
+        "PD": "DYGto2LG-1Jets_MLL-50_PTG-200to400_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
+        "xsec": 0.04331,
+        "nmc": 981022.0,
+        "sumsign": 524584.0,
+        "sumW": 145899.46536564827,
+        "ref": "XSDB"
+    },
+    "DYGTo2LG_MLL50_PTG400to600": {
+        "isMC": 1,
+        "PD": "DYGto2LG-1Jets_MLL-50_PTG-400to600_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
+        "xsec": 0.00313,
+        "nmc": 969648.0,
+        "sumsign": 513780.0,
+        "sumW": 8333.714297488332,
+        "ref": "XSDB"
+    },
+    "DYGTo2LG_MLL50_PTG600toInf": {
+        "isMC": 1,
+        "PD": "DYGto2LG-1Jets_MLL-50_PTG-600_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
+        "xsec": 0.0006528,
+        "nmc": 940148.0,
+        "sumsign": 510510.0,
+        "sumW": 1402.6429078378715,
         "ref": "XSDB"
     }
 }

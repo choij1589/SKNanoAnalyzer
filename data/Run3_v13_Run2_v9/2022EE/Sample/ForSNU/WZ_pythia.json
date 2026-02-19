@@ -2,7 +2,7 @@
     "name": "WZ_pythia",
     "isMC": 1,
     "PD": "WZ_TuneCP5_13p6TeV_pythia8",
-    "xsec": 54.3,
+    "xsec": 54.1,
     "sumsign": 26722782.0,
     "sumW": 26722782.0,
     "nmc": 26722782.0,

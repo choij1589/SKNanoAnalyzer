@@ -463,9 +463,9 @@ float AnalyzerCore::MCweight(bool usesign, bool norm_1invpb) const {
     if (norm_1invpb)
     {
         if (usesign)
-        weight *= xsec / sumSign;
+        weight *= xsec * filterEff / sumSign;
         else
-        weight *= xsec / sumW;
+        weight *= xsec * filterEff / sumW;
     }
     return weight;
 

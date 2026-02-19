@@ -1,0 +1,10 @@
+{
+    "name": "DYGTo2LG_MLL50_PTG200toInf",
+    "isMC": 1,
+    "PD": "DYGto2LG-1Jets_MLL-50_PTG-200_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
+    "xsec": 0.04723,
+    "sumsign": -1,
+    "sumW": -1,
+    "nmc": -1,
+    "path": []
+}

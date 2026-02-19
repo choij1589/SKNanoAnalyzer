@@ -11,6 +11,7 @@ SKNanoLoader::SKNanoLoader() {
     MCSample = "";
     SetEra("2018");
     xsec = 1.;
+    filterEff = 1.;
     sumW = 1.;
     sumSign = 1.;
     Userflags.clear();

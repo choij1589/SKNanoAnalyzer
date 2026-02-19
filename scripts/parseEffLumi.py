@@ -46,6 +46,7 @@ def parseMCInfoFor(sample_name):
     nevts = 0
     sumsign = 0
     sumW = 0
+    filterEff = None
     try:
         f = ROOT.TFile.Open(f"{SKNanoOutputDir}/GetEffLumi/{args.era}/{sample_name}.root")
         h = f.Get("NEvents")
@@ -54,6 +55,13 @@ def parseMCInfoFor(sample_name):
         sumsign = h.GetBinContent(1)
         h = f.Get("sumW")
         sumW = h.GetBinContent(1)
+        h_passed = f.Get("GenFilter_numEventsPassed")
+        h_total = f.Get("GenFilter_numEventsTotal")
+        if h_passed and h_total:
+            totalPassed = h_passed.GetBinContent(1)
+            totalTotal = h_total.GetBinContent(1)
+            if totalTotal > 0:
+                filterEff = totalPassed / totalTotal
         f.Close()
     except:
         print(f"Error opening file for {sample_name}")
@@ -62,6 +70,8 @@ def parseMCInfoFor(sample_name):
     common_info[sample_name]["nmc"] = nevts
     common_info[sample_name]["sumsign"] = sumsign
     common_info[sample_name]["sumW"] = sumW
+    if filterEff is not None:
+        common_info[sample_name]["filterEff"] = filterEff
 
     # add in ForSNU/$SAMPLE_NAME.json
     with open(f"{SKNanoDataDir}/{args.era}/Sample/ForSNU/{sample_name}.json", "r") as f:

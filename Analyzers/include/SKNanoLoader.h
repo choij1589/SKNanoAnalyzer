@@ -38,7 +38,7 @@ public:
     TString DataEra;
     TString DataPeriod;
     int Run;
-    float xsec, sumW, sumSign;
+    float xsec, filterEff, sumW, sumSign;
     RVec<TString> Userflags;
 
     virtual void Init();

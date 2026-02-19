@@ -2,7 +2,7 @@
     "name": "TTHToNonbb",
     "isMC": 1,
     "PD": "ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8",
-    "xsec": 0.952,
+    "xsec": 0.2151,
     "sumsign": 1936276.0,
     "sumW": 990602.6441414356,
     "nmc": 1977996.0,

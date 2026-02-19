@@ -2,7 +2,7 @@
     "name": "VHToNonbb",
     "isMC": 1,
     "PD": "VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8",
-    "xsec": 0.000124,
+    "xsec": 0.952,
     "sumsign": 216788.0,
     "sumW": 2561276.3210144043,
     "nmc": 440780.0,

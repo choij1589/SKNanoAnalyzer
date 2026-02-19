@@ -152,9 +152,15 @@ def updateMcInfo(era):
             sampleInfo['nmc'] = nmc
             sampleInfo['sumW'] = sumW
             sampleInfo['sumsign'] = sumSign
+            h_filterEff = f.Get('filterEff')
+            if h_filterEff:
+                filterEff = h_filterEff.GetBinContent(1)
+                sampleInfo['filterEff'] = filterEff
+            else:
+                filterEff = None
             print('Will update the MC information for',alias,'from')
             print(f'nmc:{sampleInfo["nmc"]}, sumW:{sampleInfo["sumW"]}, sumSign:{sampleInfo["sumsign"]} to')
-            print(f'nmc:{nmc}, sumW:{sumW}, sumSign:{sumSign}')
+            print(f'nmc:{nmc}, sumW:{sumW}, sumSign:{sumSign}, filterEff:{filterEff}')
             print('############################\n')
         else:
             nevt = []
