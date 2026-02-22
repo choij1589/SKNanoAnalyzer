@@ -374,5 +374,75 @@
         "suffix": "TriLep",
         "PD": "WJets",
         "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop178p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop178p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop175p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop175p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop173p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop173p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop171p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop171p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop169p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop169p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_mtop166p5_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_mtop166p5_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5down_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5down_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5up_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5up_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5CR2_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5CR2_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5CR1_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5CR1_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_TuneCP5_erdOn_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_TuneCP5_erdOn_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_hdamp_up_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_hdamp_up_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_hdamp_down_powheg": {
+        "suffix": "TriLep",
+        "PD": "TTLL_hdamp_down_powheg",
+        "isMC": 1
+    },
+    "Skim_TriLep_TTLL_powheg_ext1": {
+        "suffix": "TriLep",
+        "PD": "TTLL_powheg_ext1",
+        "isMC": 1
     }
 }

@@ -28,6 +28,7 @@ void EvtTreeProducer::initializeAnalyzer() {
     newtree->Branch("MuonEtaColl", MuonEtaColl, "MuonEtaColl[nMuons]/F");
     newtree->Branch("MuonPhiColl", MuonPhiColl, "MuonPhiColl[nMuons]/F");
     newtree->Branch("MuonMassColl", MuonMassColl, "MuonMassColl[nMuons]/F");
+    newtree->Branch("MuonMiniIsoColl", MuonMiniIsoColl, "MuonMiniIsoColl[nMuons]/F");
     newtree->Branch("MuonChargeColl", MuonChargeColl, "MuonChargeColl[nMuons]/I");
     newtree->Branch("MuonIsTightColl", MuonIsTightColl, "MuonIsTightColl[nMuons]/O");
     newtree->Branch("MuonLabelColl", MuonLabelColl, "MuonLabelColl[nMuons]/O");
@@ -38,6 +39,7 @@ void EvtTreeProducer::initializeAnalyzer() {
     newtree->Branch("ElectronEtaColl", ElectronEtaColl, "ElectronEtaColl[nElectrons]/F");
     newtree->Branch("ElectronPhiColl", ElectronPhiColl, "ElectronPhiColl[nElectrons]/F");
     newtree->Branch("ElectronMassColl", ElectronMassColl, "ElectronMassColl[nElectrons]/F");
+    newtree->Branch("ElectronMiniIsoColl", ElectronMiniIsoColl, "ElectronMiniIsoColl[nElectrons]/F");
     newtree->Branch("ElectronChargeColl", ElectronChargeColl, "ElectronChargeColl[nElectrons]/I");
     newtree->Branch("ElectronIsTightColl", ElectronIsTightColl, "ElectronIsTightColl[nElectrons]/O");
     newtree->Branch("ElectronLabelColl", ElectronLabelColl, "ElectronLabelColl[nElectrons]/O");
@@ -90,6 +92,7 @@ void EvtTreeProducer::executeEvent(){
         MuonEtaColl[i] = recoObjects.vetoMuons[i].Eta();
         MuonPhiColl[i] = recoObjects.vetoMuons[i].Phi();
         MuonMassColl[i] = recoObjects.vetoMuons[i].M();
+        MuonMiniIsoColl[i] = recoObjects.vetoMuons[i].MiniPFRelIso();
         MuonChargeColl[i] = recoObjects.vetoMuons[i].Charge();
         MuonIsTightColl[i] = recoObjects.vetoMuons[i].PassID(MuonIDs->GetID("tight"));
     }
@@ -100,6 +103,7 @@ void EvtTreeProducer::executeEvent(){
         ElectronEtaColl[i] = recoObjects.vetoElectrons[i].Eta();
         ElectronPhiColl[i] = recoObjects.vetoElectrons[i].Phi();
         ElectronMassColl[i] = recoObjects.vetoElectrons[i].M();
+        ElectronMiniIsoColl[i] = recoObjects.vetoElectrons[i].MiniPFRelIso();
         ElectronChargeColl[i] = recoObjects.vetoElectrons[i].Charge();
         ElectronIsTightColl[i] = recoObjects.vetoElectrons[i].PassID(ElectronIDs->GetID("tight"));
     }
@@ -158,7 +162,7 @@ EvtTreeProducer::RecoObjects EvtTreeProducer::defineObjects(const Event& ev,
         // No scale variation
     }
     
-    // Get MET from event and re-apply Type-I correction and XY correction
+    // Get MET from event and re-apply Type-I correction
     Particle METv_default;
     if (syst.Contains("UnclusteredEn")) {
         Event::MET_Syst variation = syst.Contains("Up") ? Event::MET_Syst::UE_UP : Event::MET_Syst::UE_DOWN;
