@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "description": "electron fake rate corrections for 2018 (noHEMVeto, Central only)",
+  "corrections": [
+    {
+      "name": "fakerate_electron_Central",
+      "description": "electron fake rate - Central",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "absScEta",
+          "type": "real",
+          "description": "Absolute supercluster pseudorapidity"
+        },
+        {
+          "name": "ptCorr",
+          "type": "real",
+          "description": "Corrected transverse momentum [GeV]"
+        }
+      ],
+      "output": {
+        "name": "out",
+        "type": "real",
+        "description": "out"
+      },
+      "data": {
+        "nodetype": "multibinning",
+        "inputs": [
+          "absScEta",
+          "ptCorr"
+        ],
+        "edges": [
+          [
+            0.0,
+            0.8,
+            1.479,
+            2.5
+          ],
+          [
+            15.0,
+            17.0,
+            20.0,
+            25.0,
+            35.0,
+            50.0,
+            100.0
+          ]
+        ],
+        "content": [
+          0.45648591487375584,
+          0.25854158538780264,
+          0.1931771825382371,
+          0.13460724437165517,
+          0.13673518087856976,
+          0.22057760797060205,
+          0.5213701557617058,
+          0.2968143545531459,
+          0.22402119628899156,
+          0.17600916853025722,
+          0.1881358685341106,
+          0.23849382635699065,
+          0.5982368587631123,
+          0.39808085085471734,
+          0.3025803010226885,
+          0.21995052611239735,
+          0.19536574457244077,
+          0.19786957630574944
+        ],
+        "flow": "clamp"
+      }
+    }
+  ]
+}

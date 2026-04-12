@@ -41,7 +41,7 @@ from ROOT import TTree
 from array import array
 from enum import IntEnum
 
-from MLTools.helpers import loadMultiClassParticleNet, getGraphInput, getMultiClassScore
+from MLTools.helpers import loadMultiClassParticleNetMD, getGraphInput, getMultiClassScore
 
 
 class CutStage(IntEnum):
@@ -134,13 +134,13 @@ class PromptAnalyzer(TriLeptonBase):
         else:
             raise ValueError("Run1E2Mu or Run3Mu or Run2E1Mu must be set")
 
-        # ParticleNet configuration
-        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
+        # ParticleNetMD configuration (mass-decorrelated, 3 signal points)
+        self.signals = ["MHc100_MA95", "MHc130_MA90", "MHc160_MA85"]
         self.classNames = ["signal", "nonprompt", "diboson", "ttZ"]
 
-        # Load ParticleNet models
-        print(f"[PromptAnalyzer] Loading ParticleNet models for {self.channel}")
-        self.models = loadMultiClassParticleNet(self.signals)
+        # Load ParticleNetMD models
+        print(f"[PromptAnalyzer] Loading ParticleNetMD models for {self.channel}")
+        self.models = loadMultiClassParticleNetMD(self.signals)
         print(f"[PromptAnalyzer] Loaded {len(self.models)} models")
 
         # Systematics
@@ -892,7 +892,7 @@ class PromptAnalyzer(TriLeptonBase):
             source = "lf_uncorr"
         btagSF = self.myCorr.GetBTaggingReweightMethod1a(recoObjects["jets"], tagger, wp, method, var, source)
 
-        # WZ/ZZ NJets SF: apply to both WZTo3LNu and ZZTo4L
+        # WZ/ZZ NJets SF: apply to WZTo3LNu
         WZNjetsSF = 1.
         if self.Run == 3 and self.MCSample.Contains("WZTo3LNu") and (not self.RunNoWZSF):
             njets = float(recoObjects["jets"].size())
@@ -1353,19 +1353,14 @@ class PromptAnalyzer(TriLeptonBase):
             self.MT2[syst][0] = -999.
 
         # ParticleNet scores (use scores from recoObjects)
-        if syst == "Central":
-            self.fold[syst][0] = recoObjects.get("fold", 0)
-            scores = recoObjects.get("scores", {})
-            for signal in self.signals:
-                for cls in self.classNames:
-                    score_key = f"{signal}_{cls}"
-                    self.scores[syst][signal][cls][0] = scores.get(score_key, -999.)
-        else:
-            # For other systematics, copy scores from Central
-            self.fold[syst][0] = self.fold["Central"][0]
-            for signal in self.signals:
-                for cls in self.classNames:
-                    self.scores[syst][signal][cls][0] = self.scores["Central"][signal][cls][0]
+        # For evtLoopAgain systematics, scores are re-evaluated with varied objects
+        # For weight-only systematics, recoObjects is shared with Central
+        self.fold[syst][0] = recoObjects.get("fold", 0)
+        scores = recoObjects.get("scores", {})
+        for signal in self.signals:
+            for cls in self.classNames:
+                score_key = f"{signal}_{cls}"
+                self.scores[syst][signal][cls][0] = scores.get(score_key, -999.)
 
         # Fill weight
         self.weight[syst][0] = totWeight
@@ -1385,8 +1380,8 @@ class PromptAnalyzer(TriLeptonBase):
         for i in range(100):
             self.theorySystematics.append(f"PDF_{i}")
 
-        # Scale variations (7): indices 0,1,2,3,4,6,8 (skip 5 and 7)
-        for i in [0, 1, 2, 3, 4, 6, 8]:
+        # Scale variations (7): indices 0 - 8
+        for i in range(9):
             self.theorySystematics.append(f"Scale_{i}")
 
         # PS variations (4)

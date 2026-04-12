@@ -6,12 +6,7 @@ TTToHcToWAToMuMu-MHc160_MA85
 TTToHcToWAToMuMu-MHc160_MA98
 Skim_TriLep_WZTo3LNu_amcatnlo
 Skim_TriLep_ZZTo4L_powheg
-kim_TriLep_TTLL_powheg
-Skim_TriLep_DYJets
-Skim_TriLep_TTZToLLNuNu
-Skim_TriLep_TTWToLNu
-Skim_TriLep_TTHToNonbb
-Skim_TriLep_tZq
+Skim_TriLep_TTLL_powheg
 Skim_TriLep_TTLL_hdamp_down_powheg
 Skim_TriLep_TTLL_hdamp_up_powheg
 Skim_TriLep_TTLL_TuneCP5CR1_powheg
@@ -20,3 +15,8 @@ Skim_TriLep_TTLL_TuneCP5up_powheg
 Skim_TriLep_TTLL_TuneCP5down_powheg
 Skim_TriLep_TTLL_mtop171p5_powheg
 Skim_TriLep_TTLL_mtop173p5_powheg
+Skim_TriLep_DYJets
+Skim_TriLep_TTZToLLNuNu
+Skim_TriLep_TTWToLNu
+Skim_TriLep_TTHToNonbb
+Skim_TriLep_tZq

@@ -1,7 +1,7 @@
 #include "MyCorrection.h"
 
 MyCorrection::MyCorrection() {}
-MyCorrection::MyCorrection(const TString &era, const TString &period, const TString &sample, const bool IsData, const string &btagging_eff_file, const string &ctagging_eff_file, const string &btagging_R_file, const string &ctagging_R_file) { 
+MyCorrection::MyCorrection(const TString &era, const TString &period, const TString &sample, const bool IsData, const string &btagging_eff_file, const string &ctagging_eff_file, const string &btagging_R_file, const string &ctagging_R_file, const bool noHEMVeto) {
     cout << "[MyCorrection::MyCorrection] MyCorrection created for " << era << endl;
     SetEra(era);
     SetPeriod(period);
@@ -9,6 +9,11 @@ MyCorrection::MyCorrection(const TString &era, const TString &period, const TStr
     setIsData(IsData);
 
     EraConfig config = GetEraConfig(era, btagging_eff_file, ctagging_eff_file, btagging_R_file, ctagging_R_file);
+    if (noHEMVeto && era == "2018") {
+        const string sknano_data_str = string(getenv("SKNANO_DATA"));
+        config.json_electron_TopHNT_fakerate = sknano_data_str + "/2018/EGM/fakerate_TopHNT_noHEMVeto.json";
+        cout << "[MyCorrection::MyCorrection] noHEMVeto: using " << config.json_electron_TopHNT_fakerate << endl;
+    }
     struct CorrectionInfo {
         string name;
         string path;  
@@ -821,13 +826,13 @@ float MyCorrection::GetPairwiseFilterEff(const TString &filter_name, const bool 
         } else if (GetEra() == "2018") {
             return isData? 0.9988 : 0.9998;
         } else if (GetEra() == "2022") {
-            return isData? 0.9996 : 0.9998;
+            return isData? 0.9996 : 0.9999;
         } else if (GetEra() == "2022EE") {
             return isData? 0.9994 : 0.9998;
         } else if (GetEra() == "2023") {
-            return isData? 0.9993 : 0.9997;
+            return isData? 0.9993 : 0.9998;
         } else if (GetEra() == "2023BPix") {
-            return isData? 0.9989 : 0.9996;
+            return isData? 0.9989 : 0.9997;
         } else {
             cerr << "[MyCorrection::GetPairwiseFilterEff] " << filter_name << " is not implemented for " << GetEra() << endl;
             return 1.;
@@ -846,9 +851,9 @@ float MyCorrection::GetPairwiseFilterEff(const TString &filter_name, const bool 
         } else if (GetEra() == "2022EE") {
             return isData? 0.9949 : 0.9976;
         } else if (GetEra() == "2023") {
-            return isData? 0.9944 : 0.9977;
+            return isData? 0.9943 : 0.9977;
         } else if (GetEra() == "2023BPix") {
-            return isData? 0.9930 : 0.9972;
+            return isData? 0.9930 : 0.9973;
         } else {
             cerr << "[MyCorrection::GetPairwiseFilterEff] " << filter_name << " is not implemented for " << GetEra() << endl;
             return 1.;

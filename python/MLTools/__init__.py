@@ -11,7 +11,7 @@ from MLTools.formats import NodeParticle
 from MLTools.helpers import (
     getEdgeIndices,
     evtToGraph,
-    loadMultiClassParticleNet,
+    loadMultiClassParticleNetMD,
     calculateFold,
     getGraphInput,
     getMultiClassScore

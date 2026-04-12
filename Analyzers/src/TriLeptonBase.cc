@@ -63,7 +63,9 @@ void TriLeptonBase::initializeAnalyzer() {
            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
        };
     }
-    myCorr = new MyCorrection(DataEra, DataPeriod, IsDATA?DataStream:MCSample, IsDATA);
+    myCorr = new MyCorrection(DataEra, DataPeriod, IsDATA?DataStream:MCSample, IsDATA,
+                              "btaggingEff.json", "ctaggingEff.json", "btaggingR.json", "ctaggingR.json",
+                              RunNoHEMVeto);
 }
 
 void TriLeptonBase::executeEvent() {

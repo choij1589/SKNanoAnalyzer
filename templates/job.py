@@ -13,6 +13,7 @@ if __name__ == "__main__":
     module.xsec = [xsec]
     module.sumW = [sumW]
     module.sumSign = [sumSign]
+    module.filterEff = [filterEff]
     module.SetEra("[era]")
     module.SetPeriod("[period]")
 [USERFLAGS]

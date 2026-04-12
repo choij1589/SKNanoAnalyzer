@@ -2,10 +2,6 @@
 ERA=$1
 CHANNEL=("DiMu" "EMu")
 
-# If ERA == "201*", use Run2NanoV9
-# If ERA == "202*", use Run3NanoV13
-
-
 for ch in "${CHANNEL[@]}"; do
     echo "Submitting jobs for channel: $ch"
 

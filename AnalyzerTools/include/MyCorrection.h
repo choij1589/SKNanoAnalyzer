@@ -42,7 +42,7 @@ public:
         Type1PuppiMET
     };
     MyCorrection();
-    MyCorrection(const TString &era, const TString &period, const TString &sample, bool IsData,const string &btagging_eff_file = "btaggingEff.json", const string &ctagging_eff_file = "ctaggingEff.json", const string &btagging_R_file = "btaggingR.json", const string &ctagging_R_file = "ctaggingR.json");
+    MyCorrection(const TString &era, const TString &period, const TString &sample, bool IsData, const string &btagging_eff_file = "btaggingEff.json", const string &ctagging_eff_file = "ctaggingEff.json", const string &btagging_R_file = "btaggingR.json", const string &ctagging_R_file = "ctaggingR.json", bool noHEMVeto = false);
     ~MyCorrection();
 
     // Muon

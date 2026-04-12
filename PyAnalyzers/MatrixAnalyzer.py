@@ -43,7 +43,7 @@ from ROOT import TTree
 from array import array
 from enum import IntEnum
 
-from MLTools.helpers import loadMultiClassParticleNet, getGraphInput, getMultiClassScore
+from MLTools.helpers import loadMultiClassParticleNetMD, getGraphInput, getMultiClassScore
 
 
 class CutStage(IntEnum):
@@ -138,13 +138,13 @@ class MatrixAnalyzer(TriLeptonBase):
         else:
             raise ValueError("Run1E2Mu or Run3Mu or Run2E1Mu must be set")
 
-        # ParticleNet configuration (6 signals, excluding MHc130_MA100)
-        self.signals = ["MHc160_MA85", "MHc130_MA90", "MHc100_MA95", "MHc115_MA87", "MHc145_MA92", "MHc160_MA98"]
+        # ParticleNetMD configuration (mass-decorrelated, 3 signal points)
+        self.signals = ["MHc100_MA95", "MHc130_MA90", "MHc160_MA85"]
         self.classNames = ["signal", "nonprompt", "diboson", "ttZ"]
 
-        # Load ParticleNet models
-        print(f"[MatrixAnalyzer] Loading ParticleNet models for {self.channel}")
-        self.models = loadMultiClassParticleNet(self.signals)
+        # Load ParticleNetMD models
+        print(f"[MatrixAnalyzer] Loading ParticleNetMD models for {self.channel}")
+        self.models = loadMultiClassParticleNetMD(self.signals)
         print(f"[MatrixAnalyzer] Loaded {len(self.models)} models")
 
         # Prepare output tree if tree mode enabled

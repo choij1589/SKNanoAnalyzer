@@ -132,7 +132,7 @@ class MatrixTreeProducer(TriLeptonBase):
         looseMuons = self.SelectMuons(vetoMuons, self.MuonIDs.GetID("loose"), 10., 2.4)
         tightMuons = self.SelectMuons(looseMuons, self.MuonIDs.GetID("tight"), 10., 2.4)
 
-        applyHEMVeto = (self.DataEra == "2018")
+        applyHEMVeto = (self.DataEra == "2018") and not self.RunNoHEMVeto
         vetoElectrons = self.SelectElectrons(allElectrons, self.ElectronIDs.GetID("loose"), 10., 2.5, applyHEMVeto)
         looseElectrons = self.SelectElectrons(vetoElectrons, self.ElectronIDs.GetID("loose"), 15., 2.5, applyHEMVeto)
         tightElectrons = self.SelectElectrons(looseElectrons, self.ElectronIDs.GetID("tight"), 15., 2.5, applyHEMVeto)

@@ -283,6 +283,7 @@ def jobProducer(era, sample, argparse, masterJobDirectory, userflags, isample, t
                 job_content = job_content.replace("[xsec]", str(sampleInfo["xsec"]))
                 job_content = job_content.replace("[sumW]", str(sampleInfo["sumW"]))
                 job_content = job_content.replace("[sumSign]", str(sampleInfo["sumsign"]))
+                job_content = job_content.replace("[filterEff]", str(sampleInfo.get("filterEff", 1.)))
             else:
                 job_content = job_content.replace("module.IsDATA = False", "module.IsDATA = True")
                 job_content = job_content.replace('module.MCSample = "[sample]"',
@@ -290,6 +291,7 @@ def jobProducer(era, sample, argparse, masterJobDirectory, userflags, isample, t
                 job_content = job_content.replace("    module.xsec = [xsec]\n", "")
                 job_content = job_content.replace("    module.sumW = [sumW]\n", "")
                 job_content = job_content.replace("    module.sumSign = [sumSign]\n", "")
+                job_content = job_content.replace("    module.filterEff = [filterEff]\n", "")
             
             # Handle userflags
             if userflags:
@@ -608,20 +610,8 @@ if __name__ == '__main__':
     eras = getEraList(args.Era, args.Run)
     SKIMMING_MODE = args.skimming_mode
     if args.Analyzer.startswith("Skim_") and not SKIMMING_MODE:
-        print('\033[93m'+'''It seems like you want to skim the samples. If so, you need to enable skimming mode by passing the 
---skimming_mode arguments to write the output file to gv0 and generate the *.json file of the skimmed sample.\n'''+'\033[0m')
-        #ask Y/N to continue, print in yellow color
-        while True:
-            answer = input('\033[93m'+"Do you want to enable the skimming mode? (Y/N): "+'\033[0m')
-            if answer == 'Y' or answer == 'y':
-                SKIMMING_MODE = True
-                break
-            elif answer == 'N' or answer == 'n':
-                SKIMMING_MODE = False
-                break
-            else:
-                print('\033[93m'+"Please enter Y or N"+'\033[0m')
-
+        print('\033[93m'+'''Skimming mode enabled. The output file will be written in gv0 and *.json file will be generated for the skimmed sample.\n'''+'\033[0m')
+        SKIMMING_MODE = True
     
     userflags = getUserFlagsList(args.Userflags)
     timestamp, string_JobStartTime = getTimeStamp()

@@ -41,7 +41,7 @@ def parse_rootfiles_from(basePath):
     filePaths = []
     for root, _, files in os.walk(basePath):
         for file in files:
-            if file.endswith(".root"):
+            if file.endswith(".root") and "wmLHE" not in file:
                 filePaths.append(os.path.join(root, file))
     
     # sort the file paths by the number in the file name

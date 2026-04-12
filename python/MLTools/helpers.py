@@ -89,31 +89,31 @@ def evtToGraph(nodeList, y=None, k=4):
     )
     return graph
 
-def loadMultiClassParticleNet(signals):
+def loadMultiClassParticleNetMD(signals):
     """
-    Load multi-class ParticleNets.
-    
+    Load mass-decorrelated multi-class ParticleNets (trained with DisCo loss).
+
     Model directory structure:
-    {DATA_DIR}/Run2/Combined/Classifiers/ParticleNet/{signal}/best_model/model.pt
-    
+    {SKNANO_DATA}/All/Combined/Classifiers/ParticleNetMD/{signal}/best_model/model.pt
+
     Args:
-        signals: List of signal mass points (e.g., ["MHc160_MA85", "MHc130_MA90", "MHc100_MA95"])
+        signals: List of signal mass points (e.g., ["MHc100_MA95", "MHc130_MA90", "MHc160_MA85"])
     Returns:
         Dictionary: {signal: model}
     """
     models = {}
-    data_dir = os.environ.get('DATA_DIR', os.path.join(os.environ['SKNANO_DATA'], 'Run2'))
+    data_dir = os.path.join(os.environ['SKNANO_DATA'], 'All')
 
     for sig in signals:
         # read model_info.json to get num_hidden
-        model_info_path = f"{data_dir}/Combined/Classifiers/ParticleNet/{sig}/best_model/model_info.json"
+        model_info_path = f"{data_dir}/Combined/Classifiers/ParticleNetMD/{sig}/best_model/model_info.json"
         with open(model_info_path, "r") as f:
             model_info = json.load(f)
-            num_hidden = model_info["hyperparameters"]["num_hidden"]  # default to 128 if not found
+            num_hidden = model_info["hyperparameters"]["num_hidden"]
             print(f"[INFO] Loaded num_hidden={num_hidden} for {sig} from model_info.json")
-        modelPath = f"{data_dir}/Combined/Classifiers/ParticleNet/{sig}/best_model/model.pt"
+        modelPath = f"{data_dir}/Combined/Classifiers/ParticleNetMD/{sig}/best_model/model.pt"
         print(f"Loading {sig}: {modelPath}")
-        model = MultiClassParticleNet(9, 4, 4, num_hidden=num_hidden, dropout_p=0.25)
+        model = MultiClassParticleNet(9, 8, 4, num_hidden=num_hidden, dropout_p=0.4)
         checkpoint = torch.load(modelPath, map_location=torch.device("cpu"), weights_only=False)
         model.load_state_dict(checkpoint["model_state_dict"])
         model.eval()
@@ -234,17 +234,15 @@ def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5):
     # Create PyG Data object
     data = evtToGraph(nodeList, y=None, k=4)
 
-    # Era encoding for graph-level features
-    if era == "2016preVFP" or era == "2022":
-        eraIdx = torch.tensor([[1, 0, 0, 0]], dtype=torch.float)
-    elif era == "2016postVFP" or era == "2022EE":
-        eraIdx = torch.tensor([[0, 1, 0, 0]], dtype=torch.float)
-    elif era == "2017" or era == "2023":
-        eraIdx = torch.tensor([[0, 0, 1, 0]], dtype=torch.float)
-    elif era == "2018" or era == "2023BPix":
-        eraIdx = torch.tensor([[0, 0, 0, 1]], dtype=torch.float)
-    else:
-        raise ValueError(f"Unsupported era {era} for PaticleNet Input")
+    # Era encoding for graph-level features (8-dim one-hot, one per era)
+    era_map = {
+        "2016preVFP": 0, "2016postVFP": 1, "2017": 2, "2018": 3,
+        "2022": 4, "2022EE": 5, "2023": 6, "2023BPix": 7
+    }
+    if era not in era_map:
+        raise ValueError(f"Unsupported era {era} for ParticleNet Input")
+    eraIdx = torch.zeros(1, 8, dtype=torch.float)
+    eraIdx[0, era_map[era]] = 1.0
     # Use consistent naming with training (graphInput, not graph_input)
     data.graphInput = eraIdx
 

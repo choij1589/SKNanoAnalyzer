@@ -67,6 +67,7 @@ private:
     unsigned int nElectrons;
     float ElectronPtColl[1];
     float ElectronEtaColl[1];
+    float ElectronScEtaColl[1];
     float ElectronPhiColl[1];
     float ElectronMassColl[1];
     float ElectronMiniIsoColl[1];

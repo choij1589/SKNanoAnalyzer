@@ -3,9 +3,9 @@
     "isMC": 1,
     "PD": "TTto2L2Nu_TuneCP5_ERDOn_13p6TeV_powheg-pythia8",
     "xsec": 98.03,
-    "sumsign": 9769278.0,
-    "sumW": 792326517.6017761,
-    "nmc": 9849000.0,
+    "sumsign": -1,
+    "sumW": -1,
+    "nmc": 0,
     "path": [
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2022/TTto2L2Nu_TuneCP5_ERDOn_13p6TeV_powheg-pythia8/260210_143615/0000/NANOAOD_1.root",
         "/gv0/DATA/SKNano/Run3NanoAODv13p1/2022/TTto2L2Nu_TuneCP5_ERDOn_13p6TeV_powheg-pythia8/260210_143615/0000/NANOAOD_2.root",

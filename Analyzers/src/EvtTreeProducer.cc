@@ -37,6 +37,7 @@ void EvtTreeProducer::initializeAnalyzer() {
     newtree->Branch("nElectrons", &nElectrons);
     newtree->Branch("ElectronPtColl", ElectronPtColl, "ElectronPtColl[nElectrons]/F");
     newtree->Branch("ElectronEtaColl", ElectronEtaColl, "ElectronEtaColl[nElectrons]/F");
+    newtree->Branch("ElectronScEtaColl", ElectronScEtaColl, "ElectronScEtaColl[nElectrons]/F");
     newtree->Branch("ElectronPhiColl", ElectronPhiColl, "ElectronPhiColl[nElectrons]/F");
     newtree->Branch("ElectronMassColl", ElectronMassColl, "ElectronMassColl[nElectrons]/F");
     newtree->Branch("ElectronMiniIsoColl", ElectronMiniIsoColl, "ElectronMiniIsoColl[nElectrons]/F");
@@ -101,6 +102,7 @@ void EvtTreeProducer::executeEvent(){
     for (std::size_t i = 0; i < nElectrons; i++) {
         ElectronPtColl[i] = recoObjects.vetoElectrons[i].Pt();
         ElectronEtaColl[i] = recoObjects.vetoElectrons[i].Eta();
+        ElectronScEtaColl[i] = recoObjects.vetoElectrons[i].scEta();
         ElectronPhiColl[i] = recoObjects.vetoElectrons[i].Phi();
         ElectronMassColl[i] = recoObjects.vetoElectrons[i].M();
         ElectronMiniIsoColl[i] = recoObjects.vetoElectrons[i].MiniPFRelIso();

@@ -137,9 +137,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 33491099.0,
-        "sumsign": 32945095.0,
-        "sumW": 2693953485.9043503
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_hdamp_up_powheg": {
         "isMC": 1,
@@ -147,9 +147,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 33649728.0,
-        "sumsign": 33493688.0,
-        "sumW": 2707231233.76532
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_TuneCP5_erdOn_powheg": {
         "isMC": 1,
@@ -157,9 +157,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 36418271.0,
-        "sumsign": 36124335.0,
-        "sumW": 2929824348.455429
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_TuneCP5CR1_powheg": {
         "isMC": 1,
@@ -167,9 +167,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 33707604.0,
-        "sumsign": 33434846.0,
-        "sumW": 2711696309.36203
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_TuneCP5CR2_powheg": {
         "isMC": 1,
@@ -177,9 +177,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 33720865.0,
-        "sumsign": 33448043.0,
-        "sumW": 2712766637.491989
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_TuneCP5up_powheg": {
         "isMC": 1,
@@ -187,9 +187,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 34184038.0,
-        "sumsign": 33906730.0,
-        "sumW": 2749967940.738678
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_TuneCP5down_powheg": {
         "isMC": 1,
@@ -197,9 +197,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 33074645.0,
-        "sumsign": 32807061.0,
-        "sumW": 2660780499.324417
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_mtop166p5_powheg": {
         "isMC": 1,
@@ -207,9 +207,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 33819270.0,
-        "sumsign": 33537188.0,
-        "sumW": 3209703505.134491
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_mtop169p5_powheg": {
         "isMC": 1,
@@ -217,9 +217,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 34544510.0,
-        "sumsign": 34259562.0,
-        "sumW": 3016496250.9754486
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_mtop171p5_powheg": {
         "isMC": 1,
@@ -227,9 +227,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 34555001.0,
-        "sumsign": 34273223.0,
-        "sumW": 2856477756.249939
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_mtop173p5_powheg": {
         "isMC": 1,
@@ -237,9 +237,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 34985006.0,
-        "sumsign": 34704444.0,
-        "sumW": 2739367401.153351
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_mtop175p5_powheg": {
         "isMC": 1,
@@ -247,9 +247,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 31616467.0,
-        "sumsign": 31364647.0,
-        "sumW": 2345975188.145462
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTLL_mtop178p5_powheg": {
         "isMC": 1,
@@ -257,9 +257,9 @@
         "xsec_formula": "923.6*3*3*0.1086*3*0.1086",
         "xsec": 98.03,
         "ref": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO",
-        "nmc": 33302500.0,
-        "sumsign": 33041312.0,
-        "sumW": 2281846286.5686035
+        "nmc": 0,
+        "sumsign": -1,
+        "sumW": -1
     },
     "TTWToLNu": {
         "isMC": 1,
@@ -838,6 +838,78 @@
         "sumW": 3918.3954691425897,
         "filterEff": 0.6158603669852729
     },
+    "TTToHcToWAToMuMu-MHc70_MA30": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-70_MA-30_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6688379747
+    },
+    "TTToHcToWAToMuMu-MHc70_MA65": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-70_MA-65_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 229287.0,
+        "sumsign": 229287.0,
+        "sumW": 0.14673747610072496,
+        "filterEff": 0.580473417721519,
+        "note": "private sample"
+    },
+    "TTToHcToWAToMuMu-MHc85_MA30": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-85_MA-30_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6733891892
+    },
+    "TTToHcToWAToMuMu-MHc85_MA42": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-85_MA-42_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6879246753
+    },
+    "TTToHcToWAToMuMu-MHc85_MA55": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-85_MA-55_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.686046875
+    },
+    "TTToHcToWAToMuMu-MHc100_MA40": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-100_MA-40_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6902705882
+    },
+    "TTToHcToWAToMuMu-MHc100_MA60": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-100_MA-60_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 354289.0,
+        "sumsign": 354289.0,
+        "sumW": 2812.9613460022956,
+        "filterEff": 0.6946843137254902,
+        "note": "private sample"
+    },
     "TTToHcToWAToMuMu-MHc100_MA95": {
         "isMC": 1,
         "PD": "TTToHcToWAToMuMu_MHc-100_MA-95_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
@@ -847,6 +919,46 @@
         "sumsign": 1319248.0,
         "sumW": 0.8061278985668991,
         "filterEff": 0.5634015024916968
+    },
+    "TTToHcToWAToMuMu-MHc115_MA42": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-115_MA-42_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6951057143
+    },
+    "TTToHcToWAToMuMu-MHc115_MA57": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-115_MA-57_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6996228571
+    },
+    "TTToHcToWAToMuMu-MHc115_MA70": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-115_MA-70_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6980202532
+    },
+    "TTToHcToWAToMuMu-MHc115_MA83": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-115_MA-83_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.689435443
     },
     "TTToHcToWAToMuMu-MHc130_MA55": {
         "isMC": 1,
@@ -868,6 +980,56 @@
         "sumW": 3553.233655202668,
         "filterEff": 0.6929673371013579
     },
+    "TTToHcToWAToMuMu-MHc145_MA45": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-45_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6945546667
+    },
+    "TTToHcToWAToMuMu-MHc145_MA60": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-60_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.7035435897
+    },
+    "TTToHcToWAToMuMu-MHc145_MA80": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-80_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.7003102564
+    },
+    "TTToHcToWAToMuMu-MHc145_MA100": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-100_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.6909696203
+    },
+    "TTToHcToWAToMuMu-MHc145_MA120": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-120_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": -1,
+        "sumsign": -1,
+        "sumW": -1,
+        "filterEff": 0.665595
+    },
     "TTToHcToWAToMuMu-MHc160_MA85": {
         "isMC": 1,
         "PD": "TTToHcToWAToMuMu_MHc-160_MA-85_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
@@ -878,6 +1040,17 @@
         "sumW": 12875.133092012256,
         "filterEff": 0.6956037685636157
     },
+    "TTToHcToWAToMuMu-MHc160_MA125": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-125_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 256791.0,
+        "sumsign": 256791.0,
+        "sumW": 135.3907187661971,
+        "filterEff": 0.6757657894736843,
+        "note": "private sample"
+    },
     "TTToHcToWAToMuMu-MHc160_MA145": {
         "isMC": 1,
         "PD": "TTToHcToWAToMuMu_MHc-160_MA-145_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
@@ -887,5 +1060,16 @@
         "sumsign": 613595.0,
         "sumW": 6.063308807762041,
         "filterEff": 0.6183519817959563
+    },
+    "TTToHcToWAToMuMu-MHc160_MA155": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-145_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 613595.0,
+        "sumsign": 613595.0,
+        "sumW": 6.063308807762041,
+        "filterEff": 0.6183519817959563,
+        "note": "private sample"
     }
 }

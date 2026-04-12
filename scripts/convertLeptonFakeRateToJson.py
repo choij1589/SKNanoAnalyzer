@@ -111,36 +111,47 @@ def _make_correction(name, desc, era, lepton_type, values, eta_edges, pt_edges):
     return corr
 
 
-def convert_fakerate_to_json(era, lepton_type):
+def convert_fakerate_to_json(era, lepton_type, no_hem_veto=False):
     """Convert fake rate ROOT files to correctionlib JSON format with simplified arguments
-    
+
     Args:
         era: Data-taking era (e.g., 2017, 2018, 2022)
         lepton_type: Lepton type (electron or muon)
-    
+        no_hem_veto: If True, use noHEMVeto fake rate file (2018 electrons only, no MC file)
+
     Returns:
         tuple: (output_file_path, number_of_corrections)
     """
-    
+
     # Define file paths based on era and lepton type
     if lepton_type == "electron":
         lepton_dir = "EGM"
     else:
         lepton_dir = "MUO"
-    
+
     base_path = f"data/Run3_v13_Run2_v9/{era}/{lepton_dir}/root"
-    main_file = f"{base_path}/fakerate_TopHNT.root"
-    mc_file = f"{base_path}/fakerate_MC_TopHNT.root"
-    output_file = f"data/Run3_v13_Run2_v9/{era}/{lepton_dir}/fakerate_TopHNT.json"
-    
+
+    if no_hem_veto:
+        if lepton_type != "electron":
+            raise RuntimeError("--no-hem-veto is only supported for electrons")
+        if era != "2018":
+            raise RuntimeError("--no-hem-veto is only applicable for 2018 era")
+        main_file = f"{base_path}/fakerate_TopHNT_noHEMVeto.root"
+        output_file = f"data/Run3_v13_Run2_v9/{era}/{lepton_dir}/fakerate_TopHNT_noHEMVeto.json"
+        mc_file = None
+    else:
+        main_file = f"{base_path}/fakerate_TopHNT.root"
+        mc_file = f"{base_path}/fakerate_MC_TopHNT.root"
+        output_file = f"data/Run3_v13_Run2_v9/{era}/{lepton_dir}/fakerate_TopHNT.json"
+
     # Check if files exist
     if not os.path.exists(main_file):
         raise RuntimeError(f"Main fake rate file not found: {main_file}")
-    if not os.path.exists(mc_file):
+    if mc_file and not os.path.exists(mc_file):
         raise RuntimeError(f"MC fake rate file not found: {mc_file}")
-    
+
     corrections = []
-    
+
     # Process main fake rate (Central)
     print(f"Processing main fake rate file: {main_file}")
     with uproot.open(main_file) as f:
@@ -164,53 +175,55 @@ def convert_fakerate_to_json(era, lepton_type):
         pt_edges=pt_edges_r,
     )
     corrections.append(corr_central)
-    
-    # Process MC fake rate file (all histograms)
-    print(f"Processing MC fake rate file: {mc_file}")
-    with uproot.open(mc_file) as f:
-        mc_keys = [k.replace(';1','') for k in f.keys()]
 
-    for key in mc_keys:
-        # Extract variation name from key like "fake rate - (QCD_EMEnriched_bjet)"
-        # Pattern: "fake rate - (NAME)" -> NAME
-        match = re.search(r'\(([^)]+)\)', key)
-        if not match:
-            print(f"  Skipping unrecognized key: {key}")
-            continue
-        variation_name = match.group(1)
+    # Process MC fake rate file (all histograms) - skip for noHEMVeto
+    if mc_file:
+        print(f"Processing MC fake rate file: {mc_file}")
+        with uproot.open(mc_file) as f:
+            mc_keys = [k.replace(';1','') for k in f.keys()]
 
-        vals_mc, eta_edges_mc, pt_edges_mc = _read_hist2d(mc_file, key)
-        if vals_mc.shape[0] != len(eta_edges_mc)-1 or vals_mc.shape[1] != len(pt_edges_mc)-1:
-            vals_mc = vals_mc.T
-        vals_mc_r, pt_edges_mc_r = _restrict_pt(vals_mc, eta_edges_mc, pt_edges_mc, pt_min, pt_max)
+        for key in mc_keys:
+            # Extract variation name from key like "fake rate - (QCD_EMEnriched_bjet)"
+            # Pattern: "fake rate - (NAME)" -> NAME
+            match = re.search(r'\(([^)]+)\)', key)
+            if not match:
+                print(f"  Skipping unrecognized key: {key}")
+                continue
+            variation_name = match.group(1)
 
-        corr_mc = _make_correction(
-            name=f"fakerate_{lepton_type}_{variation_name}",
-            desc=f"{lepton_type} fake rate - {variation_name}",
-            era=era,
-            lepton_type=lepton_type,
-            values=vals_mc_r,
-            eta_edges=eta_edges_mc,
-            pt_edges=pt_edges_mc_r,
-        )
-        corrections.append(corr_mc)
-        print(f"  Added: fakerate_{lepton_type}_{variation_name}")
-    
+            vals_mc, eta_edges_mc, pt_edges_mc = _read_hist2d(mc_file, key)
+            if vals_mc.shape[0] != len(eta_edges_mc)-1 or vals_mc.shape[1] != len(pt_edges_mc)-1:
+                vals_mc = vals_mc.T
+            vals_mc_r, pt_edges_mc_r = _restrict_pt(vals_mc, eta_edges_mc, pt_edges_mc, pt_min, pt_max)
+
+            corr_mc = _make_correction(
+                name=f"fakerate_{lepton_type}_{variation_name}",
+                desc=f"{lepton_type} fake rate - {variation_name}",
+                era=era,
+                lepton_type=lepton_type,
+                values=vals_mc_r,
+                eta_edges=eta_edges_mc,
+                pt_edges=pt_edges_mc_r,
+            )
+            corrections.append(corr_mc)
+            print(f"  Added: fakerate_{lepton_type}_{variation_name}")
+
     if not corrections:
         raise RuntimeError("No histograms were successfully converted")
-    
+
     # Create correction set
+    desc_suffix = " (noHEMVeto, Central only)" if no_hem_veto else " (includes MC systematic sources)"
     cset = correctionlib.schemav2.CorrectionSet(
     schema_version=2,
-        description=f"{lepton_type} fake rate corrections for {era} (includes MC systematic sources)",
+        description=f"{lepton_type} fake rate corrections for {era}{desc_suffix}",
         corrections=corrections
     )
-    
+
     # Write to JSON file
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "w") as fout:
         fout.write(cset.model_dump_json(exclude_unset=True, indent=2))
-    
+
     print(f"Successfully wrote {len(corrections)} corrections to {output_file}")
     return output_file, len(corrections)
 
@@ -228,15 +241,17 @@ Examples:
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("-e", "--era", required=True, 
+    parser.add_argument("-e", "--era", required=True,
                        help="Data-taking era (e.g., 2017, 2018, 2022)")
-    parser.add_argument("-l", "--lepton", choices=["electron", "muon"], required=True, 
+    parser.add_argument("-l", "--lepton", choices=["electron", "muon"], required=True,
                        help="Lepton type (electron or muon)")
-    
+    parser.add_argument("--no-hem-veto", action="store_true",
+                       help="Use noHEMVeto fake rate (2018 electrons only, no MC systematics)")
+
     args = parser.parse_args()
-    
+
     try:
-        output_file, num_corrections = convert_fakerate_to_json(args.era, args.lepton)
+        output_file, num_corrections = convert_fakerate_to_json(args.era, args.lepton, args.no_hem_veto)
         print(f"\nConversion completed successfully!")
         print(f"Output: {output_file}")
         print(f"Total corrections: {num_corrections}")
@@ -254,7 +269,10 @@ Examples:
         print(f"  Era: {args.era} ({'Run3' if is_run3 else 'Run2'})")
         print(f"  Axis names: {axis_name} + ptCorr")
         print(f"  Flow: clamp for both axes (eta, pt)")
-        print(f"  Integrated: Main + MC systematic corrections (flavor-tagged)")
+        if args.no_hem_veto:
+            print(f"  Mode: noHEMVeto (Central only, no MC systematics)")
+        else:
+            print(f"  Integrated: Main + MC systematic corrections (flavor-tagged)")
         
         return 0
     except Exception as e:
