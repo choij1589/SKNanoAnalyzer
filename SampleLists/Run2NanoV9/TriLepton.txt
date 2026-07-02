@@ -14,6 +14,10 @@ Skim_TriLep_TTHToNonbb
 Skim_TriLep_tZq
 # rare
 Skim_TriLep_tHq
+Skim_TriLep_tWZ_thadWlep
+Skim_TriLep_tWZ_tlepWhad
+Skim_TriLep_tWZ_tlepWlep
+Skim_TriLep_tHW
 Skim_TriLep_WWW
 Skim_TriLep_WWZ
 Skim_TriLep_WZZ

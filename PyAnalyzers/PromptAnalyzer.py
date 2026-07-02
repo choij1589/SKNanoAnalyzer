@@ -25,8 +25,8 @@ Usage Examples:
     # CR + Tree only
     module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst", "RunCR", "NoHistMode"])
 
-    # Tree + theory systematics
-    module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst", "RunTheoryUnc", "NoHistMode"])
+    # Tree + ParticleNetMD scores for MHc160_MA* models only
+    module.Userflags = RVec(TString)(["Run1E2Mu", "RunSyst", "NoHistMode", "MHc160"])
 """
 import os
 from ROOT import TString
@@ -41,7 +41,12 @@ from ROOT import TTree
 from array import array
 from enum import IntEnum
 
-from MLTools.helpers import loadMultiClassParticleNetMD, getGraphInput, getMultiClassScore
+from MLTools.helpers import (
+    resolveParticleNetMDSignals,
+    loadMultiClassParticleNetMD,
+    getGraphInput,
+    getMultiClassScore
+)
 
 
 class CutStage(IntEnum):
@@ -69,6 +74,7 @@ class PromptAnalyzer(TriLeptonBase):
         super().__init__()
         self.systHelper = None
         self.models = {}
+        self.particleNetGraphFeatures = 8
 
         # Mode flags (set in _parseUserflags)
         self.RunHistMode = True   # Default: histogram mode
@@ -79,10 +85,9 @@ class PromptAnalyzer(TriLeptonBase):
         self.trees = {}
         self.mass1 = {}
         self.mass2 = {}
-        self.MT1 = {}
-        self.MT2 = {}
+        self.pT1 = {}
+        self.pT2 = {}
         self.scores = {}
-        self.fold = {}
         self.weight = {}
         self.theorySystematics = []
         self.hasTheoryWeights = False
@@ -134,14 +139,28 @@ class PromptAnalyzer(TriLeptonBase):
         else:
             raise ValueError("Run1E2Mu or Run3Mu or Run2E1Mu must be set")
 
-        # ParticleNetMD configuration (mass-decorrelated, 3 signal points)
-        self.signals = ["MHc100_MA95", "MHc130_MA90", "MHc160_MA85"]
+        # ParticleNetMD configuration. MHc* userflags override the default signal set.
+        self.signals = resolveParticleNetMDSignals(self.Userflags)
         self.classNames = ["signal", "nonprompt", "diboson", "ttZ"]
 
         # Load ParticleNetMD models
-        print(f"[PromptAnalyzer] Loading ParticleNetMD models for {self.channel}")
-        self.models = loadMultiClassParticleNetMD(self.signals)
-        print(f"[PromptAnalyzer] Loaded {len(self.models)} models")
+        if self.signals:
+            if not self.RunTreeMode:
+                raise ValueError("ParticleNetMD score userflags require RunTreeMode; remove NoTreeMode")
+
+            print(f"[PromptAnalyzer] Loading ParticleNetMD models for {self.channel}: {self.signals}")
+            self.models = loadMultiClassParticleNetMD(self.signals)
+            graphFeatureSizes = {
+                getattr(model, "sknano_num_graph_features", 8)
+                for model in self.models.values()
+            }
+            if len(graphFeatureSizes) != 1:
+                raise ValueError(f"Selected ParticleNetMD models use inconsistent graph feature sizes: {graphFeatureSizes}")
+            self.particleNetGraphFeatures = graphFeatureSizes.pop()
+            print(f"[PromptAnalyzer] Loaded {len(self.models)} ParticleNetMD models")
+        else:
+            self.models = {}
+            print("[PromptAnalyzer] ParticleNetMD scores disabled")
 
         # Systematics
         if self.IsDATA:
@@ -173,6 +192,19 @@ class PromptAnalyzer(TriLeptonBase):
         cutIndex = int(stage)
         self.FillHist(f"{channel}/{syst}/cutflow", cutIndex, weight, 10, 0., 10.)
 
+    def fillCutflows(self, stage, channels, weight, syst):
+        for channel in channels:
+            self.fillCutflow(stage, channel, weight, syst)
+
+    def getActiveCRCutflowChannels(self):
+        if not self.RunCR:
+            return []
+        if self.Run1E2Mu:
+            return ["WZ1E2Mu", "ZG1E2Mu"]
+        if self.Run3Mu:
+            return ["WZ3Mu", "ZG3Mu"]
+        return []
+
     def fillJetEtaPhi2D(self, jets, weight, stage):
         """Fill 2D jet eta-phi distribution for veto map validation."""
         if not self.RunHistMode:
@@ -203,16 +235,20 @@ class PromptAnalyzer(TriLeptonBase):
         # Initial cutflow entry
         initialWeight = 1.0 if self.IsDATA else self.MCweight() * ev.GetTriggerLumi("Full")
         self.fillCutflow(CutStage.Initial, self.channel, initialWeight, "Central")
+        crCutflowChannels = self.getActiveCRCutflowChannels()
+        self.fillCutflows(CutStage.Initial, crCutflowChannels, initialWeight, "Central")
 
         rawJets = self.GetAllJets()
         if not self.PassNoiseFilter(rawJets, ev):
             return
         self.fillCutflow(CutStage.NoiseFilter, self.channel, initialWeight, "Central")
+        self.fillCutflows(CutStage.NoiseFilter, crCutflowChannels, initialWeight, "Central")
 
         rawMuons = self.GetAllMuons()
         if not (self.RunNoJetVeto or self.PassVetoMap(rawJets, rawMuons, "jetvetomap")):
             return
         self.fillCutflow(CutStage.EventVetoMap, self.channel, initialWeight, "Central")
+        self.fillCutflows(CutStage.EventVetoMap, crCutflowChannels, initialWeight, "Central")
 
         # Fill jet eta-phi for events passing veto map (Run 3)
         if self.Run == 3:
@@ -231,12 +267,14 @@ class PromptAnalyzer(TriLeptonBase):
 
         def processEvent(syst, apply_weight_variation=False):
             recoObjects = self.defineObjects(ev, rawMuons, rawElectrons, rawJets, genJets, syst)
+            if syst == "Central" and self.RunHistMode and not self.RunCR:
+                self.fillNMinusOneSRDistributions(ev, recoObjects, truth, genJets)
             channel = self.selectEvent(ev, recoObjects, truth, syst, initialWeight if syst == "Central" else None)
             if channel is None:
                 return None, None, None
 
             # Evaluate ParticleNet scores
-            data, scores, fold = self.evalScore(
+            data, scores = self.evalScore(
                 recoObjects["tightMuons"],
                 recoObjects["tightElectrons"],
                 recoObjects["jets"],
@@ -244,7 +282,6 @@ class PromptAnalyzer(TriLeptonBase):
                 recoObjects["METv"]
             )
             recoObjects["scores"] = scores
-            recoObjects["fold"] = fold
 
             if apply_weight_variation:
                 assert syst == "Central", "Only Central weight variation is allowed"
@@ -405,10 +442,11 @@ class PromptAnalyzer(TriLeptonBase):
         # B-tagging
         bjets = RVec(Jet)()
         tagger = JetTagging.JetFlavTagger.DeepJet
-        wp = self.myCorr.GetBTaggingWP(tagger, JetTagging.JetFlavTaggerWP.Medium)
+        medium_wp = self.myCorr.GetBTaggingWP(tagger, JetTagging.JetFlavTaggerWP.Medium)
 
         for j in jets:
-            if j.GetBTaggerResult(tagger) > wp:
+            btag_score = j.GetBTaggerResult(tagger)
+            if btag_score > medium_wp:
                 bjets.emplace_back(j)
 
         return {"vetoMuons": vetoMuons,
@@ -618,8 +656,11 @@ class PromptAnalyzer(TriLeptonBase):
         if self.Run3Mu and not is3Mu:
             return
 
+        crCutflowChannels = self.getActiveCRCutflowChannels()
+
         # Record lepton selection cutflow
         self.fillCutflow(CutStage.LeptonSelection, self.channel, weight, "Central")
+        self.fillCutflows(CutStage.LeptonSelection, crCutflowChannels, weight, "Central")
 
         # For conversion samples
         if self.MCSample.Contains("DYJets") or self.MCSample.Contains("TTG"):
@@ -636,7 +677,8 @@ class PromptAnalyzer(TriLeptonBase):
                     convElectrons.emplace_back(ele)
             if not (convMuons.size() + convElectrons.size()) > 0:
                 return
-            self.fillCutflow(CutStage.ConversionFilter, self.channel, weight, "Central")
+        self.fillCutflow(CutStage.ConversionFilter, self.channel, weight, "Central")
+        self.fillCutflows(CutStage.ConversionFilter, crCutflowChannels, weight, "Central")
 
         # 1E2Mu ZGamma
         # 1. pass EMuTriggers
@@ -647,8 +689,8 @@ class PromptAnalyzer(TriLeptonBase):
         if self.Run1E2Mu:
             if not ev.PassTrigger(self.EMuTriggers):
                 return
-            if syst == "Central" and weight is not None:
-                self.fillCutflow(CutStage.Trigger, self.channel, weight, "Central")
+            self.fillCutflow(CutStage.Trigger, self.channel, weight, "Central")
+            self.fillCutflows(CutStage.Trigger, crCutflowChannels, weight, "Central")
 
             mu1, mu2 = tightMuons.at(0), tightMuons.at(1)
             ele = tightElectrons.at(0)
@@ -663,6 +705,7 @@ class PromptAnalyzer(TriLeptonBase):
             if not (pair.M() > 12.):
                 return
             self.fillCutflow(CutStage.KinematicCuts, self.channel, weight, "Central")
+            self.fillCutflows(CutStage.KinematicCuts, crCutflowChannels, weight, "Central")
 
             if METv.Pt() > 40.:
                 # WZ control region
@@ -693,6 +736,7 @@ class PromptAnalyzer(TriLeptonBase):
             if not ev.PassTrigger(self.DblMuTriggers):
                 return
             self.fillCutflow(CutStage.Trigger, self.channel, weight, "Central")
+            self.fillCutflows(CutStage.Trigger, crCutflowChannels, weight, "Central")
 
             mu1, mu2, mu3 = tuple(tightMuons)
             if not mu1.Pt() > 20.:
@@ -710,6 +754,7 @@ class PromptAnalyzer(TriLeptonBase):
             if not pair2.M() > 12.:
                 return
             self.fillCutflow(CutStage.KinematicCuts, self.channel, weight, "Central")
+            self.fillCutflows(CutStage.KinematicCuts, crCutflowChannels, weight, "Central")
 
             if METv.Pt() > 40.:
                 # WZ control region
@@ -777,10 +822,38 @@ class PromptAnalyzer(TriLeptonBase):
         else:
             raise NotImplementedError(f"Wrong number of muons ({muons.size()})")
 
+    def passConversionFilter(self,
+                             muons: RVec[Muon],
+                             electrons: RVec[Electron],
+                             truth: RVec[Gen]) -> bool:
+        if not (self.MCSample.Contains("DYJets") or
+                self.MCSample.Contains("TTG") or
+                self.MCSample.Contains("WWG")):
+            return True
+
+        for mu in muons:
+            if self.GetLeptonType(mu, truth) in [4, 5, -5, -6]:
+                return True
+        for ele in electrons:
+            if self.GetLeptonType(ele, truth) in [4, 5, -5, -6]:
+                return True
+        return False
+
     def evalScore(self, muons, electrons, jets, bjets, METv):
         """Evaluate ParticleNet scores for all signal mass points."""
+        if not self.signals:
+            return None, {}
+
         scores = {}
-        data, fold = getGraphInput(muons, electrons, jets, bjets, METv, str(self.DataEra))
+        data, _ = getGraphInput(
+            muons,
+            electrons,
+            jets,
+            bjets,
+            METv,
+            str(self.DataEra),
+            num_graph_features=self.particleNetGraphFeatures
+        )
 
         for sig in self.signals:
             if sig not in self.models.keys():
@@ -798,11 +871,19 @@ class PromptAnalyzer(TriLeptonBase):
             scores[f"{sig}_diboson"] = probs[2]
             scores[f"{sig}_ttZ"] = probs[3]
 
-        return data, scores, fold
+        return data, scores
 
     # ===================================================================
     # Weight Calculation
     # ===================================================================
+
+    def getTotalWeight(self, weights: dict) -> float:
+        totWeight = weights["genWeight"] * weights["prefireWeight"] * weights["pileupWeight"]
+        totWeight *= weights["muonRecoSF"] * weights["muonIDSF"]
+        totWeight *= weights["eleRecoSF"] * weights["eleIDSF"]
+        totWeight *= weights["trigSF"] * weights["pileupIDSF"] * weights["btagSF"]
+        totWeight *= weights["WZNjetsSF"]
+        return totWeight
 
     def getWeights(self, ev: Event,
                          recoObjects: dict,
@@ -892,7 +973,7 @@ class PromptAnalyzer(TriLeptonBase):
             source = "lf_uncorr"
         btagSF = self.myCorr.GetBTaggingReweightMethod1a(recoObjects["jets"], tagger, wp, method, var, source)
 
-        # WZ/ZZ NJets SF: apply to WZTo3LNu
+        # WZ NJets SF: apply to WZTo3LNu
         WZNjetsSF = 1.
         if self.Run == 3 and self.MCSample.Contains("WZTo3LNu") and (not self.RunNoWZSF):
             njets = float(recoObjects["jets"].size())
@@ -920,6 +1001,96 @@ class PromptAnalyzer(TriLeptonBase):
     # ===================================================================
     # Histogram Filling
     # ===================================================================
+
+    def fillNMinusOneSRDistributions(self,
+                                     ev: Event,
+                                     recoObjects: dict,
+                                     truth: RVec[Gen],
+                                     genJets: RVec[GenJet]):
+        if self.RunCR:
+            return
+
+        vetoMuons = recoObjects["vetoMuons"]
+        tightMuons = recoObjects["tightMuons"]
+        vetoElectrons = recoObjects["vetoElectrons"]
+        tightElectrons = recoObjects["tightElectrons"]
+        jets = recoObjects["jets"]
+        bjets = recoObjects["bjets"]
+
+        if self.Run1E2Mu:
+            if not (tightElectrons.size() == 1 and vetoElectrons.size() == 1 and
+                    tightMuons.size() == 2 and vetoMuons.size() == 2):
+                return
+            if not self.passConversionFilter(tightMuons, tightElectrons, truth):
+                return
+            if not ev.PassTrigger(self.EMuTriggers):
+                return
+
+            mu1, mu2 = tightMuons.at(0), tightMuons.at(1)
+            ele = tightElectrons.at(0)
+            passLeadMu = mu1.Pt() > 25. and ele.Pt() > 15.
+            passLeadEle = mu1.Pt() > 10. and ele.Pt() > 25.
+            if not (passLeadMu or passLeadEle):
+                return
+
+            pair = mu1 + mu2
+            if not pair.M() > 12.:
+                return
+
+            weight = self.getTotalWeight(self.getWeights(ev, recoObjects, genJets, "Central"))
+            chargeSum = mu1.Charge() + mu2.Charge()
+            nJets = jets.size()
+            nBJets = bjets.size()
+
+            if nJets >= 2 and nBJets >= 1:
+                self.FillHist("SR1E2Mu/Central/NMinusOne/os_mumu/mu_charge_sum",
+                              chargeSum, weight, 7, -3.5, 3.5)
+            if chargeSum == 0 and nBJets >= 1:
+                self.FillHist("SR1E2Mu/Central/NMinusOne/njet_ge2/n_jets",
+                              nJets, weight, 20, 0., 20.)
+            if chargeSum == 0 and nJets >= 2:
+                self.FillHist("SR1E2Mu/Central/NMinusOne/nbjet_ge1/n_bjets",
+                              nBJets, weight, 15, 0., 15.)
+
+        if self.Run3Mu:
+            if not (tightMuons.size() == 3 and vetoMuons.size() == 3 and
+                    tightElectrons.size() == 0 and vetoElectrons.size() == 0):
+                return
+            if not self.passConversionFilter(tightMuons, tightElectrons, truth):
+                return
+            if not ev.PassTrigger(self.DblMuTriggers):
+                return
+
+            mu1, mu2, mu3 = tuple(tightMuons)
+            if not (mu1.Pt() > 20. and mu2.Pt() > 10. and mu3.Pt() > 10.):
+                return
+
+            osPairMasses = []
+            for idx, mu_a in enumerate([mu1, mu2, mu3]):
+                for mu_b in [mu1, mu2, mu3][idx + 1:]:
+                    if mu_a.Charge() + mu_b.Charge() == 0:
+                        osPairMasses.append((mu_a + mu_b).M())
+            if len(osPairMasses) == 0 or not all(mass > 12. for mass in osPairMasses):
+                return
+
+            weight = self.getTotalWeight(self.getWeights(ev, recoObjects, genJets, "Central"))
+            absChargeSum = abs(mu1.Charge() + mu2.Charge() + mu3.Charge())
+            nJets = jets.size()
+            nBJets = bjets.size()
+
+            if nJets >= 2 and nBJets >= 1:
+                self.FillHist("SR3Mu/Central/NMinusOne/charge_abs1/abs_charge_sum",
+                              absChargeSum, weight, 5, -0.5, 4.5)
+
+            if not absChargeSum == 1:
+                return
+
+            if nBJets >= 1:
+                self.FillHist("SR3Mu/Central/NMinusOne/njet_ge2/n_jets",
+                              nJets, weight, 20, 0., 20.)
+            if nJets >= 2:
+                self.FillHist("SR3Mu/Central/NMinusOne/nbjet_ge1/n_bjets",
+                              nBJets, weight, 15, 0., 15.)
 
     def fillObjects(self, channel: str,
                           recoObjects: dict,
@@ -961,10 +1132,8 @@ class PromptAnalyzer(TriLeptonBase):
         pileupIDSF = weights["pileupIDSF"]
         btagSF = weights["btagSF"]
         WZNjetsSF = weights["WZNjetsSF"]
-        totWeight = genWeight * prefireWeight * pileupWeight
-        totWeight *= muonRecoSF * muonIDSF * eleRecoSF * eleIDSF
-        totWeight *= trigSF * pileupIDSF * btagSF
-        totWeight *= WZNjetsSF
+        totWeight = self.getTotalWeight(weights)
+        totWeightNoWZNjetsSF = totWeight / WZNjetsSF if WZNjetsSF != 0. else 0.
 
         # Fill weights
         self.FillHist(f"{channel}/{syst}/weights/genWeight", genWeight, 1., 200, -10000, 10000.)
@@ -1012,6 +1181,8 @@ class PromptAnalyzer(TriLeptonBase):
         self.FillHist(f"{channel}/{syst}/muons/size", muons.size(), totWeight, 10, 0., 10.)
         self.FillHist(f"{channel}/{syst}/electrons/size", electrons.size(), totWeight, 10, 0., 10.)
         self.FillHist(f"{channel}/{syst}/jets/size", jets.size(), totWeight, 20, 0., 20.)
+        self.FillHist(f"{channel}/{syst}/jets/size_unweighted", jets.size(), 1., 20, 0., 20.)
+        self.FillHist(f"{channel}/{syst}/jets/size_noWZNjetsSF", jets.size(), totWeightNoWZNjetsSF, 20, 0., 20.)
         self.FillHist(f"{channel}/{syst}/bjets/size", bjets.size(), totWeight, 15, 0., 15.)
 
         # Fill MET
@@ -1085,8 +1256,8 @@ class PromptAnalyzer(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/dR_mu1_mu2", dR_mu1_mu2, totWeight, 100, 0., 10.)
             self.FillHist(f"{channel}/{syst}/dR_min_ele_mu", min([dR_ele_mu1, dR_ele_mu2]), totWeight, 100, 0., 10.)
 
-            # Within Z mass window?
-            if 60 < pair.M() and pair.M() < 120:
+            # Overlap with Z-peak?
+            if 85 < pair.M() and pair.M() < 95:
                 self.FillHist(f"{channel}/{syst}/pair_onZ/mass", pair.M(), totWeight, 60, 60., 120.)
             else:
                 self.FillHist(f"{channel}/{syst}/pair_offZ/mass", pair.M(), totWeight, 200, 0., 200.)
@@ -1119,7 +1290,7 @@ class PromptAnalyzer(TriLeptonBase):
             self.FillHist(f"{channel}/{syst}/pair_highM/phi", pair_highM.Phi(), totWeight, 64, -3.2, 3.2)
             self.FillHist(f"{channel}/{syst}/pair_highM/mass", pair_highM.M(), totWeight, 200, 0., 200.)
 
-            if (60 < pair_lowM.M() and pair_lowM.M() < 120) or (60 < pair_highM.M() and pair_highM.M() < 120):
+            if (85 < pair_lowM.M() and pair_lowM.M() < 95) or (85 < pair_highM.M() and pair_highM.M() < 95):
                 self.FillHist(f"{channel}/{syst}/pair_lowM_onZ/mass", pair_lowM.M(), totWeight, 200, 0., 200.)
                 self.FillHist(f"{channel}/{syst}/pair_highM_onZ/mass", pair_highM.M(), totWeight, 200, 0., 200.)
             else:
@@ -1269,10 +1440,10 @@ class PromptAnalyzer(TriLeptonBase):
             thisTree.Branch("mass1", self.mass1[syst], "mass1/D")
             self.mass2[syst] = array("d", [0.])
             thisTree.Branch("mass2", self.mass2[syst], "mass2/D")
-            self.MT1[syst] = array("d", [0.])
-            thisTree.Branch("MT1", self.MT1[syst], "MT1/D")
-            self.MT2[syst] = array("d", [0.])
-            thisTree.Branch("MT2", self.MT2[syst], "MT2/D")
+            self.pT1[syst] = array("d", [0.])
+            thisTree.Branch("pT1", self.pT1[syst], "pT1/D")
+            self.pT2[syst] = array("d", [0.])
+            thisTree.Branch("pT2", self.pT2[syst], "pT2/D")
 
             # ParticleNet score branches
             self.scores[syst] = {}
@@ -1282,10 +1453,6 @@ class PromptAnalyzer(TriLeptonBase):
                     self.scores[syst][signal][cls] = array("d", [0.])
                     branchName = f"score_{signal}_{cls}"
                     thisTree.Branch(branchName, self.scores[syst][signal][cls], f"{branchName}/D")
-
-            # Fold branch
-            self.fold[syst] = array("i", [0])
-            thisTree.Branch("fold", self.fold[syst], "fold/I")
 
             # Weight branch
             self.weight[syst] = array("d", [0.])
@@ -1333,29 +1500,27 @@ class PromptAnalyzer(TriLeptonBase):
             pair = mu1 + mu2
             self.mass1[syst][0] = pair.M()
             self.mass2[syst][0] = -999.
-            ele = electrons.at(0)
-            self.MT1[syst][0] = (ele + METv).Mt()
-            self.MT2[syst][0] = -999.
+            self.pT1[syst][0] = pair.Pt()
+            self.pT2[syst][0] = -999.
         elif "3Mu" in channel:
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
             pair1 = mu_ss1 + mu_os
             pair2 = mu_ss2 + mu_os
             self.mass1[syst][0] = pair1.M()
             self.mass2[syst][0] = pair2.M()
-            self.MT1[syst][0] = (mu_ss1 + METv).Mt()
-            self.MT2[syst][0] = (mu_ss2 + METv).Mt()
+            self.pT1[syst][0] = pair1.Pt()
+            self.pT2[syst][0] = pair2.Pt()
         elif "2E1Mu" in channel:
             el1, el2 = electrons.at(0), electrons.at(1)
             pair = el1 + el2
             self.mass1[syst][0] = pair.M()
             self.mass2[syst][0] = -999.
-            self.MT1[syst][0] = -999.
-            self.MT2[syst][0] = -999.
+            self.pT1[syst][0] = pair.Pt()
+            self.pT2[syst][0] = -999.
 
         # ParticleNet scores (use scores from recoObjects)
         # For evtLoopAgain systematics, scores are re-evaluated with varied objects
         # For weight-only systematics, recoObjects is shared with Central
-        self.fold[syst][0] = recoObjects.get("fold", 0)
         scores = recoObjects.get("scores", {})
         for signal in self.signals:
             for cls in self.classNames:
@@ -1448,27 +1613,25 @@ class PromptAnalyzer(TriLeptonBase):
                 pair = mu1 + mu2
                 self.mass1[systName][0] = pair.M()
                 self.mass2[systName][0] = -999.
-                ele = electrons.at(0)
-                self.MT1[systName][0] = (ele + METv).Mt()
-                self.MT2[systName][0] = -999.
+                self.pT1[systName][0] = pair.Pt()
+                self.pT2[systName][0] = -999.
             elif "3Mu" in channel:
                 mu_ss1, mu_ss2, mu_os = self.configureChargeOf(muons)
                 pair1 = mu_ss1 + mu_os
                 pair2 = mu_ss2 + mu_os
                 self.mass1[systName][0] = pair1.M()
                 self.mass2[systName][0] = pair2.M()
-                self.MT1[systName][0] = (mu_ss1 + METv).Mt()
-                self.MT2[systName][0] = (mu_ss2 + METv).Mt()
+                self.pT1[systName][0] = pair1.Pt()
+                self.pT2[systName][0] = pair2.Pt()
             elif "2E1Mu" in channel:
                 el1, el2 = electrons.at(0), electrons.at(1)
                 pair = el1 + el2
                 self.mass1[systName][0] = pair.M()
                 self.mass2[systName][0] = -999.
-                self.MT1[systName][0] = -999.
-                self.MT2[systName][0] = -999.
+                self.pT1[systName][0] = pair.Pt()
+                self.pT2[systName][0] = -999.
 
-            # Copy fold and scores from Central (objects don't change for theory systematics)
-            self.fold[systName][0] = self.fold["Central"][0]
+            # Copy scores from Central (objects don't change for theory systematics)
             for signal in self.signals:
                 for cls in self.classNames:
                     self.scores[systName][signal][cls][0] = self.scores["Central"][signal][cls][0]

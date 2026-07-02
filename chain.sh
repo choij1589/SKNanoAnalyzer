@@ -33,20 +33,26 @@
 #./scripts/submission/TriLepton.sh Run2 Run1E2Mu CR
 #./scripts/submission/TriLepton.sh Run2 Run3Mu CR
 
-## In this step, Run3 WZTo3LNu_powheg nominal sample run with 
-## invalid WZ NjSF json config
+## In this step, Run3 WZTo3LNu_powheg nominal sample run with invalid WZ NjSF json config
+## WZ sample will be run with RunNoWZSF mode
 #./scripts/submission/TriLepton.sh Run3 Run1E2Mu CR
 #./scripts/submission/TriLepton.sh Run3 Run3Mu CR
 
 ## After re-measure WZNjSF for Run3, re-run WZ sample
-## It will override processed sample
-#SKNano.py -a PromptAnalyzer -i Skim_TriLep_WZTo3LNu_powheg -n 30 -r Run3 --userflags Run1E2Mu,RunCR,NoTreeMode --python --memory 4000
-#SKNano.py -a PromptAnalyzer -i Skim_TriLep_WZTo3LNu_powheg -n 30 -r Run3 --userflags Run3Mu,RunCR,NoTreeMode --python --memory 4000
+#SKNano.py -a PromptAnalyzer -i Skim_TriLep_WZTo3LNu_powheg -n 30 -r Run3 --userflags Run1E2Mu,RunSyst,RunCR,NoTreeMode --python --memory 4000
+#SKNano.py -a PromptAnalyzer -i Skim_TriLep_WZTo3LNu_powheg -n 30 -r Run3 --userflags Run3Mu,RunSyst,RunCR,NoTreeMode --python --memory 4000
 
 # Signal Region
-./scripts/submission/TriLepton.sh Run2 Run1E2Mu SR
+#./scripts/submission/TriLepton.sh Run2 Run1E2Mu SR
 ./scripts/submission/TriLepton.sh Run2 Run3Mu SR
 ./scripts/submission/TriLepton.sh Run2 Run2E1Mu SR
 ./scripts/submission/TriLepton.sh Run3 Run1E2Mu SR
 ./scripts/submission/TriLepton.sh Run3 Run3Mu SR
 ./scripts/submission/TriLepton.sh Run3 Run2E1Mu SR
+
+#./scripts/submission/TriLepton_PN.sh Run2 Run1E2Mu MHc115
+#./scripts/submission/TriLepton_PN.sh Run2 Run3Mu MHc115
+#./scripts/submission/TriLepton_PN.sh Run2 Run2E1Mu MHc115
+#./scripts/submission/TriLepton_PN.sh Run3 Run1E2Mu MHc115
+#./scripts/submission/TriLepton_PN.sh Run3 Run3Mu MHc115
+#./scripts/submission/TriLepton_PN.sh Run3 Run2E1Mu MHc115

@@ -444,5 +444,25 @@
         "suffix": "TriLep",
         "PD": "TTLL_powheg_ext1",
         "isMC": 1
+    },
+    "Skim_TriLep_tWZ_thadWlep": {
+        "suffix": "TriLep",
+        "PD": "tWZ_thadWlep",
+        "isMC": 1
+    },
+    "Skim_TriLep_tWZ_tlepWhad": {
+        "suffix": "TriLep",
+        "PD": "tWZ_tlepWhad",
+        "isMC": 1
+    },
+    "Skim_TriLep_tWZ_tlepWlep": {
+        "suffix": "TriLep",
+        "PD": "tWZ_tlepWlep",
+        "isMC": 1
+    },
+    "Skim_TriLep_tHW": {
+        "suffix": "TriLep",
+        "PD": "tHW",
+        "isMC": 1
     }
 }

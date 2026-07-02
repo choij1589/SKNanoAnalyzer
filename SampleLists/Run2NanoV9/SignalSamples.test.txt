@@ -1,0 +1,3 @@
+test_TTToHcToWAToMuMu-MHc70_MA15
+test_TTToHcToWAToMuMu-MHc100_MA60
+test_TTToHcToWAToMuMu-MHc130_MA90

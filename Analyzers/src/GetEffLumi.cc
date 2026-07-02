@@ -5,6 +5,29 @@ GetEffLumi::GetEffLumi(){};
 GetEffLumi::~GetEffLumi(){};
 
 void GetEffLumi::initializeAnalyzer(){
+  // Fail-fast: every input file must carry Electron_scEta on the Events tree.
+  // SKNanoLoader only warns on missing branches, which would silently zero scEta.
+  {
+    TObjArray *fileElements = fChain->GetListOfFiles();
+    for (int iFile = 0; iFile < fileElements->GetEntries(); iFile++) {
+      TString fileName = fileElements->At(iFile)->GetTitle();
+      TFile *file = TFile::Open(fileName);
+      if (!file || file->IsZombie()) {
+        if (file) file->Close();
+        throw std::runtime_error(
+          "[GetEffLumi::initializeAnalyzer] Cannot open file: " + std::string(fileName.Data()));
+      }
+      TTree *events = (TTree *)file->Get("Events");
+      if (!events || !events->GetBranch("Electron_scEta")) {
+        file->Close();
+        throw std::runtime_error(
+          "[GetEffLumi::initializeAnalyzer] Electron_scEta branch missing in file: "
+          + std::string(fileName.Data()));
+      }
+      file->Close();
+    }
+  }
+
   useTH1F = false;
   cout << "[GetEffLumi] Using TH1D for histograms." << endl;
 
@@ -62,8 +85,6 @@ void GetEffLumi::executeEvent() {
   else{
     FillHist("NEvents", 0, 1, 1, 0., 1.);
   }
-
-
   return;
 }
 

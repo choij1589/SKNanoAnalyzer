@@ -15,6 +15,17 @@ void SignalKinematics::initializeAnalyzer() {
 void SignalKinematics::executeEvent() {
     Event ev = GetEvent();
 
+    RVec<Gen> truth = !IsDATA ? GetAllGens() : RVec<Gen>();
+    RVec<GenJet> genJets = !IsDATA ? GetAllGenJets() : RVec<GenJet>();
+
+    // Inclusive gen-level fills BEFORE any reco selection — isolates
+    // generator effects from SR-acceptance shaping when comparing
+    // private vs central productions.
+    if (!IsDATA && truth.size() > 0) {
+        float w_incl = MCweight() * ev.GetTriggerLumi("Full");
+        fillInclusiveGen(truth, genJets, w_incl);
+    }
+
     RVec<Jet> rawJets = GetAllJets();
     if (!PassNoiseFilter(rawJets, ev)) return;
 
@@ -22,7 +33,6 @@ void SignalKinematics::executeEvent() {
     if (!(RunNoJetVeto || PassVetoMap(rawJets, rawMuons, "jetvetomap"))) return;
 
     RVec<Electron> rawElectrons = GetAllElectrons();
-    RVec<Gen> truth = !IsDATA ? GetAllGens() : RVec<Gen>();
 
     RecoObjects recoObjects = defineObjects(ev, rawMuons, rawElectrons, rawJets);
 
@@ -109,8 +119,6 @@ SignalKinematics::Channel SignalKinematics::selectEvent(Event& ev, const RecoObj
     const RVec<Muon>& tightMuons = recoObjects.tightMuons;
     const RVec<Electron>& vetoElectrons = recoObjects.vetoElectrons;
     const RVec<Electron>& tightElectrons = recoObjects.tightElectrons;
-    const RVec<Jet>& jets = recoObjects.jets;
-    const RVec<Jet>& bjets = recoObjects.bjets;
 
     if (Run1E2Mu) {
         // SR1E2MU: exactly 2 tight muons + 1 tight electron, no extra leptons
@@ -126,12 +134,6 @@ SignalKinematics::Channel SignalKinematics::selectEvent(Event& ev, const RecoObj
         // Dimuon mass > 12 GeV
         Particle pair = mu1 + mu2;
         if (pair.M() <= 12.) return Channel::NONE;
-
-        // At least 2 jets
-        if (jets.size() < 2) return Channel::NONE;
-
-        // At least 1 b-jet
-        if (bjets.size() == 0) return Channel::NONE;
 
         return Channel::SR1E2MU;
     }
@@ -162,12 +164,6 @@ SignalKinematics::Channel SignalKinematics::selectEvent(Event& ev, const RecoObj
         Particle pair2 = mu_ss2 + mu_os;
         if (pair1.M() <= 12.) return Channel::NONE;
         if (pair2.M() <= 12.) return Channel::NONE;
-
-        // At least 2 jets
-        if (jets.size() < 2) return Channel::NONE;
-
-        // At least 1 b-jet
-        if (bjets.size() == 0) return Channel::NONE;
 
         return Channel::SR3MU;
     }
@@ -226,6 +222,7 @@ void SignalKinematics::fillObjects(Channel ch, const RecoObjects& recoObjects, c
             const Electron& el = electrons[i];
             FillHist(channelStr + "/electrons/" + idx + "/pt", el.Pt(), w, 300, 0., 300.);
             FillHist(channelStr + "/electrons/" + idx + "/eta", el.Eta(), w, 50, -2.5, 2.5);
+            FillHist(channelStr + "/electrons/" + idx + "/scEta", el.scEta(), w, 50, -2.5, 2.5);
             FillHist(channelStr + "/electrons/" + idx + "/phi", el.Phi(), w, 64, -3.2, 3.2);
             FillHist(channelStr + "/electrons/" + idx + "/mass", el.M(), w, 100, 0., 1.);
         }
@@ -239,6 +236,7 @@ void SignalKinematics::fillObjects(Channel ch, const RecoObjects& recoObjects, c
         const Jet& j = jets[i];
         FillHist(channelStr + "/jets/" + idx + "/pt", j.Pt(), w, 300, 0., 300.);
         FillHist(channelStr + "/jets/" + idx + "/eta", j.Eta(), w, 50, -2.5, 2.5);
+        FillHist(channelStr + "/jets/" + idx + "/phi", j.Phi(), w, 64, -3.2, 3.2);
     }
 
     // Fill MET
@@ -702,4 +700,151 @@ void SignalKinematics::fillPairSelectionStudy(const TString& channelStr,
     FillHist(prefix + "/correctness/mass",  massCorrect  ? 1.0 : 0.0, w, 2, 0., 2.);
     FillHist(prefix + "/correctness/gamma", gammaCorrect ? 1.0 : 0.0, w, 2, 0., 2.);
     FillHist(prefix + "/correctness/mT",    mTCorrect    ? 1.0 : 0.0, w, 2, 0., 2.);
+}
+
+void SignalKinematics::fillInclusiveGen(const RVec<Gen>& truth, const RVec<GenJet>& genJets, float w) {
+    TString prefix = "InclusiveGen";
+
+    // Gen A (pseudoscalar, PID=36)
+    for (const auto& gen : truth) {
+        if (abs(gen.PID()) == 36 && gen.isLastCopy()) {
+            FillHist(prefix + "/A/pt", gen.Pt(), w, 300, 0., 300.);
+            FillHist(prefix + "/A/eta", gen.Eta(), w, 100, -5., 5.);
+            FillHist(prefix + "/A/phi", gen.Phi(), w, 64, -3.2, 3.2);
+            FillHist(prefix + "/A/mass", gen.M(), w, 200, 0., 200.);
+
+            RVec<const Gen*> daughters;
+            int genIdx = gen.Index();
+            for (const auto& d : truth) {
+                if (d.MotherIndex() == genIdx && abs(d.PID()) == 13 && d.Status() == 1)
+                    daughters.push_back(&d);
+            }
+            if (daughters.size() >= 2) {
+                float deta = daughters[0]->Eta() - daughters[1]->Eta();
+                float dphi = TVector2::Phi_mpi_pi(daughters[0]->Phi() - daughters[1]->Phi());
+                float dr = sqrt(deta*deta + dphi*dphi);
+                FillHist(prefix + "/A/deltaR", dr, w, 100, 0., 5.);
+            }
+        }
+    }
+
+    // Gen charged Higgs (PID=37)
+    for (const auto& gen : truth) {
+        if (abs(gen.PID()) == 37 && gen.isLastCopy()) {
+            FillHist(prefix + "/Hplus/pt", gen.Pt(), w, 300, 0., 300.);
+            FillHist(prefix + "/Hplus/eta", gen.Eta(), w, 100, -5., 5.);
+            FillHist(prefix + "/Hplus/phi", gen.Phi(), w, 64, -3.2, 3.2);
+            FillHist(prefix + "/Hplus/mass", gen.M(), w, 300, 0., 300.);
+        }
+    }
+
+    // Gen leptons classified by type
+    RVec<const Gen*> muonsFromA;
+    for (const auto& gen : truth) {
+        if (gen.Status() != 1) continue;
+        int absPID = abs(gen.PID());
+        if (absPID != 11 && absPID != 13) continue;
+
+        int type = GetLeptonType(gen, truth);
+        TString lepName = (absPID == 11) ? "electron" : "muon";
+
+        if (type == 2) {
+            if (absPID == 13) muonsFromA.push_back(&gen);
+        } else if (type == 1) {
+            FillHist(prefix + "/" + lepName + "_fromW/pt", gen.Pt(), w, 300, 0., 300.);
+            FillHist(prefix + "/" + lepName + "_fromW/eta", gen.Eta(), w, 100, -5., 5.);
+            FillHist(prefix + "/" + lepName + "_fromW/phi", gen.Phi(), w, 64, -3.2, 3.2);
+            FillHist(prefix + "/" + lepName + "_fromW/mass", gen.M(), w, 10, 0., 1.);
+        } else if (type == 6) {
+            FillHist(prefix + "/" + lepName + "_fromOffshellW/pt", gen.Pt(), w, 300, 0., 300.);
+            FillHist(prefix + "/" + lepName + "_fromOffshellW/eta", gen.Eta(), w, 100, -5., 5.);
+            FillHist(prefix + "/" + lepName + "_fromOffshellW/phi", gen.Phi(), w, 64, -3.2, 3.2);
+            FillHist(prefix + "/" + lepName + "_fromOffshellW/mass", gen.M(), w, 10, 0., 1.);
+        }
+    }
+
+    if (muonsFromA.size() >= 2) {
+        sort(muonsFromA.begin(), muonsFromA.end(), [](const Gen* a, const Gen* b) { return a->Pt() > b->Pt(); });
+        FillHist(prefix + "/muons_fromA/1/pt", muonsFromA[0]->Pt(), w, 300, 0., 300.);
+        FillHist(prefix + "/muons_fromA/1/eta", muonsFromA[0]->Eta(), w, 100, -5., 5.);
+        FillHist(prefix + "/muons_fromA/1/phi", muonsFromA[0]->Phi(), w, 64, -3.2, 3.2);
+        FillHist(prefix + "/muons_fromA/1/mass", muonsFromA[0]->M(), w, 10, 0., 1.);
+        FillHist(prefix + "/muons_fromA/2/pt", muonsFromA[1]->Pt(), w, 300, 0., 300.);
+        FillHist(prefix + "/muons_fromA/2/eta", muonsFromA[1]->Eta(), w, 100, -5., 5.);
+        FillHist(prefix + "/muons_fromA/2/phi", muonsFromA[1]->Phi(), w, 64, -3.2, 3.2);
+        FillHist(prefix + "/muons_fromA/2/mass", muonsFromA[1]->M(), w, 10, 0., 1.);
+    }
+
+    // Gen b-quarks classified by top decay
+    for (size_t i = 0; i < truth.size(); i++) {
+        const Gen& gen = truth[i];
+        if (abs(gen.PID()) != 5) continue;
+        if (!gen.isLastCopy()) continue;
+
+        int topIdx = -1;
+        int motherIdx = gen.MotherIndex();
+        while (motherIdx >= 0 && motherIdx < (int)truth.size()) {
+            if (abs(truth[motherIdx].PID()) == 6) {
+                topIdx = motherIdx;
+                break;
+            }
+            motherIdx = truth[motherIdx].MotherIndex();
+        }
+        if (topIdx < 0) continue;
+
+        bool hasWSibling = false;
+        bool hasHplusSibling = false;
+        for (size_t j = 0; j < truth.size(); j++) {
+            if (j == i) continue;
+            if (truth[j].MotherIndex() == topIdx) {
+                if (abs(truth[j].PID()) == 24) hasWSibling = true;
+                if (abs(truth[j].PID()) == 37) hasHplusSibling = true;
+            }
+        }
+
+        if (hasHplusSibling) {
+            FillHist(prefix + "/bquark_withHplus/pt", gen.Pt(), w, 300, 0., 300.);
+            FillHist(prefix + "/bquark_withHplus/eta", gen.Eta(), w, 100, -5., 5.);
+            FillHist(prefix + "/bquark_withHplus/phi", gen.Phi(), w, 64, -3.2, 3.2);
+            FillHist(prefix + "/bquark_withHplus/mass", gen.M(), w, 100, 0., 100.);
+        } else if (hasWSibling) {
+            FillHist(prefix + "/bquark_withW/pt", gen.Pt(), w, 300, 0., 300.);
+            FillHist(prefix + "/bquark_withW/eta", gen.Eta(), w, 100, -5., 5.);
+            FillHist(prefix + "/bquark_withW/phi", gen.Phi(), w, 64, -3.2, 3.2);
+            FillHist(prefix + "/bquark_withW/mass", gen.M(), w, 100, 0., 100.);
+        }
+    }
+
+    // Gen jets — fully inclusive (no pT / eta cuts); split into all / b-flavour
+    RVec<const GenJet*> jetsSorted, bJets;
+    for (const auto& gj : genJets) {
+        jetsSorted.push_back(&gj);
+        if (gj.hadronFlavour() == 5) bJets.push_back(&gj);
+    }
+    sort(jetsSorted.begin(), jetsSorted.end(),
+         [](const GenJet* a, const GenJet* b) { return a->Pt() > b->Pt(); });
+    sort(bJets.begin(), bJets.end(),
+         [](const GenJet* a, const GenJet* b) { return a->Pt() > b->Pt(); });
+
+    FillHist(prefix + "/genJets/size",  jetsSorted.size(), w, 20, 0., 20.);
+    FillHist(prefix + "/genBJets/size", bJets.size(),      w, 15, 0., 15.);
+
+    float ht = 0.;
+    for (const auto* gj : jetsSorted) ht += gj->Pt();
+    FillHist(prefix + "/genJets/HT", ht, w, 200, 0., 2000.);
+
+    for (size_t i = 0; i < std::min(jetsSorted.size(), size_t(4)); i++) {
+        TString idx = TString::Format("%zu", i+1);
+        const GenJet* gj = jetsSorted[i];
+        FillHist(prefix + "/genJets/" + idx + "/pt",  gj->Pt(),  w, 300, 0., 300.);
+        FillHist(prefix + "/genJets/" + idx + "/eta", gj->Eta(), w, 100, -5., 5.);
+        FillHist(prefix + "/genJets/" + idx + "/phi", gj->Phi(), w, 64, -3.2, 3.2);
+    }
+    for (size_t i = 0; i < std::min(bJets.size(), size_t(2)); i++) {
+        TString idx = TString::Format("%zu", i+1);
+        const GenJet* gj = bJets[i];
+        FillHist(prefix + "/genBJets/" + idx + "/pt",  gj->Pt(),  w, 300, 0., 300.);
+        FillHist(prefix + "/genBJets/" + idx + "/eta", gj->Eta(), w, 100, -5., 5.);
+        FillHist(prefix + "/genBJets/" + idx + "/phi", gj->Phi(), w, 64, -3.2, 3.2);
+    }
 }

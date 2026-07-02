@@ -24,8 +24,8 @@ Usage Examples:
     # SR + Histogram only
     module.Userflags = RVec(TString)(["Run1E2Mu", "NoTreeMode"])
 
-    # SR + Tree only
-    module.Userflags = RVec(TString)(["Run1E2Mu", "NoHistMode"])
+    # SR + Tree only + ParticleNetMD scores for MHc160_MA* models only
+    module.Userflags = RVec(TString)(["Run1E2Mu", "NoHistMode", "MHc160"])
 
     # CR + Both modes (WZ/ZG regions)
     module.Userflags = RVec(TString)(["Run1E2Mu", "RunCR"])
@@ -43,7 +43,12 @@ from ROOT import TTree
 from array import array
 from enum import IntEnum
 
-from MLTools.helpers import loadMultiClassParticleNetMD, getGraphInput, getMultiClassScore
+from MLTools.helpers import (
+    resolveParticleNetMDSignals,
+    loadMultiClassParticleNetMD,
+    getGraphInput,
+    getMultiClassScore
+)
 
 
 class CutStage(IntEnum):
@@ -68,6 +73,7 @@ class MatrixAnalyzer(TriLeptonBase):
     def __init__(self):
         super().__init__()
         self.models = {}
+        self.particleNetGraphFeatures = 8
 
         # Mode flags (set in _parseUserflags)
         self.RunHistMode = True   # Default: histogram mode
@@ -81,10 +87,9 @@ class MatrixAnalyzer(TriLeptonBase):
         self.lumi = array("i", [0])
         self.mass1 = array("d", [0.])
         self.mass2 = array("d", [0.])
-        self.MT1 = array("d", [0.])
-        self.MT2 = array("d", [0.])
+        self.pT1 = array("d", [0.])
+        self.pT2 = array("d", [0.])
         self.scores = {}  # Nested dict: [signal][class]
-        self.fold = array("i", [0])
         self.weight = array("d", [0.])
 
     # ===================================================================
@@ -138,14 +143,28 @@ class MatrixAnalyzer(TriLeptonBase):
         else:
             raise ValueError("Run1E2Mu or Run3Mu or Run2E1Mu must be set")
 
-        # ParticleNetMD configuration (mass-decorrelated, 3 signal points)
-        self.signals = ["MHc100_MA95", "MHc130_MA90", "MHc160_MA85"]
+        # ParticleNetMD configuration. MHc* userflags override the default signal set.
+        self.signals = resolveParticleNetMDSignals(self.Userflags)
         self.classNames = ["signal", "nonprompt", "diboson", "ttZ"]
 
         # Load ParticleNetMD models
-        print(f"[MatrixAnalyzer] Loading ParticleNetMD models for {self.channel}")
-        self.models = loadMultiClassParticleNetMD(self.signals)
-        print(f"[MatrixAnalyzer] Loaded {len(self.models)} models")
+        if self.signals:
+            if not self.RunTreeMode:
+                raise ValueError("ParticleNetMD score userflags require RunTreeMode; remove NoTreeMode")
+
+            print(f"[MatrixAnalyzer] Loading ParticleNetMD models for {self.channel}: {self.signals}")
+            self.models = loadMultiClassParticleNetMD(self.signals)
+            graphFeatureSizes = {
+                getattr(model, "sknano_num_graph_features", 8)
+                for model in self.models.values()
+            }
+            if len(graphFeatureSizes) != 1:
+                raise ValueError(f"Selected ParticleNetMD models use inconsistent graph feature sizes: {graphFeatureSizes}")
+            self.particleNetGraphFeatures = graphFeatureSizes.pop()
+            print(f"[MatrixAnalyzer] Loaded {len(self.models)} ParticleNetMD models")
+        else:
+            self.models = {}
+            print("[MatrixAnalyzer] ParticleNetMD scores disabled")
 
         # Prepare output tree if tree mode enabled
         if self.RunTreeMode:
@@ -164,6 +183,35 @@ class MatrixAnalyzer(TriLeptonBase):
             return
         cutIndex = int(stage)
         self.FillHist(f"{channel}/{syst}/cutflow", cutIndex, weight, 9, 0., 9.)
+
+    def fillCutflows(self, stage, channels, weight, syst):
+        for channel in channels:
+            self.fillCutflow(stage, channel, weight, syst)
+
+    def getActiveSRCutflowChannels(self):
+        if self.RunCR:
+            return []
+        if self.Run1E2Mu:
+            return ["SR1E2Mu", "ZFake1E2Mu"]
+        if self.Run3Mu:
+            return ["SR3Mu", "ZFake3Mu"]
+        if self.Run2E1Mu:
+            return ["TTZ2E1Mu"]
+        return []
+
+    def getActiveCRCutflowChannels(self):
+        if not self.RunCR:
+            return []
+        if self.Run1E2Mu:
+            return ["WZ1E2Mu", "ZG1E2Mu"]
+        if self.Run3Mu:
+            return ["WZ3Mu", "ZG3Mu"]
+        return []
+
+    def getActiveFinalCutflowChannels(self):
+        if self.RunCR:
+            return self.getActiveCRCutflowChannels()
+        return self.getActiveSRCutflowChannels()
 
     def fillJetEtaPhi2D(self, jets, weight, stage):
         """Fill 2D jet eta-phi distribution for veto map validation."""
@@ -193,17 +241,21 @@ class MatrixAnalyzer(TriLeptonBase):
         ev = self.GetEvent()
 
         # Initial cutflow entry
+        finalCutflowChannels = self.getActiveFinalCutflowChannels()
         self.fillCutflow(CutStage.Initial, self.channel, 1.0, "Central")
+        self.fillCutflows(CutStage.Initial, finalCutflowChannels, 1.0, "Central")
 
         rawJets = self.GetAllJets()
         if not self.PassNoiseFilter(rawJets, ev):
             return
         self.fillCutflow(CutStage.NoiseFilter, self.channel, 1.0, "Central")
+        self.fillCutflows(CutStage.NoiseFilter, finalCutflowChannels, 1.0, "Central")
 
         rawMuons = self.GetAllMuons()
         if not (self.RunNoJetVeto or self.PassVetoMap(rawJets, rawMuons, "jetvetomap")):
             return
         self.fillCutflow(CutStage.EventVetoMap, self.channel, 1.0, "Central")
+        self.fillCutflows(CutStage.EventVetoMap, finalCutflowChannels, 1.0, "Central")
 
         # Fill jet eta-phi for events passing veto map (Run 3)
         if self.Run == 3:
@@ -213,6 +265,8 @@ class MatrixAnalyzer(TriLeptonBase):
 
         # Define objects
         recoObjects = self.defineObjects(ev, rawMuons, rawElectrons, rawJets)
+        if self.RunHistMode and not self.RunCR:
+            self.fillNMinusOneSRDistributions(ev, recoObjects)
 
         # Select event (routes to SR or CR based on RunCR flag)
         channel = self.selectEvent(ev, recoObjects)
@@ -220,7 +274,7 @@ class MatrixAnalyzer(TriLeptonBase):
             return
 
         # Evaluate ParticleNet scores
-        data, scores, fold = self.evalScore(
+        data, scores = self.evalScore(
             recoObjects["looseMuons"],
             recoObjects["looseElectrons"],
             recoObjects["jets"],
@@ -228,7 +282,6 @@ class MatrixAnalyzer(TriLeptonBase):
             recoObjects["METv"]
         )
         recoObjects["scores"] = scores
-        recoObjects["fold"] = fold
 
         # Get fake weight via GetFakeWeight (matrix method)
         weight = self.GetFakeWeight(recoObjects["looseMuons"], recoObjects["looseElectrons"], "Central")
@@ -313,10 +366,10 @@ class MatrixAnalyzer(TriLeptonBase):
         # B-tagging
         bjets = RVec(Jet)()
         tagger = JetTagging.JetFlavTagger.DeepJet
-        wp = self.myCorr.GetBTaggingWP(tagger, JetTagging.JetFlavTaggerWP.Medium)
-
+        medium_wp = self.myCorr.GetBTaggingWP(tagger, JetTagging.JetFlavTaggerWP.Medium)
         for j in jets:
-            if j.GetBTaggerResult(tagger) > wp:
+            btag_score = j.GetBTaggerResult(tagger)
+            if btag_score > medium_wp:
                 bjets.emplace_back(j)
 
         return {"vetoMuons": vetoMuons,
@@ -363,6 +416,8 @@ class MatrixAnalyzer(TriLeptonBase):
         is2E1Mu = (looseElectrons.size() == 2 and vetoElectrons.size() == 2 and
                    looseMuons.size() == 1 and vetoMuons.size() == 1)
 
+        srCutflowChannels = self.getActiveSRCutflowChannels()
+
         # CRITICAL: Matrix method requires NOT all leptons tight
         if self.Run1E2Mu:
             if not is1E2Mu:
@@ -370,6 +425,7 @@ class MatrixAnalyzer(TriLeptonBase):
             if (tightMuons.size() == looseMuons.size()) and (tightElectrons.size() == looseElectrons.size()):
                 return
             self.fillCutflow(CutStage.LeptonSelection, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.LeptonSelection, srCutflowChannels, 1.0, "Central")
 
         if self.Run3Mu:
             if not is3Mu:
@@ -377,6 +433,7 @@ class MatrixAnalyzer(TriLeptonBase):
             if tightMuons.size() == looseMuons.size():
                 return
             self.fillCutflow(CutStage.LeptonSelection, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.LeptonSelection, srCutflowChannels, 1.0, "Central")
 
         if self.Run2E1Mu:
             if not is2E1Mu:
@@ -384,12 +441,17 @@ class MatrixAnalyzer(TriLeptonBase):
             if (tightMuons.size() == looseMuons.size()) and (tightElectrons.size() == looseElectrons.size()):
                 return
             self.fillCutflow(CutStage.LeptonSelection, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.LeptonSelection, srCutflowChannels, 1.0, "Central")
+
+        self.fillCutflow(CutStage.ConversionFilter, self.channel, 1.0, "Central")
+        self.fillCutflows(CutStage.ConversionFilter, srCutflowChannels, 1.0, "Central")
 
         # 1E2Mu baseline
         if self.Run1E2Mu:
             if not ev.PassTrigger(self.EMuTriggers):
                 return
             self.fillCutflow(CutStage.Trigger, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.Trigger, srCutflowChannels, 1.0, "Central")
 
             mu1, mu2 = looseMuons.at(0), looseMuons.at(1)
             ele = looseElectrons.at(0)
@@ -415,10 +477,12 @@ class MatrixAnalyzer(TriLeptonBase):
             if not pair.M() > 12.:
                 return
             self.fillCutflow(CutStage.KinematicCuts, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.KinematicCuts, srCutflowChannels, 1.0, "Central")
 
             if not jets.size() >= 2:
                 return
             self.fillCutflow(CutStage.JetRequirements, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.JetRequirements, srCutflowChannels, 1.0, "Central")
 
             if bjets.size() == 0:
                 isOnZ = abs(pair.M() - 91.2) < 10.
@@ -435,6 +499,7 @@ class MatrixAnalyzer(TriLeptonBase):
             if not ev.PassTrigger(self.DblMuTriggers):
                 return
             self.fillCutflow(CutStage.Trigger, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.Trigger, srCutflowChannels, 1.0, "Central")
 
             mu1, mu2, mu3 = tuple(looseMuons)
             if not mu1.Pt() > 20.:
@@ -460,10 +525,12 @@ class MatrixAnalyzer(TriLeptonBase):
             if not pair2.M() > 12.:
                 return
             self.fillCutflow(CutStage.KinematicCuts, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.KinematicCuts, srCutflowChannels, 1.0, "Central")
 
             if not jets.size() >= 2:
                 return
             self.fillCutflow(CutStage.JetRequirements, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.JetRequirements, srCutflowChannels, 1.0, "Central")
 
             if bjets.size() == 0:
                 isOnZ = abs(pair1.M() - 91.2) < 10. or abs(pair2.M() - 91.2) < 10.
@@ -480,6 +547,7 @@ class MatrixAnalyzer(TriLeptonBase):
             if not ev.PassTrigger(self.EMuTriggers):
                 return
             self.fillCutflow(CutStage.Trigger, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.Trigger, srCutflowChannels, 1.0, "Central")
 
             el1, el2 = looseElectrons.at(0), looseElectrons.at(1)
             mu = looseMuons.at(0)
@@ -505,10 +573,12 @@ class MatrixAnalyzer(TriLeptonBase):
             if not 60. < pair.M() < 120.:
                 return
             self.fillCutflow(CutStage.KinematicCuts, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.KinematicCuts, srCutflowChannels, 1.0, "Central")
 
             if not jets.size() >= 2:
                 return
             self.fillCutflow(CutStage.JetRequirements, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.JetRequirements, srCutflowChannels, 1.0, "Central")
 
             if not bjets.size() >= 1:
                 return
@@ -539,23 +609,34 @@ class MatrixAnalyzer(TriLeptonBase):
         is3Mu = (looseMuons.size() == 3 and vetoMuons.size() == 3 and
                  looseElectrons.size() == 0 and vetoElectrons.size() == 0)
 
+        crCutflowChannels = self.getActiveCRCutflowChannels()
+
         # CRITICAL: Matrix method requires NOT all leptons tight
         if self.Run1E2Mu:
             if not is1E2Mu:
                 return
             if (tightMuons.size() == looseMuons.size()) and (tightElectrons.size() == looseElectrons.size()):
                 return
+            self.fillCutflow(CutStage.LeptonSelection, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.LeptonSelection, crCutflowChannels, 1.0, "Central")
 
         if self.Run3Mu:
             if not is3Mu:
                 return
             if tightMuons.size() == looseMuons.size():
                 return
+            self.fillCutflow(CutStage.LeptonSelection, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.LeptonSelection, crCutflowChannels, 1.0, "Central")
+
+        self.fillCutflow(CutStage.ConversionFilter, self.channel, 1.0, "Central")
+        self.fillCutflows(CutStage.ConversionFilter, crCutflowChannels, 1.0, "Central")
 
         # 1E2Mu ZGamma / WZ
         if self.Run1E2Mu:
             if not ev.PassTrigger(self.EMuTriggers):
                 return
+            self.fillCutflow(CutStage.Trigger, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.Trigger, crCutflowChannels, 1.0, "Central")
 
             mu1, mu2 = looseMuons.at(0), looseMuons.at(1)
             ele = looseElectrons.at(0)
@@ -580,6 +661,8 @@ class MatrixAnalyzer(TriLeptonBase):
             pair = mu1 + mu2
             if not (pair.M() > 12.):
                 return
+            self.fillCutflow(CutStage.KinematicCuts, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.KinematicCuts, crCutflowChannels, 1.0, "Central")
 
             if METv.Pt() > 40.:
                 # WZ control region
@@ -587,6 +670,7 @@ class MatrixAnalyzer(TriLeptonBase):
                     return
                 if not bjets.size() == 0:
                     return
+                self.fillCutflow(CutStage.Final, "WZ1E2Mu", 1.0, "Central")
                 return "WZ1E2Mu"
             else:
                 # ZG control region
@@ -596,12 +680,15 @@ class MatrixAnalyzer(TriLeptonBase):
                     return
                 if not bjets.size() == 0:
                     return
+                self.fillCutflow(CutStage.Final, "ZG1E2Mu", 1.0, "Central")
                 return "ZG1E2Mu"
 
         # 3Mu ZGamma / WZ
         if self.Run3Mu:
             if not ev.PassTrigger(self.DblMuTriggers):
                 return
+            self.fillCutflow(CutStage.Trigger, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.Trigger, crCutflowChannels, 1.0, "Central")
 
             mu1, mu2, mu3 = tuple(looseMuons)
             if not mu1.Pt() > 20.:
@@ -626,6 +713,8 @@ class MatrixAnalyzer(TriLeptonBase):
                 return
             if not pair2.M() > 12.:
                 return
+            self.fillCutflow(CutStage.KinematicCuts, self.channel, 1.0, "Central")
+            self.fillCutflows(CutStage.KinematicCuts, crCutflowChannels, 1.0, "Central")
 
             if METv.Pt() > 40.:
                 # WZ control region
@@ -633,6 +722,7 @@ class MatrixAnalyzer(TriLeptonBase):
                     return
                 if not bjets.size() == 0:
                     return
+                self.fillCutflow(CutStage.Final, "WZ3Mu", 1.0, "Central")
                 return "WZ3Mu"
             else:
                 # ZG control region
@@ -644,6 +734,7 @@ class MatrixAnalyzer(TriLeptonBase):
                     return
                 if not bjets.size() == 0:
                     return
+                self.fillCutflow(CutStage.Final, "ZG3Mu", 1.0, "Central")
                 return "ZG3Mu"
 
         return
@@ -696,8 +787,19 @@ class MatrixAnalyzer(TriLeptonBase):
 
     def evalScore(self, muons, electrons, jets, bjets, METv):
         """Evaluate ParticleNet scores for all signal mass points."""
+        if not self.signals:
+            return None, {}
+
         scores = {}
-        data, fold = getGraphInput(muons, electrons, jets, bjets, METv, str(self.DataEra))
+        data, _ = getGraphInput(
+            muons,
+            electrons,
+            jets,
+            bjets,
+            METv,
+            str(self.DataEra),
+            num_graph_features=self.particleNetGraphFeatures
+        )
 
         for sig in self.signals:
             if sig not in self.models.keys():
@@ -715,11 +817,104 @@ class MatrixAnalyzer(TriLeptonBase):
             scores[f"{sig}_diboson"] = probs[2]
             scores[f"{sig}_ttZ"] = probs[3]
 
-        return data, scores, fold
+        return data, scores
 
     # ===================================================================
     # Histogram Filling
     # ===================================================================
+
+    def fillNMinusOneSRDistributions(self, ev: Event, recoObjects: dict):
+        if self.RunCR:
+            return
+
+        vetoMuons = recoObjects["vetoMuons"]
+        looseMuons = recoObjects["looseMuons"]
+        tightMuons = recoObjects["tightMuons"]
+        vetoElectrons = recoObjects["vetoElectrons"]
+        looseElectrons = recoObjects["looseElectrons"]
+        tightElectrons = recoObjects["tightElectrons"]
+        jets = recoObjects["jets"]
+        bjets = recoObjects["bjets"]
+
+        if self.Run1E2Mu:
+            if not (looseElectrons.size() == 1 and vetoElectrons.size() == 1 and
+                    looseMuons.size() == 2 and vetoMuons.size() == 2):
+                return
+            if (tightMuons.size() == looseMuons.size()) and (tightElectrons.size() == looseElectrons.size()):
+                return
+            if not ev.PassTrigger(self.EMuTriggers):
+                return
+
+            mu1, mu2 = looseMuons.at(0), looseMuons.at(1)
+            ele = looseElectrons.at(0)
+            passLeadMu = mu1.Pt() > 25. and ele.Pt() > 15.
+            passLeadEle = mu1.Pt() > 10. and ele.Pt() > 25.
+            if not (passLeadMu or passLeadEle):
+                return
+
+            scaledMuons = self.GetPTCorrScaledMuons(looseMuons)
+            scaledElectrons = self.GetPTCorrScaledElectrons(looseElectrons)
+            mu1, mu2 = scaledMuons.at(0), scaledMuons.at(1)
+            pair = mu1 + mu2
+            if not pair.M() > 12.:
+                return
+
+            weight = self.GetFakeWeight(scaledMuons, scaledElectrons, "Central")
+            chargeSum = mu1.Charge() + mu2.Charge()
+            nJets = jets.size()
+            nBJets = bjets.size()
+
+            if nJets >= 2 and nBJets >= 1:
+                self.FillHist("SR1E2Mu/Central/NMinusOne/os_mumu/mu_charge_sum",
+                              chargeSum, weight, 7, -3.5, 3.5)
+            if chargeSum == 0 and nBJets >= 1:
+                self.FillHist("SR1E2Mu/Central/NMinusOne/njet_ge2/n_jets",
+                              nJets, weight, 20, 0., 20.)
+            if chargeSum == 0 and nJets >= 2:
+                self.FillHist("SR1E2Mu/Central/NMinusOne/nbjet_ge1/n_bjets",
+                              nBJets, weight, 15, 0., 15.)
+
+        if self.Run3Mu:
+            if not (looseMuons.size() == 3 and vetoMuons.size() == 3 and
+                    looseElectrons.size() == 0 and vetoElectrons.size() == 0):
+                return
+            if tightMuons.size() == looseMuons.size():
+                return
+            if not ev.PassTrigger(self.DblMuTriggers):
+                return
+
+            mu1, mu2, mu3 = tuple(looseMuons)
+            if not (mu1.Pt() > 20. and mu2.Pt() > 10. and mu3.Pt() > 10.):
+                return
+
+            scaledMuons = self.GetPTCorrScaledMuons(looseMuons)
+            mu1, mu2, mu3 = tuple(scaledMuons)
+            osPairMasses = []
+            for idx, mu_a in enumerate([mu1, mu2, mu3]):
+                for mu_b in [mu1, mu2, mu3][idx + 1:]:
+                    if mu_a.Charge() + mu_b.Charge() == 0:
+                        osPairMasses.append((mu_a + mu_b).M())
+            if len(osPairMasses) == 0 or not all(mass > 12. for mass in osPairMasses):
+                return
+
+            weight = self.GetFakeWeight(scaledMuons, looseElectrons, "Central")
+            absChargeSum = abs(mu1.Charge() + mu2.Charge() + mu3.Charge())
+            nJets = jets.size()
+            nBJets = bjets.size()
+
+            if nJets >= 2 and nBJets >= 1:
+                self.FillHist("SR3Mu/Central/NMinusOne/charge_abs1/abs_charge_sum",
+                              absChargeSum, weight, 5, -0.5, 4.5)
+
+            if not absChargeSum == 1:
+                return
+
+            if nBJets >= 1:
+                self.FillHist("SR3Mu/Central/NMinusOne/njet_ge2/n_jets",
+                              nJets, weight, 20, 0., 20.)
+            if nJets >= 2:
+                self.FillHist("SR3Mu/Central/NMinusOne/nbjet_ge1/n_bjets",
+                              nBJets, weight, 15, 0., 15.)
 
     def fillObjects(self, channel: str,
                           recoObjects: dict,
@@ -1010,8 +1205,8 @@ class MatrixAnalyzer(TriLeptonBase):
         # Kinematic branches
         self.tree.Branch("mass1", self.mass1, "mass1/D")
         self.tree.Branch("mass2", self.mass2, "mass2/D")
-        self.tree.Branch("MT1", self.MT1, "MT1/D")
-        self.tree.Branch("MT2", self.MT2, "MT2/D")
+        self.tree.Branch("pT1", self.pT1, "pT1/D")
+        self.tree.Branch("pT2", self.pT2, "pT2/D")
 
         # ParticleNet score branches
         for signal in self.signals:
@@ -1021,8 +1216,7 @@ class MatrixAnalyzer(TriLeptonBase):
                 branchName = f"score_{signal}_{cls}"
                 self.tree.Branch(branchName, self.scores[signal][cls], f"{branchName}/D")
 
-        # Fold and weight branches
-        self.tree.Branch("fold", self.fold, "fold/I")
+        # Weight branch
         self.tree.Branch("weight", self.weight, "weight/D")
 
     def fillTree(self, channel: str, recoObjects: dict, weight: float):
@@ -1036,10 +1230,6 @@ class MatrixAnalyzer(TriLeptonBase):
 
         looseMuons = recoObjects["looseMuons"]
         looseElectrons = recoObjects["looseElectrons"]
-        jets = recoObjects["jets"]
-        bjets = recoObjects["bjets"]
-        METv = recoObjects["METv"]
-
         # Event identification
         self.run[0] = self.RunNumber
         self.event[0] = self.EventNumber
@@ -1054,26 +1244,25 @@ class MatrixAnalyzer(TriLeptonBase):
             pair = mu1 + mu2
             self.mass1[0] = pair.M()
             self.mass2[0] = -999.
-            self.MT1[0] = -999.
-            self.MT2[0] = -999.
+            self.pT1[0] = pair.Pt()
+            self.pT2[0] = -999.
         elif "3Mu" in channel:
             mu_ss1, mu_ss2, mu_os = self.configureChargeOf(looseMuons)
             pair1 = mu_ss1 + mu_os
             pair2 = mu_ss2 + mu_os
             self.mass1[0] = pair1.M()
             self.mass2[0] = pair2.M()
-            self.MT1[0] = (mu_ss1 + METv).Mt()
-            self.MT2[0] = (mu_ss2 + METv).Mt()
+            self.pT1[0] = pair1.Pt()
+            self.pT2[0] = pair2.Pt()
         elif "2E1Mu" in channel:
             el1, el2 = looseElectrons.at(0), looseElectrons.at(1)
             pair = el1 + el2
             self.mass1[0] = pair.M()
             self.mass2[0] = -999.
-            self.MT1[0] = -999.
-            self.MT2[0] = -999.
+            self.pT1[0] = pair.Pt()
+            self.pT2[0] = -999.
 
         # ParticleNet scores (use scores from recoObjects)
-        self.fold[0] = recoObjects.get("fold", 0)
         scores = recoObjects.get("scores", {})
         for signal in self.signals:
             for cls in self.classNames:

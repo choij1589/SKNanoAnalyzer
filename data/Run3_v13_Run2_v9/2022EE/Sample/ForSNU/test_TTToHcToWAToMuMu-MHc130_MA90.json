@@ -1,0 +1,15 @@
+{
+    "name": "test_TTToHcToWAToMuMu-MHc130_MA90",
+    "isMC": 1,
+    "PD": "test_TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+    "xsec": 0.016656246994325285,
+    "sumsign": 13937.0,
+    "sumW": 84.25552932545543,
+    "nmc": 13937.0,
+    "path": [
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2022EE/test_TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/20260416_005251/NanoAODv13_12.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2022EE/test_TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/20260416_005251/NanoAODv13_31.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2022EE/test_TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/20260416_005251/NanoAODv13_58.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2022EE/test_TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/20260416_005251/NanoAODv13_71.root"
+    ]
+}

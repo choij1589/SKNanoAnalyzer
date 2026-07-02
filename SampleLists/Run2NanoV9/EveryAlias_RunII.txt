@@ -37,6 +37,10 @@ VBFHToZZTo4L
 VHToNonbb
 TTHToNonbb
 tHq
+tWZ_thadWlep
+tWZ_tlepWhad
+tWZ_tlepWlep
+tHW
 #QCD_Pt-15to20_MuEnriched
 #QCD_Pt-20to30_MuEnriched
 #QCD_Pt-30to50_MuEnriched

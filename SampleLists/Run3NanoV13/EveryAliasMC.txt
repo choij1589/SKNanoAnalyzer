@@ -60,6 +60,10 @@ VBFHToZZTo4L
 VHToNonbb
 TTHToNonbb
 tHq
+tWZ_thadWlep
+tWZ_tlepWhad
+tWZ_tlepWlep
+tHW
 QCD_Pt-10to30_EMEnriched
 QCD_Pt-30to50_EMEnriched
 QCD_Pt-50to80_EMEnriched

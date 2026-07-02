@@ -57,6 +57,7 @@ private:
     void fillGenLeptonOrigin(const TString& channelStr, Channel ch, const RecoObjects& recoObjects, const RVec<Gen>& truth, float w);
     void fillGenBJetMatching(const TString& channelStr, const RecoObjects& recoObjects, const RVec<Gen>& truth, float w);
     void fillGenDistributions(const RVec<Gen>& truth, float w);
+    void fillInclusiveGen(const RVec<Gen>& truth, const RVec<GenJet>& genJets, float w);
     void fillPairSelectionStudy(const TString& channelStr, const RecoObjects& recoObjects, const RVec<Gen>& truth, float w);
 };
 

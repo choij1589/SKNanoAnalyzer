@@ -12,13 +12,89 @@ Provides utilities for:
 
 import os
 import json
+import re
 import torch
 from torch_geometric.data import Data
 from ROOT import TLorentzVector, TRandom3
-from itertools import product
 
 from MLTools.models import MultiClassParticleNet
 from MLTools.formats import NodeParticle
+
+SUPPORTED_PARTICLENET_MD_PREFIXES = ("MHc100", "MHc115", "MHc130", "MHc145", "MHc160")
+
+
+def _particleNetMDRoot():
+    return os.path.join(os.environ["SKNANO_DATA"], "All", "Combined", "Classifiers", "ParticleNetMD")
+
+
+def _signalSortKey(signal):
+    match = re.fullmatch(r"MHc(\d+)_MA(\d+)", signal)
+    if match is None:
+        return (10**9, 10**9, signal)
+    return (int(match.group(1)), int(match.group(2)), signal)
+
+
+def resolveParticleNetMDSignals(userflags):
+    """
+    Resolve ParticleNetMD mass-prefix userflags into concrete signal model names.
+
+    Only prefix flags like "MHc160" are valid. Exact model flags such as
+    "MHc160_MA85" are intentionally rejected to keep the job-level memory
+    selector simple and explicit.
+    """
+    requested_prefixes = []
+    for flag in userflags:
+        flag = str(flag)
+        if not flag.startswith("MHc"):
+            continue
+        if flag not in SUPPORTED_PARTICLENET_MD_PREFIXES:
+            supported = ", ".join(SUPPORTED_PARTICLENET_MD_PREFIXES)
+            raise ValueError(
+                f"Unsupported ParticleNetMD userflag '{flag}'. "
+                f"Use one of these mass prefixes: {supported}"
+            )
+        if flag not in requested_prefixes:
+            requested_prefixes.append(flag)
+
+    model_root = _particleNetMDRoot()
+    if not os.path.isdir(model_root):
+        raise FileNotFoundError(f"ParticleNetMD model directory does not exist: {model_root}")
+
+    if not requested_prefixes:
+        return []
+
+    available_signals = [
+        entry for entry in os.listdir(model_root)
+        if os.path.isdir(os.path.join(model_root, entry))
+    ]
+
+    resolved = []
+    for prefix in requested_prefixes:
+        matches = sorted(
+            [
+                signal for signal in available_signals
+                if re.fullmatch(rf"{re.escape(prefix)}_MA\d+", signal)
+            ],
+            key=_signalSortKey
+        )
+        if not matches:
+            raise FileNotFoundError(
+                f"No ParticleNetMD models found for userflag '{prefix}' under {model_root}"
+            )
+
+        for signal in matches:
+            best_model_dir = os.path.join(model_root, signal, "best_model")
+            model_path = os.path.join(best_model_dir, "model.pt")
+            model_info_path = os.path.join(best_model_dir, "model_info.json")
+            if not os.path.isfile(model_path) or not os.path.isfile(model_info_path):
+                raise FileNotFoundError(
+                    f"ParticleNetMD model '{signal}' is incomplete. "
+                    f"Expected both {model_path} and {model_info_path}"
+                )
+            if signal not in resolved:
+                resolved.append(signal)
+
+    return sorted(resolved, key=_signalSortKey)
 
 
 def getEdgeIndices(nodeList, k=4):
@@ -102,21 +178,36 @@ def loadMultiClassParticleNetMD(signals):
         Dictionary: {signal: model}
     """
     models = {}
-    data_dir = os.path.join(os.environ['SKNANO_DATA'], 'All')
+    model_root = _particleNetMDRoot()
 
     for sig in signals:
-        # read model_info.json to get num_hidden
-        model_info_path = f"{data_dir}/Combined/Classifiers/ParticleNetMD/{sig}/best_model/model_info.json"
+        model_info_path = os.path.join(model_root, sig, "best_model", "model_info.json")
         with open(model_info_path, "r") as f:
-            model_info = json.load(f)
-            num_hidden = model_info["hyperparameters"]["num_hidden"]
-            print(f"[INFO] Loaded num_hidden={num_hidden} for {sig} from model_info.json")
-        modelPath = f"{data_dir}/Combined/Classifiers/ParticleNetMD/{sig}/best_model/model.pt"
+            hyperparameters = json.load(f)["hyperparameters"]
+        num_node_features = hyperparameters["num_node_features"]
+        num_graph_features = hyperparameters["num_graph_features"]
+        num_classes = hyperparameters["num_classes"]
+        num_hidden = hyperparameters["num_hidden"]
+        dropout_p = hyperparameters["dropout_p"]
+        print(
+            f"[INFO] Loaded ParticleNetMD config for {sig}: "
+            f"nodes={num_node_features}, graph={num_graph_features}, "
+            f"classes={num_classes}, hidden={num_hidden}, dropout={dropout_p}"
+        )
+
+        modelPath = os.path.join(model_root, sig, "best_model", "model.pt")
         print(f"Loading {sig}: {modelPath}")
-        model = MultiClassParticleNet(9, 8, 4, num_hidden=num_hidden, dropout_p=0.4)
+        model = MultiClassParticleNet(
+            num_node_features,
+            num_graph_features,
+            num_classes,
+            num_hidden=num_hidden,
+            dropout_p=dropout_p
+        )
         checkpoint = torch.load(modelPath, map_location=torch.device("cpu"), weights_only=False)
         model.load_state_dict(checkpoint["model_state_dict"])
         model.eval()
+        model.sknano_num_graph_features = num_graph_features
         models[sig] = model
 
     return models
@@ -144,7 +235,7 @@ def calculateFold(METv, nJets, nFolds=5):
     return fold
 
 
-def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5):
+def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5, num_graph_features=8):
     """
     Construct graph input with b-jet separated node features (Mode 2: separate_bjets=True).
 
@@ -168,6 +259,7 @@ def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5):
         METv: MET particle
         era: Data-taking era for graph-level features
         nFolds: Number of folds for fold calculation
+        num_graph_features: Number of era-encoding features expected by the model
 
     Returns:
         Tuple of (data, fold) where data is PyG Data object and fold is the event fold number
@@ -234,14 +326,20 @@ def getGraphInput(muons, electrons, jets, bjets, METv, era, nFolds=5):
     # Create PyG Data object
     data = evtToGraph(nodeList, y=None, k=4)
 
-    # Era encoding for graph-level features (8-dim one-hot, one per era)
-    era_map = {
-        "2016preVFP": 0, "2016postVFP": 1, "2017": 2, "2018": 3,
-        "2022": 4, "2022EE": 5, "2023": 6, "2023BPix": 7
+    # Era encoding for graph-level features. ParticleNetMD uses all 8 eras.
+    era_maps = {
+        4: {"2016preVFP": 0, "2016postVFP": 1, "2017": 2, "2018": 3},
+        8: {
+            "2016preVFP": 0, "2016postVFP": 1, "2017": 2, "2018": 3,
+            "2022": 4, "2022EE": 5, "2023": 6, "2023BPix": 7
+        },
     }
+    if num_graph_features not in era_maps:
+        raise ValueError(f"Unsupported graph feature size {num_graph_features} for ParticleNet Input")
+    era_map = era_maps[num_graph_features]
     if era not in era_map:
         raise ValueError(f"Unsupported era {era} for ParticleNet Input")
-    eraIdx = torch.zeros(1, 8, dtype=torch.float)
+    eraIdx = torch.zeros(1, num_graph_features, dtype=torch.float)
     eraIdx[0, era_map[era]] = 1.0
     # Use consistent naming with training (graphInput, not graph_input)
     data.graphInput = eraIdx

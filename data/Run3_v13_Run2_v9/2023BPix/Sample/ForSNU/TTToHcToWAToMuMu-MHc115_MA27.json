@@ -1,0 +1,20 @@
+{
+    "name": "TTToHcToWAToMuMu-MHc115_MA27",
+    "isMC": 1,
+    "PD": "TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+    "xsec": 0.016656246994325285,
+    "sumsign": 194272.0,
+    "sumW": 124526.31561762094,
+    "nmc": 194272.0,
+    "path": [
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_1.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_2.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_3.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_4.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_5.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_6.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_7.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_8.root",
+        "/gv0/DATA/SKNano/Run3NanoAODv13p1/2023BPix/TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8/260608_041425/0000/NANOAOD_9.root"
+    ]
+}

@@ -33,12 +33,13 @@ fi
 
 if [[ $MODE == "SR" ]]; then
     # In SR mode, assume WZ scale factors are applied by default
-    SKNano.py -a PromptAnalyzer -i ${DATASTREAM} -n 10 -r ${RUN} --userflags ${CHANNEL} --python --memory 6000
-    SKNano.py -a MatrixAnalyzer -i ${DATASTREAM} -n 10 -r ${RUN} --userflags ${CHANNEL} --python --memory 6000
-    SKNano.py -a PromptAnalyzer -i ${MC_LIST}/TriLepton.txt -n 40 -r ${RUN} --userflags ${CHANNEL},RunSyst --python --memory 12000
+    #SKNano.py -a PromptAnalyzer -i ${DATASTREAM} -n 10 -r ${RUN} --userflags ${CHANNEL} --python --memory 6000
+    #SKNano.py -a MatrixAnalyzer -i ${DATASTREAM} -n 10 -r ${RUN} --userflags ${CHANNEL} --python --memory 6000
+    #SKNano.py -a PromptAnalyzer -i ${MC_LIST}/TriLepton.txt -n 40 -r ${RUN} --userflags ${CHANNEL},RunSyst --python --memory 8000
     if [[ $CHANNEL == "Run1E2Mu" || $CHANNEL == "Run3Mu" ]]; then
-        SKNano.py -a PromptAnalyzer -i ${MC_LIST}/SignalSamples.txt -n 20 -r ${RUN} --userflags ${CHANNEL},RunSyst,RunTheoryUnc --python --memory 12000
-        SKNano.py -a PromptAnalyzer -i ${MC_LIST}/SignalSamples.private.txt -n 20 -r ${RUN} --userflags ${CHANNEL},RunSyst,RunTheoryUnc --python --memory 12000
+        SKNano.py -a PromptAnalyzer -i ${MC_LIST}/SignalSamples.txt -n 20 -r ${RUN} --userflags ${CHANNEL},RunSyst,RunTheoryUnc --python --memory 8000
+        SKNano.py -a PromptAnalyzer -i ${MC_LIST}/SignalSamples.private.txt -n 20 -r ${RUN} --userflags ${CHANNEL},RunSyst,RunTheoryUnc --python --memory 8000
+        #SKNano.py -a PromptAnalyzer -i temp.txt -n 20 -r ${RUN} --userflags ${CHANNEL},RunSyst,RunTheoryUnc --python --memory 8000
     fi
 elif [[ $MODE == "CR" ]]; then
     SKNano.py -a PromptAnalyzer -i ${DATASTREAM} -n 10 -r ${RUN} --userflags ${CHANNEL},RunCR,NoTreeMode --python --memory 4000

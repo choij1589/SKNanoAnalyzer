@@ -615,11 +615,48 @@
     "tHq": {
         "isMC": 1,
         "PD": "THQ_ctcvcp_HIncl_M-125_4FS_TuneCP5_13p6TeV_madgraph-pythia8/",
-        "xsec": 0.744,
+        "xsec": 0.7445,
         "nmc": 3918998.0,
         "sumsign": 3918998.0,
         "sumW": 3918998.0,
-        "ref": "XSDB"
+        "ref": "XSDB",
+        "filterEff": 1.0
+    },
+    "tHW": {
+        "isMC": 1,
+        "PD": "THW_ctcvcp_HIncl_M-125_5FS_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.1331,
+        "nmc": 1929998.0,
+        "sumsign": 1929998.0,
+        "sumW": 1929998.0,
+        "filterEff": 1.0
+    },
+    "tWZ_tlepWlep": {
+        "isMC": 1,
+        "PD": "TWZ_TtoLNu_WtoLNu_Zto2L_DR1_TuneCP5_13p6TeV_amcatnlo-pythia8",
+        "xsec": 0.001669,
+        "nmc": 2184000.0,
+        "sumsign": 1300970.0,
+        "sumW": 3057.0783265237696,
+        "filterEff": 1.0
+    },
+    "tWZ_tlepWhad": {
+        "isMC": 1,
+        "PD": "TWZ_TtoLNu_Wto2Q_Zto2L_DR1_TuneCP5_13p6TeV_amcatnlo-pythia8",
+        "xsec": 0.003338,
+        "nmc": 4272000.0,
+        "sumsign": 2542560.0,
+        "sumW": 12722.904914841056,
+        "filterEff": 1.0
+    },
+    "tWZ_thadWlep": {
+        "isMC": 1,
+        "PD": "TWZ_Tto2Q_WtoLNu_Zto2L_DR1_TuneCP5_13p6TeV_amcatnlo-pythia8",
+        "xsec": 0.00338,
+        "nmc": 4328000.0,
+        "sumsign": 2577258.0,
+        "sumW": 12896.532815356739,
+        "filterEff": 1.0
     },
     "QCD_Pt-10to30_EMEnriched": {
         "isMC": 1,
@@ -846,250 +883,6 @@
         "sumW": 1663024.0,
         "ref": "XSDB"
     },
-    "TTToHcToWAToMuMu-MHc70_MA15": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-70_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 392014.0,
-        "sumsign": 392014.0,
-        "sumW": 2596.063163633924,
-        "filterEff": 0.6155998743718593
-    },
-    "TTToHcToWAToMuMu-MHc70_MA30": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-70_MA-30_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6957052632
-    },
-    "TTToHcToWAToMuMu-MHc70_MA65": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-70_MA-65_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 221309.0,
-        "sumsign": 221309.0,
-        "sumW": 0.14179349316015077,
-        "filterEff": 0.5823921052631579,
-        "note": "private sample"
-    },
-    "TTToHcToWAToMuMu-MHc85_MA30": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-85_MA-30_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6745392405
-    },
-    "TTToHcToWAToMuMu-MHc85_MA42": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-85_MA-42_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6886542857
-    },
-    "TTToHcToWAToMuMu-MHc85_MA55": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-85_MA-55_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6810545455
-    },
-    "TTToHcToWAToMuMu-MHc100_MA40": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-100_MA-40_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6917457143
-    },
-    "TTToHcToWAToMuMu-MHc100_MA60": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-100_MA-60_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 316661.0,
-        "sumsign": 316661.0,
-        "sumW": 2514.8425159016624,
-        "filterEff": 0.695989247311828,
-        "note": "private sample"
-    },
-    "TTToHcToWAToMuMu-MHc100_MA95": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-100_MA-95_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 807893.0,
-        "sumsign": 807893.0,
-        "sumW": 0.4935358066088611,
-        "filterEff": 0.562726940289411
-    },
-    "TTToHcToWAToMuMu-MHc115_MA42": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-115_MA-42_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.695779661
-    },
-    "TTToHcToWAToMuMu-MHc115_MA57": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-115_MA-57_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6953
-    },
-    "TTToHcToWAToMuMu-MHc115_MA70": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-115_MA-70_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6978025974
-    },
-    "TTToHcToWAToMuMu-MHc115_MA83": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-115_MA-83_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6884944444
-    },
-    "TTToHcToWAToMuMu-MHc130_MA55": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-130_MA-55_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 397275.0,
-        "sumsign": 397275.0,
-        "sumW": 38866.63125536591,
-        "filterEff": 0.7015175487543881
-    },
-    "TTToHcToWAToMuMu-MHc130_MA90": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 383714.0,
-        "sumsign": 383714.0,
-        "sumW": 2320.003885857761,
-        "filterEff": 0.6952134029789632
-    },
-    "TTToHcToWAToMuMu-MHc145_MA45": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-145_MA-45_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6949367089
-    },
-    "TTToHcToWAToMuMu-MHc145_MA60": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-145_MA-60_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.7041282051
-    },
-    "TTToHcToWAToMuMu-MHc145_MA80": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-145_MA-80_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6980615385
-    },
-    "TTToHcToWAToMuMu-MHc145_MA100": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-145_MA-100_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6931736842
-    },
-    "TTToHcToWAToMuMu-MHc145_MA120": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-145_MA-120_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": -1,
-        "sumsign": -1,
-        "sumW": -1,
-        "filterEff": 0.6687896104
-    },
-    "TTToHcToWAToMuMu-MHc160_MA85": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-160_MA-85_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 397932.0,
-        "sumsign": 397932.0,
-        "sumW": 8564.410902753472,
-        "filterEff": 0.69604185360683
-    },
-    "TTToHcToWAToMuMu-MHc160_MA125": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-160_MA-125_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 335014.0,
-        "sumsign": 335014.0,
-        "sumW": 176.49250659142854,
-        "filterEff": 0.6767959595959596,
-        "note": "private sample"
-    },
-    "TTToHcToWAToMuMu-MHc160_MA145": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-160_MA-145_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 388479.0,
-        "sumsign": 388479.0,
-        "sumW": 3.836372384444985,
-        "filterEff": 0.618035194114905
-    },
-    "TTToHcToWAToMuMu-MHc160_MA155": {
-        "isMC": 1,
-        "PD": "TTToHcToWAToMuMu_MHc-160_MA-145_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
-        "xsec": 0.016656246994325285,
-        "xsec_formula": "(923.6/831.76)*0.015",
-        "nmc": 388479.0,
-        "sumsign": 388479.0,
-        "sumW": 3.836372384444985,
-        "filterEff": 0.618035194114905,
-        "note": "private sample"
-    },
     "DYGTo2LG_MLL50_PTG200to400": {
         "isMC": 1,
         "PD": "DYGto2LG-1Jets_MLL-50_PTG-200to400_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
@@ -1116,5 +909,811 @@
         "sumsign": 510510.0,
         "sumW": 1402.6429078378715,
         "ref": "XSDB"
+    },
+    "TTToHcToWAToMuMu-MHc70_MA15": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-70_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 392014.0,
+        "sumsign": 392014.0,
+        "sumW": 2596.063163633924,
+        "filterEff": 0.6155998743718593
+    },
+    "TTToHcToWAToMuMu-MHc70_MA18": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-70_MA-18_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 383613.0,
+        "sumsign": 383613.0,
+        "sumW": 2555.010291982442,
+        "filterEff": 0.6311469341217467
+    },
+    "TTToHcToWAToMuMu-MHc70_MA30": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-70_MA-30_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 180850.0,
+        "sumsign": 180850.0,
+        "sumW": 771.656922494527,
+        "filterEff": 0.6698148148148149
+    },
+    "TTToHcToWAToMuMu-MHc70_MA40": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-70_MA-40_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 413910.0,
+        "sumsign": 413910.0,
+        "sumW": 721.0922655472532,
+        "filterEff": 0.6786121822617455
+    },
+    "TTToHcToWAToMuMu-MHc70_MA55": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-70_MA-55_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 384656.0,
+        "sumsign": 384656.0,
+        "sumW": 40.70142804913485,
+        "filterEff": 0.6555626946078189
+    },
+    "TTToHcToWAToMuMu-MHc70_MA65": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-70_MA-65_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 216030.0,
+        "sumsign": 216030.0,
+        "sumW": 0.13833867051260995,
+        "filterEff": 0.5807258064516129
+    },
+    "TTToHcToWAToMuMu-MHc85_MA15": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-85_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 418488.0,
+        "sumsign": 418488.0,
+        "sumW": 8855.816977916285,
+        "filterEff": 0.6190321225496868
+    },
+    "TTToHcToWAToMuMu-MHc85_MA21": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-85_MA-21_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 399440.0,
+        "sumsign": 399440.0,
+        "sumW": 8469.829919215292,
+        "filterEff": 0.6475301807358799
+    },
+    "TTToHcToWAToMuMu-MHc85_MA30": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-85_MA-30_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 205714.0,
+        "sumsign": 205714.0,
+        "sumW": 3444.3033899795264,
+        "filterEff": 0.674472131147541
+    },
+    "TTToHcToWAToMuMu-MHc85_MA42": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-85_MA-42_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 204312.0,
+        "sumsign": 204312.0,
+        "sumW": 1732.0994850592688,
+        "filterEff": 0.6875969230769231
+    },
+    "TTToHcToWAToMuMu-MHc85_MA55": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-85_MA-55_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 195646.0,
+        "sumsign": 195646.0,
+        "sumW": 449.475890613161,
+        "filterEff": 0.6868190476190477
+    },
+    "TTToHcToWAToMuMu-MHc85_MA70": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-85_MA-70_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 378549.0,
+        "sumsign": 378549.0,
+        "sumW": 44.70655649100809,
+        "filterEff": 0.6539978542663302
+    },
+    "TTToHcToWAToMuMu-MHc85_MA80": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-85_MA-80_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 379773.0,
+        "sumsign": 379773.0,
+        "sumW": 0.25074367977038037,
+        "filterEff": 0.573501963153126
+    },
+    "TTToHcToWAToMuMu-MHc100_MA15": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-100_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 378812.0,
+        "sumsign": 378812.0,
+        "sumW": 64858.97206324339,
+        "filterEff": 0.591511116246678
+    },
+    "TTToHcToWAToMuMu-MHc100_MA24": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-100_MA-24_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 401576.0,
+        "sumsign": 401576.0,
+        "sumW": 25589.711149804294,
+        "filterEff": 0.6590170606345059
+    },
+    "TTToHcToWAToMuMu-MHc100_MA40": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-100_MA-40_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 211257.0,
+        "sumsign": 211257.0,
+        "sumW": 6915.387180753052,
+        "filterEff": 0.6915032258064516
+    },
+    "TTToHcToWAToMuMu-MHc100_MA60": {
+        "isMC": 1,
+        "PD": "test_TTToHcToWAToMuMu_MHc-100_MA-60_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "nmc": 316661.0,
+        "sumsign": 316661.0,
+        "sumW": 2514.8425159016624,
+        "filterEff": 0.695989247311828
+    },
+    "TTToHcToWAToMuMu-MHc100_MA75": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-100_MA-75_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 398811.0,
+        "sumsign": 398811.0,
+        "sumW": 455.58510714175645,
+        "filterEff": 0.6802154524723649
+    },
+    "TTToHcToWAToMuMu-MHc100_MA85": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-100_MA-85_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 226919.0,
+        "sumsign": 226919.0,
+        "sumW": 26.15636168607307,
+        "filterEff": 0.64834
+    },
+    "TTToHcToWAToMuMu-MHc100_MA90": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-100_MA-90_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 224581.0,
+        "sumsign": 224581.0,
+        "sumW": 3.872680564136317,
+        "filterEff": 0.6152904109589041
+    },
+    "TTToHcToWAToMuMu-MHc100_MA95": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-100_MA-95_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 807893.0,
+        "sumsign": 807893.0,
+        "sumW": 0.4935358066088611,
+        "filterEff": 0.562726940289411
+    },
+    "TTToHcToWAToMuMu-MHc115_MA15": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-115_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 406270.0,
+        "sumsign": 406270.0,
+        "sumW": 366656.29726558924,
+        "filterEff": 0.6083288662356292
+    },
+    "TTToHcToWAToMuMu-MHc115_MA27": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-115_MA-27_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 400514.0,
+        "sumsign": 400514.0,
+        "sumW": 256723.24295055866,
+        "filterEff": 0.6687549570458928
+    },
+    "TTToHcToWAToMuMu-MHc115_MA42": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-115_MA-42_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 86864.0,
+        "sumsign": 86864.0,
+        "sumW": 7249.074202030897,
+        "filterEff": 0.694912
+    },
+    "TTToHcToWAToMuMu-MHc115_MA57": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-115_MA-57_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 268496.0,
+        "sumsign": 268496.0,
+        "sumW": 9054.923626374453,
+        "filterEff": 0.7001615384615385
+    },
+    "TTToHcToWAToMuMu-MHc115_MA70": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-115_MA-70_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 209355.0,
+        "sumsign": 209355.0,
+        "sumW": 2612.4443272249773,
+        "filterEff": 0.69785
+    },
+    "TTToHcToWAToMuMu-MHc115_MA83": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-115_MA-83_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 161945.0,
+        "sumsign": 161945.0,
+        "sumW": 486.5729902291205,
+        "filterEff": 0.6891276595744681
+    },
+    "TTToHcToWAToMuMu-MHc115_MA85": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-115_MA-85_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 233711.0,
+        "sumsign": 233711.0,
+        "sumW": 530.8303137058392,
+        "filterEff": 0.687385294117647
+    },
+    "TTToHcToWAToMuMu-MHc115_MA87": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-115_MA-87_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 799676.0,
+        "sumsign": 799676.0,
+        "sumW": 1343.1551072348375,
+        "filterEff": 0.6840233791272944
+    },
+    "TTToHcToWAToMuMu-MHc115_MA90": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-115_MA-90_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 250251.0,
+        "sumsign": 250251.0,
+        "sumW": 254.44397623976693,
+        "filterEff": 0.676354054054054
+    },
+    "TTToHcToWAToMuMu-MHc115_MA95": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-115_MA-95_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 232372.0,
+        "sumsign": 232372.0,
+        "sumW": 86.15966630299226,
+        "filterEff": 0.66392
+    },
+    "TTToHcToWAToMuMu-MHc115_MA100": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-115_MA-100_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 278189.0,
+        "sumsign": 278189.0,
+        "sumW": 27.260931677970802,
+        "filterEff": 0.6439200913242009
+    },
+    "TTToHcToWAToMuMu-MHc115_MA110": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-115_MA-110_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 408873.0,
+        "sumsign": 408873.0,
+        "sumW": 0.20458988908734455,
+        "filterEff": 0.5540404670019946
+    },
+    "TTToHcToWAToMuMu-MHc130_MA15": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 435537.0,
+        "sumsign": 435537.0,
+        "sumW": 675494.1392707825,
+        "filterEff": 0.6234363526274429
+    },
+    "TTToHcToWAToMuMu-MHc130_MA30": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-30_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 394314.0,
+        "sumsign": 394314.0,
+        "sumW": 722279.2377234697,
+        "filterEff": 0.6752449238556949
+    },
+    "TTToHcToWAToMuMu-MHc130_MA55": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-55_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 397275.0,
+        "sumsign": 397275.0,
+        "sumW": 38866.63125536591,
+        "filterEff": 0.7015175487543881
+    },
+    "TTToHcToWAToMuMu-MHc130_MA83": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-83_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 775805.0,
+        "sumsign": 775805.0,
+        "sumW": 9367.437908233143,
+        "filterEff": 0.697686444214222
+    },
+    "TTToHcToWAToMuMu-MHc130_MA85": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-130_MA-85_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 250379.0,
+        "sumsign": 250379.0,
+        "sumW": 2512.3698112461716,
+        "filterEff": 0.6954972222222222
+    },
+    "TTToHcToWAToMuMu-MHc130_MA90": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 383714.0,
+        "sumsign": 383714.0,
+        "sumW": 2320.003885857761,
+        "filterEff": 0.6952134029789632
+    },
+    "TTToHcToWAToMuMu-MHc130_MA95": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-130_MA-95_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 261434.0,
+        "sumsign": 261434.0,
+        "sumW": 883.5910261487588,
+        "filterEff": 0.6879842105263158
+    },
+    "TTToHcToWAToMuMu-MHc130_MA100": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-100_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 365719.0,
+        "sumsign": 365719.0,
+        "sumW": 623.9730252592126,
+        "filterEff": 0.6824057799024492
+    },
+    "TTToHcToWAToMuMu-MHc130_MA112": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-130_MA-112_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 258134.0,
+        "sumsign": 258134.0,
+        "sumW": 42.44169555456028,
+        "filterEff": 0.6535037974683544
+    },
+    "TTToHcToWAToMuMu-MHc130_MA125": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-130_MA-125_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 355413.0,
+        "sumsign": 355413.0,
+        "sumW": 0.12319296681974379,
+        "filterEff": 0.5427122096618785
+    },
+    "TTToHcToWAToMuMu-MHc145_MA15": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 408505.0,
+        "sumsign": 408505.0,
+        "sumW": 598309.8683825731,
+        "filterEff": 0.6322109469429067
+    },
+    "TTToHcToWAToMuMu-MHc145_MA35": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-35_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 392302.0,
+        "sumsign": 392302.0,
+        "sumW": 853402.7600212097,
+        "filterEff": 0.6822643478260869
+    },
+    "TTToHcToWAToMuMu-MHc145_MA45": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-145_MA-45_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 246584.0,
+        "sumsign": 246584.0,
+        "sumW": 430731.4361394644,
+        "filterEff": 0.6946028169014085
+    },
+    "TTToHcToWAToMuMu-MHc145_MA60": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-145_MA-60_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 172754.0,
+        "sumsign": 172754.0,
+        "sumW": 77170.84914344549,
+        "filterEff": 0.7051183673469388
+    },
+    "TTToHcToWAToMuMu-MHc145_MA80": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-145_MA-80_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 244241.0,
+        "sumsign": 244241.0,
+        "sumW": 7507.489259792492,
+        "filterEff": 0.6978314285714285
+    },
+    "TTToHcToWAToMuMu-MHc145_MA85": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-145_MA-85_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 206275.0,
+        "sumsign": 206275.0,
+        "sumW": 4361.5504889674485,
+        "filterEff": 0.6992372881355933
+    },
+    "TTToHcToWAToMuMu-MHc145_MA90": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-145_MA-90_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 230175.0,
+        "sumsign": 230175.0,
+        "sumW": 3285.283112410456,
+        "filterEff": 0.6975
+    },
+    "TTToHcToWAToMuMu-MHc145_MA92": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-92_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 798770.0,
+        "sumsign": 798770.0,
+        "sumW": 9659.635149141774,
+        "filterEff": 0.6970404338777166
+    },
+    "TTToHcToWAToMuMu-MHc145_MA95": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-145_MA-95_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 368891.0,
+        "sumsign": 368891.0,
+        "sumW": 3442.9975730748847,
+        "filterEff": 0.6947099811676083
+    },
+    "TTToHcToWAToMuMu-MHc145_MA100": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-145_MA-100_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 194014.0,
+        "sumsign": 194014.0,
+        "sumW": 1134.8983194688335,
+        "filterEff": 0.6929071428571428
+    },
+    "TTToHcToWAToMuMu-MHc145_MA120": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-145_MA-120_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 153858.0,
+        "sumsign": 153858.0,
+        "sumW": 63.04601205987274,
+        "filterEff": 0.6689478260869566
+    },
+    "TTToHcToWAToMuMu-MHc145_MA140": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-145_MA-140_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 387598.0,
+        "sumsign": 387598.0,
+        "sumW": 0.06997918338753095,
+        "filterEff": 0.530157297223362
+    },
+    "TTToHcToWAToMuMu-MHc160_MA15": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 430596.0,
+        "sumsign": 430596.0,
+        "sumW": 254651.507491529,
+        "filterEff": 0.6336310220154244
+    },
+    "TTToHcToWAToMuMu-MHc160_MA17": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-160_MA-17_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 291538.0,
+        "sumsign": 291538.0,
+        "sumW": 192125.69860470295,
+        "filterEff": 0.6359242424242424
+    },
+    "TTToHcToWAToMuMu-MHc160_MA20": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-20_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 392308.0,
+        "sumsign": 392308.0,
+        "sumW": 295167.2393864989,
+        "filterEff": 0.6420174943335706
+    },
+    "TTToHcToWAToMuMu-MHc160_MA25": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-25_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 416185.0,
+        "sumsign": 416185.0,
+        "sumW": 367661.4740985632,
+        "filterEff": 0.6507690046409227
+    },
+    "TTToHcToWAToMuMu-MHc160_MA30": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-30_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 405432.0,
+        "sumsign": 405432.0,
+        "sumW": 396847.04247552156,
+        "filterEff": 0.6647690380465794
+    },
+    "TTToHcToWAToMuMu-MHc160_MA35": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-35_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 386455.0,
+        "sumsign": 386455.0,
+        "sumW": 399839.9804992676,
+        "filterEff": 0.6756655162405895
+    },
+    "TTToHcToWAToMuMu-MHc160_MA40": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-40_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 400784.0,
+        "sumsign": 400784.0,
+        "sumW": 419764.43629562855,
+        "filterEff": 0.6821205127681447
+    },
+    "TTToHcToWAToMuMu-MHc160_MA45": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-45_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 419725.0,
+        "sumsign": 419725.0,
+        "sumW": 426712.0904995799,
+        "filterEff": 0.6894549408815693
+    },
+    "TTToHcToWAToMuMu-MHc160_MA50": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-50_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 418459.0,
+        "sumsign": 418459.0,
+        "sumW": 394397.8600014448,
+        "filterEff": 0.6930320680877562
+    },
+    "TTToHcToWAToMuMu-MHc160_MA60": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-60_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 382032.0,
+        "sumsign": 382032.0,
+        "sumW": 259789.88930994272,
+        "filterEff": 0.6965044603545312
+    },
+    "TTToHcToWAToMuMu-MHc160_MA70": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-70_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 388062.0,
+        "sumsign": 388062.0,
+        "sumW": 125946.61536878347,
+        "filterEff": 0.6990772933457754
+    },
+    "TTToHcToWAToMuMu-MHc160_MA80": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-160_MA-80_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 198245.0,
+        "sumsign": 198245.0,
+        "sumW": 8542.895259805024,
+        "filterEff": 0.6964659863945578
+    },
+    "TTToHcToWAToMuMu-MHc160_MA85": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-85_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 397932.0,
+        "sumsign": 397932.0,
+        "sumW": 8564.410902753472,
+        "filterEff": 0.69604185360683
+    },
+    "TTToHcToWAToMuMu-MHc160_MA90": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-160_MA-90_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 208856.0,
+        "sumsign": 208856.0,
+        "sumW": 2904.0033453069627,
+        "filterEff": 0.6961866666666666
+    },
+    "TTToHcToWAToMuMu-MHc160_MA95": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-95_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 760949.0,
+        "sumsign": 760949.0,
+        "sumW": 7130.011647697538,
+        "filterEff": 0.6941052739117506
+    },
+    "TTToHcToWAToMuMu-MHc160_MA98": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-98_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 834740.0,
+        "sumsign": 834740.0,
+        "sumW": 6178.261849172413,
+        "filterEff": 0.6937083905024595
+    },
+    "TTToHcToWAToMuMu-MHc160_MA105": {
+        "isMC": 1,
+        "PD": "TTToHcToWA_AToMuMu_MHc-160_MA-105_MultiLepFilter_TuneCP5_cff",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 202957.0,
+        "sumsign": 202957.0,
+        "sumW": 849.6413433030248,
+        "filterEff": 0.6903299319727891
+    },
+    "TTToHcToWAToMuMu-MHc160_MA115": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-115_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 393024.0,
+        "sumsign": 393024.0,
+        "sumW": 653.9003895178903,
+        "filterEff": 0.6851679779364978
+    },
+    "TTToHcToWAToMuMu-MHc160_MA120": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-120_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 404845.0,
+        "sumsign": 404845.0,
+        "sumW": 393.27907404868165,
+        "filterEff": 0.6811203588270823
+    },
+    "TTToHcToWAToMuMu-MHc160_MA125": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-125_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 399558.0,
+        "sumsign": 399558.0,
+        "sumW": 210.62014068773715,
+        "filterEff": 0.677464970226388
+    },
+    "TTToHcToWAToMuMu-MHc160_MA135": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-135_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 410663.0,
+        "sumsign": 410663.0,
+        "sumW": 45.564157227745454,
+        "filterEff": 0.660260687395393
+    },
+    "TTToHcToWAToMuMu-MHc160_MA145": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-145_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 388479.0,
+        "sumsign": 388479.0,
+        "sumW": 3.836372384444985,
+        "filterEff": 0.618035194114905
+    },
+    "TTToHcToWAToMuMu-MHc160_MA155": {
+        "isMC": 1,
+        "PD": "TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "xsec_formula": "(923.6/831.76)*0.015",
+        "nmc": 377883.0,
+        "sumsign": 377883.0,
+        "sumW": 0.017783684270593625,
+        "filterEff": 0.5109136829353372
+    },
+    "test_TTToHcToWAToMuMu-MHc70_MA15": {
+        "isMC": 1,
+        "PD": "test_TTToHcToWAToMuMu_MHc-70_MA-15_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "nmc": 200385.0,
+        "sumsign": 200385.0,
+        "sumW": 1327.0229312619194,
+        "filterEff": 0.6165692307692308
+    },
+    "test_TTToHcToWAToMuMu-MHc130_MA90": {
+        "isMC": 1,
+        "PD": "test_TTToHcToWAToMuMu_MHc-130_MA-90_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "nmc": 242170.0,
+        "sumsign": 242170.0,
+        "sumW": 1464.6916761249304,
+        "filterEff": 0.6919380281690141
+    },
+    "test_TTToHcToWAToMuMu-MHc160_MA155": {
+        "isMC": 1,
+        "PD": "test_TTToHcToWAToMuMu_MHc-160_MA-155_MultiLepFilter_TuneCP5_13p6TeV_madgraph-pythia8",
+        "xsec": 0.016656246994325285,
+        "nmc": 180788.0,
+        "sumsign": 180788.0,
+        "sumW": 0.008510655174326587,
+        "filterEff": 0.5092619718309859
     }
 }
